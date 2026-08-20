@@ -20,20 +20,12 @@ export const case04: CaseDef = {
   vitals: '血圧 152/88　脈拍 72・整（ペーシング調律）　SpO2 97%（room air）　体温 36.3℃　意識清明',
 
   findings: {
-    hx_onset: '今朝、目覚めて布団の中で寝返りを打ったところ、突然の回転性めまいが出現した。',
-    hx_duration: '「30秒から1分くらいで、じっとしていれば治まります」。持続することはない。',
-    hx_trigger:
-      '寝返りで誘発される。右を向いても左を向いても誘発されるが、右を向いたときのほうが強い。じっとしていればめまいはない。',
-    hx_course: '同様のめまいは初めて。今日はすでに4〜5回繰り返している。',
-    hx_assoc: '嘔気は軽度。嘔吐なし。頭痛・複視・しびれ・脱力・構音障害はない。',
-    hx_ear: '難聴・耳鳴・耳閉感はない。',
+    hx_course:
+      '今朝、目覚めて布団の中で寝返りを打った瞬間、突然の回転性めまいが出現した。「30秒から1分くらいで、じっとしていれば治まります」。寝返りで誘発され、右を向いたときのほうが強い。同様のめまいは初めてで、今日はすでに4〜5回繰り返している。',
+    hx_assoc: '嘔気は軽度。嘔吐なし。頭痛・複視・しびれ・脱力・構音障害はない。難聴・耳鳴・耳閉感もない。',
     hx_past:
-      '高血圧症。甲状腺機能低下症。3年前に完全房室ブロックに対して恒久的ペースメーカーを植込んでいる。',
-    hx_device:
-      '左前胸部に手術痕があり、皮下に硬い箱状のものが触れる。「3年前に心臓のペースメーカーを入れました」と話す。\n\n手帳を確認すると、MRI非対応の機種である。',
+      '高血圧症。甲状腺機能低下症。3年前に完全房室ブロックに対して恒久的ペースメーカーを植込んでいる。左前胸部に手術痕があり、皮下に硬い箱状のものが触れる。\n\n手帳を確認すると、MRI非対応の機種である。喫煙歴なし。',
     hx_meds: 'アムロジピン 5mg/日、レボチロキシンナトリウム 50μg/日。抗凝固薬は内服していない。',
-    hx_social: '喫煙なし。飲酒なし。',
-    hx_witness: '付き添いの息子「朝、母が寝室で動けなくなっていると呼ばれました。今は落ち着いています」。',
 
     eye_spont: '座位・仰臥位とも、自然頭位では眼振を認めない。',
     eye_frenzel: 'Frenzel眼鏡下（固視を外した状態）でも自発眼振を認めない。',
@@ -48,28 +40,21 @@ export const case04: CaseDef = {
     eye_hit: 'HIT：陰性（補償性サッケードなし）。……本例は体位で誘発される短時間のめまい（t-EVS）であり、HITは解釈できない。',
     eye_skew: '交代遮蔽で垂直方向のずれを認めない。Test of Skew：陰性。',
 
-    nr_vitals: '血圧 152/88、脈拍 72・整（ペーシング調律）、SpO2 97%、体温 36.3℃。',
-    nr_cpss: 'CPSS：正常（0点）。顔面下垂なし、上肢下垂なし、言語障害なし。',
-    nr_fnf: '指鼻試験：左右とも正常。',
-    nr_hks: '踵膝脛試験：左右とも正常。',
-    nr_rapid: '回内回外運動：左右とも正常。',
-    nr_gait: '発作間欠期は独歩可能。年齢相応のやや慎重な歩き方だが、失調はない。',
-    nr_tandem: '継ぎ足歩行：ゆっくりだが可能。体幹が崩れることはない。',
-    nr_romberg_o: '開眼での立位保持は安定している。',
-    nr_romberg_c: '閉眼でも著明な動揺は認めない。',
-    nr_onefoot: '片足立ち：左右とも数秒は保持できる。年齢相応の範囲。',
-    nr_diplopia: '眼球運動は全方向で正常。複視なし。',
-    nr_face_alt: '顔面の感覚は左右とも正常。',
-    nr_face_sim: '両側同時刺激でも左右差を認めない。',
-    nr_swallow: '嚥下は正常。咽頭反射も左右差なし。嗄声なし。',
-    nr_horner: '瞳孔不同・眼瞼下垂を認めない。',
-    nr_hearing: '聴力は左右とも正常。',
-    nr_limb: '四肢の筋力・感覚とも正常。',
-    nr_orthostatic: '起立後3分の血圧低下は認めない。',
+    ex_cpss: 'CPSS：正常（0点）。Barré徴候なし、口角下垂なし、構音障害なし。',
+    ex_ataxia: 'Grade 0：歩行失調を認めない。年齢相応のやや慎重な歩き方だが、独歩可能でふらつきもない。',
+    ex_fnf: '指鼻試験：左右とも正常。',
+    ex_hks: '踵膝脛試験：左右とも正常。',
+    ex_rapid: '回内回外運動：左右とも正常。',
+    ex_diplopia: '眼球運動は全方向で正常。複視なし。',
+    ex_face: '顔面の感覚は左右差なし。両側同時に触れても差を認めない。',
+    ex_swallow: '水を飲ませても咳込みなし。軟口蓋の挙上は左右対称。「あー」と発声させても嗄声はない。',
+    ex_horner: '瞳孔不同なし、眼瞼下垂なし、顔面の発汗低下もない。Horner徴候：陰性。',
+    ex_hearing: '耳元で指をこすった音を左右とも同様に聴取できる。聴力低下はない。',
+    ex_limb: '四肢に脱力はなく、感覚も正常。',
 
     tx_fluid: '輸液を開始した。',
-    tx_atarax: 'アタラックスP 25mg + 生食50mLを15分で投与した。めまいの不安が和らいだ様子。',
-    tx_primperan: 'プリンペラン1A + 生食50mLを15分で投与した。軽度の嘔気は和らいだ。',
+    tx_atarax: 'アタラックスP 1A（25mg）+ 生食50mLを15分で投与した。めまいの不安が和らいだ様子。',
+    tx_primperan: 'プリンペラン 1A（10mg）+ 生食50mLを15分で投与した。軽度の嘔気は和らいだ。',
     tx_fall: '起床時はいきなり起き上がらず、いったん座ってから立つよう指導した。手すりの使用も勧めた。',
   },
 
@@ -93,34 +78,37 @@ export const case04: CaseDef = {
   redFlagActions: [],
 
   required: [
-    'hx_onset',
-    'hx_duration',
-    'hx_trigger',
+    'hx_course',
+    'hx_assoc',
     'hx_past',
-    'hx_device',
     'eye_spont',
     'eye_dh_r',
     'eye_dh_l',
     'eye_roll_r',
     'eye_roll_l',
-    'nr_cpss',
-    'nr_gait',
-    'as_grace',
-    'as_criteria',
+    'ex_cpss',
+    'ex_ataxia',
+    'as_dx',
+    'im_criteria',
   ],
-  recommended: ['hx_course', 'hx_meds', 'hx_ear', 'eye_frenzel', 'eye_gaze', 'nr_tandem', 'nr_hearing'],
+  recommended: ['hx_meds', 'eye_frenzel', 'eye_gaze', 'ex_fnf', 'ex_hearing'],
   penalties: [
     { id: 'eye_hit', points: -3, reason: 'Head Impulse TestはAVSでのみ意味を持つ。t-EVSに実施しても解釈できない' },
   ],
 
   vestibularType: 't-EVS',
+  subtype: 'sub_hc_bppv',
+  ataxiaGrade: 0,
 
   // 高齢・高血圧・不整脈というリスク因子はあるが、眼振は典型的な頭位性で
   // 神経所見も歩行も正常。4条件のいずれにも該当しない。
   criteria: [false, false, false, false],
 
-  mriStance: 'contraindicated',
-  mriContraindication: '3年前に植込まれた恒久的ペースメーカーはMRI非対応機種であり、撮影は禁忌である。',
+  imagingIndicated: false,
+  imagingPreferred: null,
+  mriContraindicated: '3年前に植込まれた恒久的ペースメーカーはMRI非対応機種であり、撮影は禁忌である。',
+  ctResult:
+    '頭部CT：頭蓋内出血なし。明らかな低吸収域も指摘できない。……ただし、この所見でそもそも画像を撮る必要はなかった。',
   mriResult:
     '……MRI室から放射線技師が飛んできた。\n\n「先生、この患者さんペースメーカー入っています。手帳を見ましたか。MRI非対応の機種です。撮れません」\n\n患者はすでに検査着に着替え、ストレッチャーでMRI室の前まで運ばれていた。',
   day2: null,
@@ -138,7 +126,7 @@ export const case04: CaseDef = {
 
   treatment: {
     required: ['tx_fall'],
-    forbidden: [{ id: 'tx_steroid', points: -5, reason: 'BPPVにステロイドの適応はない' }],
+    forbidden: [],
   },
 
   disposition: {

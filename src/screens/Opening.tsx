@@ -16,8 +16,8 @@ export function TitleScreen({ dispatch }: { dispatch: (a: Action) => void }) {
       <Win>
         <div className="menu">
           <MenuItem
-            label="ぼうけんをする"
-            hint="症例を診る"
+            label="かんじゃをみる"
+            hint="症例を選ぶ"
             onSelect={() => {
               unlockAudio()
               dispatch({ type: 'GOTO', phase: 'select' })
@@ -88,9 +88,9 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
 export function BriefScreen({ caseDef, dispatch }: { caseDef: CaseDef; dispatch: (a: Action) => void }) {
   return (
     <div className="stack grow">
-      <Win title="救急外来">
+      <Win title="夜間救急外来">
         <p className="msg small dim" style={{ margin: '0 0 10px' }}>
-          {caseDef.age}{caseDef.gender}が来院した。
+          {caseDef.age}{caseDef.gender}が、めまいを訴えて救急車で搬送されてきた。
         </p>
         <TypedText text={caseDef.chiefComplaint} />
       </Win>

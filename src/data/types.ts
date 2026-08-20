@@ -30,7 +30,7 @@ export type Category = 'bppv' | 'peripheral' | 'central'
 export type VestibularType = 'AVS' | 's-EVS' | 't-EVS'
 export type Side = 'R' | 'L' | null
 
-export type ActionGroup = 'history' | 'eye' | 'neuro' | 'assess' | 'study' | 'tx'
+export type ActionGroup = 'history' | 'eye' | 'exam' | 'imaging' | 'assess' | 'tx'
 
 export interface ActionDef {
   id: string
@@ -70,21 +70,24 @@ export interface CaseDef {
   penalties: { id: string; points: number; reason: string }[]
 
   vestibularType: VestibularType
+  /** みたてるで問う細かい鑑別の正解（actions.ts の SUBTYPES の id） */
+  subtype: string
+
+  /** 起立歩行での失調グレード（0〜3） */
+  ataxiaGrade: 0 | 1 | 2 | 3
 
   /** HOWTO 4条件の正解（true = 当てはまる） */
   criteria: [boolean, boolean, boolean, boolean]
 
-  /**
-   * MRIに対する立ち位置。
-   * - 'indicated'      : 撮るべき。撮らないと減点
-   * - 'optional'       : 撮っても撮らなくてもよい。減点しない
-   * - 'unnecessary'    : 典型的な末梢性で不要。撮ると軽く減点
-   * - 'contraindicated': 禁忌。撮ると大幅減点
-   */
-  mriStance: 'indicated' | 'optional' | 'unnecessary' | 'contraindicated'
-  /** MRIが禁忌である理由（ペースメーカーなど）。'contraindicated' のとき必須 */
-  mriContraindication?: string
-  /** MRIを撮ったときに返る所見 */
+  /** そもそも画像を撮るべき症例か */
+  imagingIndicated: boolean
+  /** 撮るならどちらが第一選択か。撮らないのが正解なら null */
+  imagingPreferred: 'ct' | 'mri' | null
+  /** MRIが禁忌か。禁忌ならCTを選ぶのが正解になる */
+  mriContraindicated?: string
+  /** 頭部CTを撮ったときに返る所見 */
+  ctResult: string
+  /** 頭部MRIを撮ったときに返る所見 */
   mriResult: string
   /** 入院して翌日に再検した場合の所見。null なら第2病日の展開なし */
   day2: string | null

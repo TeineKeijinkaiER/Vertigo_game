@@ -1,4 +1,10 @@
-import { ACTION_MAP, DISPOSITION_MAP, IMAGING_CRITERIA } from '../data/actions'
+import {
+  ACTION_MAP,
+  ATAXIA_GRADES,
+  DISPOSITION_MAP,
+  IMAGING_CRITERIA,
+  SUBTYPE_LABEL,
+} from '../data/actions'
 import { MANEUVER_KINDS } from '../data/maneuvers'
 import type { CaseDef } from '../data/types'
 import type { GameState } from './state'
@@ -29,20 +35,20 @@ export interface ScoreResult {
   redFlagsMissed: string[]
   diagnosisCorrect: boolean
   sideCorrect: boolean
-  /** 入院を選び、翌日の再検で診断が確定する展開に入ったか */
   showsDay2: boolean
 }
 
 const MAX = {
-  process: 25,
-  recommended: 5,
+  process: 22,
+  recommended: 4,
   grace: 5,
+  subtype: 5,
   criteria: 8,
-  mri: 12,
+  imaging: 12,
   diagnosis: 15,
   side: 5,
   maneuver: 5,
-  treatment: 5,
+  treatment: 4,
   disposition: 15,
 }
 
@@ -55,7 +61,7 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
   const deductions: Deduction[] = []
   const did = (id: string) => s.performed.includes(id)
 
-  // ── 診察プロセス（必須）
+  // ── 診察プロセス
   const missedRequired = c.required.filter((id) => !did(id))
   const requiredRate = c.required.length === 0 ? 1 : (c.required.length - missedRequired.length) / c.required.length
   lines.push({
@@ -67,7 +73,6 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
       : ['必要な診察をすべて行っています'],
   })
 
-  // ── 診察プロセス（推奨）
   const doneRec = c.recommended.filter(did)
   const recRate = c.recommended.length === 0 ? 1 : doneRec.length / c.recommended.length
   lines.push({
@@ -80,24 +85,37 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
         : [`さらに拾えた所見：${c.recommended.filter((id) => !did(id)).map(label).join('、')}`],
   })
 
-  // ── GRACE-3 の分類
-  const graceAssessed = did('as_grace')
-  const graceOk = graceAssessed && s.vestibularAnswer === c.vestibularType
+  // ── みたてる：GRACE-3 の分類
+  const assessed = did('as_dx')
+  const graceOk = assessed && s.vestibularAnswer === c.vestibularType
   lines.push({
-    label: 'めまいのタイプ（GRACE-3）',
+    label: 'めまいの分類（GRACE-3）',
     earned: graceOk ? MAX.grace : 0,
     max: MAX.grace,
     notes: [
-      s.vestibularAnswer === null
-        ? `めまいのタイプを分類していません。正解は ${c.vestibularType}`
+      !assessed
+        ? `めまいを分類していません。正解は ${c.vestibularType}`
         : graceOk
           ? `正解：${c.vestibularType}`
           : `あなたの判定：${s.vestibularAnswer} ／ 正解：${c.vestibularType}`,
     ],
   })
 
+  // ── みたてる：細かい鑑別
+  const subOk = assessed && s.subtypeAnswer === c.subtype
+  lines.push({
+    label: '鑑別',
+    earned: subOk ? MAX.subtype : 0,
+    max: MAX.subtype,
+    notes: [
+      subOk
+        ? `鑑別も正しく絞れています：${SUBTYPE_LABEL.get(c.subtype) ?? c.subtype}`
+        : `鑑別の正解：${SUBTYPE_LABEL.get(c.subtype) ?? c.subtype}${s.subtypeAnswer ? `（あなたの選択：${SUBTYPE_LABEL.get(s.subtypeAnswer) ?? s.subtypeAnswer}）` : ''}`,
+    ],
+  })
+
   // ── HOWTO 4条件
-  const criteriaAssessed = did('as_criteria')
+  const criteriaAssessed = did('im_criteria')
   const hits = c.criteria.filter((v, i) => v === s.criteriaAnswers[i]).length
   const criteriaNotes = criteriaAssessed
     ? c.criteria
@@ -111,52 +129,59 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     notes: criteriaNotes.length ? criteriaNotes : ['4条件すべて正しく判定できています'],
   })
 
-  // ── MRIを撮るかどうかの判断
-  const tookMri = did('st_mri')
-  let mriEarned = 0
-  const mriNotes: string[] = []
-  switch (c.mriStance) {
-    case 'contraindicated':
-      mriEarned = tookMri ? 0 : MAX.mri
-      mriNotes.push(
-        tookMri
-          ? `この患者にMRIは禁忌です。${c.mriContraindication ?? ''}`
-          : 'MRIが禁忌であることに気づき、撮影を避けています',
+  // ── 画像検査：撮るか、撮るならCTかMRIか
+  const tookCt = did('im_ct')
+  const tookMri = did('im_mri')
+  const tookAny = tookCt || tookMri
+  let imagingEarned = 0
+  const imagingNotes: string[] = []
+
+  if (c.mriContraindicated && tookMri) {
+    imagingEarned = 0
+    imagingNotes.push(`この患者にMRIは禁忌です。${c.mriContraindicated}`)
+    deductions.push({
+      label: '頭部MRIを撮る',
+      points: -30,
+      reason: `MRI禁忌の患者に撮影を指示している。${c.mriContraindicated}`,
+    })
+  } else if (c.imagingIndicated) {
+    if (!tookAny) {
+      imagingEarned = 0
+      imagingNotes.push(
+        `この症例では画像検査が必要でした（${c.imagingPreferred === 'ct' ? '頭部CT' : '頭部MRI'}）`,
       )
-      if (tookMri) {
-        deductions.push({
-          label: '頭部MRIを撮る',
-          points: -30,
-          reason: `MRI禁忌の患者に撮影を指示している。${c.mriContraindication ?? ''}`,
-        })
-      }
-      break
-    case 'indicated':
-      mriEarned = tookMri ? MAX.mri : 0
-      mriNotes.push(tookMri ? 'MRIの適応を正しく判断しています' : 'この症例ではMRIを撮るべきでした')
-      if (!tookMri) {
-        deductions.push({
-          label: 'MRIを撮らなかった',
-          points: -10,
-          reason: '中枢性を疑う所見が揃っており、MRIを撮るべきでした',
-        })
-      }
-      break
-    case 'unnecessary':
-      mriEarned = tookMri ? Math.round(MAX.mri / 2) : MAX.mri
-      mriNotes.push(tookMri ? '所見が典型的であり、MRIは不要でした' : 'MRIが不要な症例と正しく判断しています')
-      if (tookMri) {
-        deductions.push({ label: '頭部MRIを撮る', points: -3, reason: '所見が典型的でありMRIは不要でした' })
-      }
-      break
-    case 'optional':
-      mriEarned = MAX.mri
-      mriNotes.push(
-        tookMri ? 'リスク因子を考えてMRIを撮る判断は妥当です' : '所見からMRIを省略する判断は妥当です',
+      deductions.push({ label: '画像を撮らなかった', points: -10, reason: '中枢性を疑う所見が揃っており、画像検査が必要でした' })
+    } else if ((c.imagingPreferred === 'ct' && tookCt) || (c.imagingPreferred === 'mri' && tookMri)) {
+      imagingEarned = MAX.imaging
+      imagingNotes.push(
+        c.imagingPreferred === 'ct'
+          ? '第一選択としてCTを選べています'
+          : '画像検査の適応とMRIの選択、いずれも正しく判断しています',
       )
-      break
+    } else {
+      imagingEarned = Math.round(MAX.imaging / 2)
+      imagingNotes.push(
+        c.imagingPreferred === 'ct'
+          ? 'この症例の第一選択はCTでした'
+          : 'この症例の第一選択はMRIでした',
+      )
+    }
+  } else {
+    // 撮る必要がない症例
+    if (!tookAny) {
+      imagingEarned = MAX.imaging
+      imagingNotes.push('所見が典型的であり、画像検査が不要な症例と正しく判断しています')
+    } else {
+      imagingEarned = Math.round(MAX.imaging / 2)
+      imagingNotes.push('所見が典型的であり、この症例で画像検査は不要でした')
+      deductions.push({
+        label: tookMri ? '頭部MRIを撮る' : '頭部CTを撮る',
+        points: -3,
+        reason: '所見が典型的であり画像検査は不要でした',
+      })
+    }
   }
-  lines.push({ label: 'MRIを撮るかの判断', earned: mriEarned, max: MAX.mri, notes: mriNotes })
+  lines.push({ label: '画像検査の判断', earned: imagingEarned, max: MAX.imaging, notes: imagingNotes })
 
   // ── 診断
   const dxCorrect = s.diagnosisAnswer === c.diagnosis.correct
@@ -178,19 +203,19 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     })
   }
 
-  // ── 耳石置換法（適応のある症例のみ採点）
-  const maneuverDone = s.maneuver
+  // ── 耳石置換法
+  const attempt = s.maneuver
   if (c.maneuver) {
-    const kindOk = maneuverDone?.kind === c.maneuver.kind
-    const sideOk = maneuverDone?.side === c.maneuver.side
-    const perfect = Boolean(maneuverDone?.perfect) && kindOk && sideOk
+    const kindOk = attempt?.kind === c.maneuver.kind
+    const sideOk = attempt?.side === c.maneuver.side
+    const perfect = Boolean(attempt?.perfect) && kindOk && sideOk
     const correctLabel = `${MANEUVER_KINDS.find((m) => m.id === c.maneuver!.kind)?.label}（${c.maneuver.side === 'R' ? '右' : '左'}）`
     lines.push({
       label: '耳石置換法',
       earned: perfect ? MAX.maneuver : kindOk && sideOk ? Math.round(MAX.maneuver / 2) : 0,
       max: MAX.maneuver,
       notes: [
-        !maneuverDone
+        !attempt
           ? `耳石置換法を行っていません。正解は ${correctLabel}`
           : perfect
             ? `${correctLabel} を正しい手順で施行できています`
@@ -201,12 +226,8 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
                 : '手技と患側は正しいものの、手順に誤りがあります',
       ],
     })
-  } else if (maneuverDone) {
-    deductions.push({
-      label: '耳石置換法',
-      points: -10,
-      reason: 'この症例に耳石置換法の適応はありません',
-    })
+  } else if (attempt) {
+    deductions.push({ label: '耳石置換法', points: -10, reason: 'この症例に耳石置換法の適応はありません' })
   }
 
   // ── その他の治療
@@ -240,7 +261,15 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     deductions.push({ label: label(dispoForbidden.id), points: dispoForbidden.points, reason: dispoForbidden.reason })
   }
 
-  // ── 減点（診察・治療）
+  // ── 失調グレードの振り返り（採点はしないが講評で必ず触れる）
+  if (!did('ex_ataxia')) {
+    deductions.push({
+      label: '起立・歩行を診ていない',
+      points: -8,
+      reason: '起立歩行の失調グレードを評価していません。HOWTOの通り、起立歩行は指鼻試験より感度の高い診察です',
+    })
+  }
+
   for (const p of c.penalties) {
     if (did(p.id)) deductions.push({ label: label(p.id), points: p.points, reason: p.reason })
   }
@@ -278,3 +307,5 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     showsDay2: dispoId === 'dp_admit' && c.day2 !== null,
   }
 }
+
+export { ATAXIA_GRADES }

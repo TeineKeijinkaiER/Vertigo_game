@@ -128,12 +128,22 @@ export function Nystagmus({ spec }: { spec: NystagmusSpec }) {
     <figure className="nystagmus">
       <svg viewBox="0 0 260 118" role="img" aria-label={spec.caption ?? '眼振の所見'}>
         {spec.frenzel && (
-          <>
-            <ellipse cx={68} cy={62} rx={52} ry={40} fill="none" stroke="#ffd75e" strokeWidth={3} opacity={0.7} />
-            <ellipse cx={192} cy={62} rx={52} ry={40} fill="none" stroke="#ffd75e" strokeWidth={3} opacity={0.7} />
-            <line x1={120} y1={62} x2={140} y2={62} stroke="#ffd75e" strokeWidth={3} opacity={0.7} />
-          </>
+          <g>
+            {/* Frenzel眼鏡はゴーグル。顔全体を覆うフレームとバンドを描く */}
+            <rect x={6} y={16} width={248} height={92} rx={26} fill="#12183c" stroke="#5a6088" strokeWidth={3} />
+            <rect x={0} y={52} width={10} height={16} rx={3} fill="#5a6088" />
+            <rect x={250} y={52} width={10} height={16} rx={3} fill="#5a6088" />
+            {/* 拡大レンズ（強い凸レンズ）のリング */}
+            <circle cx={68} cy={62} r={40} fill="#0a0f2e" stroke="#ffd75e" strokeWidth={3} />
+            <circle cx={68} cy={62} r={33} fill="none" stroke="#5a6088" strokeWidth={1.5} />
+            <circle cx={192} cy={62} r={40} fill="#0a0f2e" stroke="#ffd75e" strokeWidth={3} />
+            <circle cx={192} cy={62} r={33} fill="none" stroke="#5a6088" strokeWidth={1.5} />
+            {/* 内部照明の反射 */}
+            <path d="M44 40 A40 40 0 0 1 60 28" fill="none" stroke="#8fa8e8" strokeWidth={2.5} opacity={0.7} />
+            <path d="M168 40 A40 40 0 0 1 184 28" fill="none" stroke="#8fa8e8" strokeWidth={2.5} opacity={0.7} />
+          </g>
         )}
+
         {/* 検者から見た図：画面左が患者の右眼 */}
         <Eye cx={68} label="右眼" offsetRef={(el) => (rightEye.current = el)} />
         <Eye cx={192} label="左眼" offsetRef={(el) => (leftEye.current = el)} />

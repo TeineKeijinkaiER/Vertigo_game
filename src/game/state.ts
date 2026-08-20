@@ -1,5 +1,6 @@
 import type { ManeuverAttempt } from '../data/maneuvers'
-import type { Side, VestibularType } from '../data/types'
+import type { VestibularChoice } from '../data/actions'
+import type { Side } from '../data/types'
 
 /**
  * 診察を終えると、すぐに鑑別診断 → 方針決定に進む。
@@ -20,7 +21,8 @@ export interface GameState {
   /** 実施した診察・検査・治療コマンド（順序を保つ） */
   performed: string[]
   log: LogEntry[]
-  vestibularAnswer: VestibularType | null
+  vestibularAnswer: VestibularChoice | null
+  subtypeAnswer: string | null
   criteriaAnswers: boolean[]
   /** 耳石置換法の実施内容。組み立てを誤っていても記録する */
   maneuver: ManeuverAttempt | null
@@ -35,6 +37,7 @@ export const initialState: GameState = {
   performed: [],
   log: [],
   vestibularAnswer: null,
+  subtypeAnswer: null,
   criteriaAnswers: [false, false, false, false],
   maneuver: null,
   diagnosisAnswer: null,
@@ -46,9 +49,10 @@ export type Action =
   | { type: 'GOTO'; phase: Phase }
   | { type: 'START_CASE'; caseId: number }
   | { type: 'PERFORM'; entry: LogEntry }
-  | { type: 'SET_VESTIBULAR'; value: VestibularType }
+  | { type: 'SET_VESTIBULAR'; value: VestibularChoice }
+  | { type: 'SET_SUBTYPE'; value: string }
   | { type: 'TOGGLE_CRITERION'; index: number }
-  | { type: 'CONFIRM_ASSESS'; id: 'as_grace' | 'as_criteria' }
+  | { type: 'CONFIRM_ASSESS'; id: 'as_dx' | 'im_criteria' }
   | { type: 'SET_MANEUVER'; attempt: ManeuverAttempt; entry: LogEntry }
   | { type: 'SET_DIAGNOSIS'; value: string }
   | { type: 'SET_SIDE'; value: Side }
@@ -72,7 +76,11 @@ export function reducer(state: GameState, action: Action): GameState {
       }
 
     case 'SET_VESTIBULAR':
-      return { ...state, vestibularAnswer: action.value }
+      // 分類を選び直したら細かい鑑別はいったん白紙に戻す
+      return { ...state, vestibularAnswer: action.value, subtypeAnswer: null }
+
+    case 'SET_SUBTYPE':
+      return { ...state, subtypeAnswer: action.value }
 
     case 'TOGGLE_CRITERION': {
       const next = [...state.criteriaAnswers]

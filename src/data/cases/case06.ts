@@ -13,17 +13,11 @@ export const case06: CaseDef = {
   vitals: '血圧 156/92　脈拍 88・整　SpO2 98%（room air）　体温 36.8℃　意識清明（会話は可能だが顔面蒼白）',
 
   findings: {
-    hx_onset: '昨日の午後、突然、激しい回転性めまいが出現。前触れはなかった。',
-    hx_duration: '発症から24時間以上、めまいは途切れることなく持続している。じっとしていても止まらない。',
-    hx_trigger:
-      '頭を動かすと一過性に増強するが、頭位を戻しても消えない。特定の体位で誘発されるのではなく、常に存在している。',
-    hx_course: '過去に同様のめまい発作はない。今回が初めて。',
-    hx_assoc: '嘔吐を3回。頭痛・複視・しびれ・脱力・構音障害・嚥下障害はない。',
-    hx_ear: '難聴・耳鳴・耳閉感はない。',
-    hx_past: '1週間前に発熱と咽頭痛を伴う感冒様症状があった。高血圧症。',
+    hx_course:
+      '昨日の午後、突然、激しい回転性めまいが出現した。前触れはなかった。発症から24時間以上、めまいは途切れることなく持続している。頭を動かすと一過性に増強するが、頭位を戻しても消えない。特定の体位で誘発されるのではなく、常に存在している。過去に同様のめまい発作はない。',
+    hx_assoc: '嘔吐を3回。頭痛・複視・しびれ・脱力・構音障害・嚥下障害はない。難聴・耳鳴・耳閉感もない。',
+    hx_past: '1週間前に発熱と咽頭痛を伴う感冒様症状があった。高血圧症。喫煙なし。体内にデバイスは入っていない。',
     hx_meds: 'アムロジピン 5mg/日。抗生物質・抗ウイルス薬は内服していない。',
-    hx_social: '喫煙なし。飲酒は週2回程度。',
-    hx_witness: '妻「昨日から一歩も歩けていません。トイレも這っていく状態でした」。',
 
     eye_spont:
       '座位で右向きの水平回旋性眼振を認める。方向は不変で、仰臥位でも持続する。Alexanderの法則に従い右方注視で増強する。',
@@ -38,30 +32,23 @@ export const case06: CaseDef = {
       'HIT：左側陽性。左方への急速頭位変換で、明らかな補償性サッケード（掻き戻し眼運動）が観察される。右側は陰性。',
     eye_skew: '交代遮蔽で垂直方向のずれを認めない。Test of Skew：陰性。',
 
-    nr_vitals: '血圧 156/92、脈拍 88・整、SpO2 98%、体温 36.8℃。',
-    nr_cpss: 'CPSS：正常（0点）。顔面下垂なし、上肢下垂なし、言語障害なし。',
-    nr_fnf: '指鼻試験：左右とも正常。過指なし。',
-    nr_hks: '踵膝脛試験：左右とも正常。',
-    nr_rapid: '回内回外運動：左右とも正常。',
-    nr_gait: '起立させると左に大きく傾き、支えなしでは歩行困難。ただし倒れ方は一方向（左）で、介助すれば数歩は歩ける。',
-    nr_tandem: '継ぎ足歩行：施行困難。左へ倒れる。',
-    nr_romberg_o: '開眼での立位は、支えがあれば何とか保持できる。',
-    nr_romberg_c: 'Romberg試験：閉眼で左後方へ倒れる傾向。',
-    nr_onefoot: '左足での片足立ちは著明に困難。',
-    nr_diplopia: '眼球運動は全方向で正常。複視なし。',
-    nr_face_alt: '顔面の感覚は左右とも正常。',
-    nr_face_sim: '両側同時刺激でも左右差を認めない。',
-    nr_swallow: '嚥下は正常。咽頭反射も左右差なし。嗄声なし。',
-    nr_horner: '瞳孔不同・眼瞼下垂を認めない。',
-    nr_hearing: '聴力は左右とも正常。',
-    nr_limb: '四肢の筋力・感覚とも正常。',
+    ex_cpss: 'CPSS：正常（0点）。Barré徴候なし、口角下垂なし、構音障害なし。',
+    ex_ataxia:
+      'Grade 2：起立させると左に大きく傾き、支持なしでは歩けない。ただし倒れ方は一方向（左）で、介助すれば数歩は歩ける。',
+    ex_fnf: '指鼻試験：左右とも正常。過指なし。',
+    ex_hks: '踵膝脛試験：左右とも正常。',
+    ex_rapid: '回内回外運動：左右とも正常。',
+    ex_diplopia: '眼球運動は全方向で正常。複視なし。',
+    ex_face: '顔面の感覚は左右差なし。両側同時に触れても差を認めない。',
+    ex_swallow: '水を飲ませても咳込みなし。軟口蓋の挙上は左右対称。「あー」と発声させても嗄声はない。',
+    ex_horner: '瞳孔不同なし、眼瞼下垂なし、顔面の発汗低下もない。Horner徴候：陰性。',
+    ex_hearing: '耳元で指をこすった音を左右とも同様に聴取できる。聴力低下はない。',
+    ex_limb: '四肢に脱力はなく、感覚も正常。',
 
-    hx_device: '体内にデバイスは入っていないと話す。',
-    tx_steroid: 'ステロイドの投与を開始した。発症72時間以内であり、早期開始が望ましい。',
-    tx_rehab: '前庭リハビリテーションについて説明した。症状が落ち着き次第、早期に開始する方針とした。',
     tx_fluid: '生食の輸液を開始した。嘔吐による脱水の補正を兼ねる。',
-    tx_atarax: 'アタラックスP 25mg + 生食50mLを15分で投与。10分ほどで「少し楽になった」と話す。',
-    tx_primperan: 'プリンペラン1A + 生食50mLを15分で投与。嘔気が和らぎ、水分を口にできるようになった。',
+    tx_atarax: 'アタラックスP 1A（25mg）+ 生食50mLを15分で投与。10分ほどで「少し楽になった」と話す。',
+    tx_primperan: 'プリンペラン 1A（10mg）+ 生食50mLを15分で投与。嘔気が和らぎ、水分を口にできるようになった。',
+    tx_rehab: '前庭リハビリテーションについて説明した。症状が落ち着き次第、早期に開始する方針とした。',
   },
 
   nystagmus: {
@@ -100,44 +87,38 @@ export const case06: CaseDef = {
   redFlagActions: [],
 
   required: [
-    'hx_onset',
-    'hx_duration',
+    'hx_course',
     'hx_assoc',
     'hx_past',
     'eye_spont',
     'eye_gaze',
     'eye_hit',
     'eye_skew',
-    'nr_cpss',
-    'nr_gait',
-    'nr_hearing',
+    'ex_cpss',
+    'ex_ataxia',
+    'ex_hearing',
     'tx_fluid',
-    'as_grace',
-    'as_criteria',
+    'as_dx',
+    'im_criteria',
   ],
-  recommended: [
-    'hx_ear',
-    'hx_trigger',
-    'eye_frenzel',
-    'eye_fixation',
-    'nr_fnf',
-    'nr_romberg_c',
-    'nr_swallow',
-    'nr_face_sim',
-    'tx_primperan',
-    'tx_atarax',
-  ],
+  recommended: ['eye_frenzel', 'eye_fixation', 'ex_fnf', 'ex_swallow', 'ex_face', 'tx_primperan', 'tx_atarax'],
   penalties: [],
 
   vestibularType: 'AVS',
+  subtype: 'sub_vn',
+  ataxiaGrade: 2,
 
-  // 高血圧というリスク因子はあるが、眼振は方向不変で固視により減弱し、
-  // 神経所見は陰性、ふらつきは一方向。HINTSも末梢性パターン。
-  criteria: [true, false, false, false],
-  // 45歳・高血圧あり。HINTSが末梢性で揃えばMRIは必須ではないが、撮る判断も妥当
-  mriStance: 'optional',
+  // 高血圧というリスク因子はあり、失調もGrade 2。ただし眼振は方向不変で固視により減弱し、
+  // 神経所見は陰性、倒れ方は一方向。HINTSも末梢性パターン。
+  criteria: [true, false, false, true],
+
+  // AVSでHINTSが末梢性で揃えば必須ではないが、Grade 2の失調があり撮る判断も十分妥当
+  imagingIndicated: false,
+  imagingPreferred: 'mri',
+  ctResult: '頭部CT：頭蓋内出血なし。後頭蓋窩はアーチファクトが強く、微小病変の評価は困難。',
   mriResult: 'DWIで明らかな高信号域を認めない。後頭蓋窩にも急性期梗塞を示唆する所見なし。',
-  day2: '第2病日。めまいは依然として続いているが、嘔吐は止まり、水分と食事を口にできるようになった。介助すれば数歩は歩ける。\n\n昨日と同じく、眼振は右向き方向不変のまま。新たな神経所見は出現していない。',
+  day2:
+    '第2病日。めまいは依然として続いているが、嘔吐は止まり、水分と食事を口にできるようになった。介助すれば数歩は歩ける。\n\n昨日と同じく、眼振は右向き方向不変のまま。新たな神経所見は出現していない。',
   // 帰宅が減点になるのは「中枢性の見逃し」ではなく、嘔吐で経口摂取できず起立も困難だから
   dischargeAfterNegativeOk: false,
 
@@ -151,7 +132,7 @@ export const case06: CaseDef = {
   maneuver: null,
 
   treatment: {
-    required: ['tx_fluid', 'tx_steroid', 'tx_rehab'],
+    required: ['tx_fluid', 'tx_rehab'],
     forbidden: [],
   },
 
