@@ -513,3 +513,65 @@ button {
 .pose-choice .bodypose-view {
   font-size: 8px;
 }
+
+/* ── 体位イラスト ─────────────────────── */
+.posefig {
+  margin: 0 0 10px;
+  padding: 8px 6px 6px;
+  background: #060a26;
+  border: 1px solid #2c3468;
+  border-radius: 2px;
+}
+
+.posefig-panels {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.posefig-panel {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+}
+
+.posefig-panel svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.posefig-view {
+  display: block;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.posefig-label {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 6px;
+}
+
+.posefig figcaption {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--dim);
+  text-align: center;
+  margin-top: 4px;
+}
+
+.pose-choice .posefig {
+  margin: 0;
+  padding: 2px;
+  border: none;
+  background: none;
+  width: 100%;
+}
+
+.pose-choice .posefig-panels { gap: 2px; }
+.pose-choice .posefig-view { font-size: 8px; }

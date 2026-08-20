@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { buildSteps, MANEUVER_KINDS, type ManeuverAttempt, type ManeuverKind } from '../data/maneuvers'
-import { BodyPose } from './BodyPose'
+import { PoseFigure } from './PoseFigure'
 import { Button, MenuItem, Win } from './ui'
 import { sfxCancel, sfxConfirm } from '../audio/sfx'
 
@@ -93,7 +93,7 @@ export function ManeuverGame({
                   setAnswers([...answers, o.value])
                 }}
               >
-                <BodyPose seq={o.seq} />
+                <PoseFigure seq={o.seq} />
                 <span className="pose-label">{o.label}</span>
               </button>
             ))}
