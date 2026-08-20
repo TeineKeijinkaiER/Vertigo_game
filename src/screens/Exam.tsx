@@ -2,8 +2,21 @@ import { useState } from 'react'
 import { ACTIONS, ACTION_GROUPS } from '../data/actions'
 import type { ActionGroup, CaseDef } from '../data/types'
 import { Button, MenuItem, TypedText, Win } from '../components/ui'
+import { Nystagmus } from '../components/Nystagmus'
 import { sfxCancel, sfxFinding } from '../audio/sfx'
 import type { Action, GameState } from '../game/state'
+
+/** 眼球を実際に観察するコマンド。所見が陰性でも「動いていない眼」を描いて見せる */
+const EYE_VIEW_ACTIONS = [
+  'eye_spont',
+  'eye_frenzel',
+  'eye_fixation',
+  'eye_gaze',
+  'eye_dh_r',
+  'eye_dh_l',
+  'eye_roll_r',
+  'eye_roll_l',
+]
 
 export function ExamScreen({
   caseDef,
@@ -63,7 +76,11 @@ export function ExamScreen({
         {last ? (
           <>
             <div className="win-title">{last.label}</div>
-            <TypedText key={last.actionId} text={last.text} />
+            {/* key は兄弟間で重複させないこと。重複するとフィバーが更新されず所見が前のまま残る */}
+            {EYE_VIEW_ACTIONS.includes(last.actionId) && (
+              <Nystagmus key={`nys-${last.actionId}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
+            )}
+            <TypedText key={`txt-${last.actionId}`} text={last.text} />
           </>
         ) : (
           <div className="msg dim">コマンドを選んで診察を始めてください。</div>

@@ -59,10 +59,32 @@ export const ACTIONS: ActionDef[] = [
   { id: 'nr_bp_both', group: 'neuro', label: '両上肢の血圧・橈骨動脈', fallback: '両上肢の血圧に有意差なし。橈骨動脈は左右とも良好に触知。' },
   { id: 'nr_orthostatic', group: 'neuro', label: '起立試験（血圧）', fallback: '起立後3分の血圧低下は認めない。' },
 
-  // ── てあて（診察中の対症療法）
+  // ── てあて（診察中に行う対症療法と耳石置換法）
   { id: 'tx_fluid', group: 'tx', label: '輸液を開始する', fallback: '輸液を開始した。' },
   { id: 'tx_atarax', group: 'tx', label: 'アタラックスP DIV', hint: '25mg+生食50mL 15分', fallback: 'アタラックスP 25mg + 生食50mLを15分で投与した。' },
   { id: 'tx_primperan', group: 'tx', label: 'プリンペラン DIV', hint: '1A+生食50mL 15分', fallback: 'プリンペラン1A + 生食50mLを15分で投与した。' },
+  // 耳石置換法はベッドサイドでその場で行う手技なので、診察中に選べる必要がある。
+  // 治療フェーズでも同じIDを選べるようにし、採点はどちらで実施しても同一に扱う。
+  { id: 'tr_epley_r', group: 'tx', label: 'Epley法（右）', hint: '後半規管', fallback: '右のEpley法を施行した。眼振・めまいに明らかな変化はない。' },
+  { id: 'tr_epley_l', group: 'tx', label: 'Epley法（左）', hint: '後半規管', fallback: '左のEpley法を施行した。眼振・めまいに明らかな変化はない。' },
+  { id: 'tr_lempert_r', group: 'tx', label: 'Lempert法（右）', hint: '水平半規管・向地性', fallback: '右を患側としてLempert法（Barbecue回転）を施行した。明らかな変化はない。' },
+  { id: 'tr_lempert_l', group: 'tx', label: 'Lempert法（左）', hint: '水平半規管・向地性', fallback: '左を患側としてLempert法（Barbecue回転）を施行した。明らかな変化はない。' },
+  { id: 'tr_gufoni_geo_r', group: 'tx', label: 'Gufoni法 向地性（右）', hint: '健側へ倒れ顔を下', fallback: '右を患側としてGufoni法（向地性型）を施行した。明らかな変化はない。' },
+  { id: 'tr_gufoni_geo_l', group: 'tx', label: 'Gufoni法 向地性（左）', hint: '健側へ倒れ顔を下', fallback: '左を患側としてGufoni法（向地性型）を施行した。明らかな変化はない。' },
+  { id: 'tr_gufoni_apo_r', group: 'tx', label: 'Gufoni法 背地性（右）', hint: '患側へ倒れ顔を上', fallback: '右を患側としてGufoni法（背地性型）を施行した。明らかな変化はない。' },
+  { id: 'tr_gufoni_apo_l', group: 'tx', label: 'Gufoni法 背地性（左）', hint: '患側へ倒れ顔を上', fallback: '左を患側としてGufoni法（背地性型）を施行した。明らかな変化はない。' },
+]
+
+/** 耳石置換法のID。診察中の「てあて」と治療フェーズの両方に出現する */
+export const MANEUVER_IDS = [
+  'tr_epley_r',
+  'tr_epley_l',
+  'tr_lempert_r',
+  'tr_lempert_l',
+  'tr_gufoni_geo_r',
+  'tr_gufoni_geo_l',
+  'tr_gufoni_apo_r',
+  'tr_gufoni_apo_l',
 ]
 
 export const ACTION_MAP = new Map(ACTIONS.map((a) => [a.id, a]))

@@ -1,3 +1,29 @@
+/**
+ * 眼振の動的表示の仕様。
+ * 向きはすべて「患者から見た向き」で書く（cases.md の記載に合わせる）。
+ * 画面は検者が患者を正面から見た図なので、描画側で左右と回旋を反転する。
+ */
+export interface NystagmusSpec {
+  /** 速相の向きと振幅(px)。+ = 患者の右向き、- = 患者の左向き */
+  horizontal?: number
+  /** 速相の向きと振幅(px)。+ = 上向き（upbeat）、- = 下向き（downbeat） */
+  vertical?: number
+  /** 速相の回旋量(度)。+ = 患者から見て時計回り */
+  torsional?: number
+  /** 打つ速さ（回/秒）。0 なら眼振なし */
+  frequency?: number
+  /** 潜時(秒)。Dix-Hallpike陽性例で使う */
+  latencySec?: number
+  /** 出現から疲労して消えるまでの時間(秒)。省略すると持続性 */
+  durationSec?: number
+  /** 注視方向のずれ(px)。+ = 患者の右方注視。注視眼振の表示に使う */
+  gazeOffset?: number
+  /** Frenzel眼鏡下の図として描く */
+  frenzel?: boolean
+  /** 図の下に出す一行キャプション */
+  caption?: string
+}
+
 /** 症例カテゴリ */
 export type Category = 'bppv' | 'peripheral' | 'central'
 
@@ -67,6 +93,8 @@ export interface CaseDef {
 
   /** コマンドID → 所見テキスト。未定義なら ActionDef.fallback */
   findings: Record<string, string>
+  /** コマンドID → 眼振の動的表示。眼の診察コマンドで未定義なら「眼振なし」として描画 */
+  nystagmus?: Record<string, NystagmusSpec>
   /** 中枢性を示唆する所見が返るコマンド（結果画面の赤旗可視化に使用） */
   redFlagActions: string[]
 

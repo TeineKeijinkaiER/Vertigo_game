@@ -66,6 +66,10 @@ export const case19: CaseDef = {
     tx_primperan: 'プリンペラン1A + 生食50mLを15分で投与した。軽度の嘔気は和らいだ。',
   },
 
+  nystagmus: {
+    eye_frenzel: { frenzel: true, caption: '固視を外しても眼球は微動だにしない' },
+  },
+
   redFlagActions: ['nr_tandem', 'nr_romberg_c', 'nr_onefoot', 'nr_gait', 'hx_past', 'nr_vitals', 'eye_frenzel'],
 
   required: [

@@ -318,3 +318,42 @@ button {
     visibility: hidden;
   }
 }
+
+/* ── 眼振の動的表示 ─────────────────────── */
+.nystagmus {
+  margin: 0 0 10px;
+  padding: 8px 6px 4px;
+  background: #060a26;
+  border: 1px solid #2c3468;
+  border-radius: 2px;
+}
+
+.nystagmus svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.nystagmus figcaption {
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.nystagmus .replay {
+  display: block;
+  margin: 6px auto 2px;
+  min-height: 32px;
+  padding: 4px 14px;
+  font-size: 11px;
+  border: 1px solid var(--dim);
+  border-radius: 2px;
+  color: var(--dim);
+}
+
+.nystagmus .replay:active {
+  background: #1c2560;
+}

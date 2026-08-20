@@ -61,6 +61,39 @@ export const case06: CaseDef = {
     tx_primperan: 'プリンペラン1A + 生食50mLを15分で投与。嘔気が和らぎ、水分を口にできるようになった。',
   },
 
+  nystagmus: {
+    eye_spont: {
+      horizontal: 5,
+      torsional: 5,
+      frequency: 3,
+      caption: '右向き水平回旋性眼振（固視により減弱している）',
+    },
+    eye_frenzel: {
+      frenzel: true,
+      horizontal: 10,
+      torsional: 9,
+      frequency: 3.2,
+      caption: '固視を外すと振幅が増大。向きは右向きのまま変わらない',
+    },
+    eye_fixation: {
+      horizontal: 5,
+      torsional: 5,
+      frequency: 3,
+      caption: '固視で減弱する ＝ 末梢性のパターン',
+    },
+    eye_gaze: {
+      horizontal: 8,
+      torsional: 6,
+      frequency: 3.2,
+      gazeOffset: 14,
+      caption: '右方注視で増強（Alexanderの法則）。方向は不変',
+    },
+    eye_dh_r: { horizontal: 5, torsional: 5, frequency: 3, caption: '自発眼振がそのまま持続。頭位性眼振は誘発されない' },
+    eye_dh_l: { horizontal: 5, torsional: 5, frequency: 3, caption: '自発眼振がそのまま持続。頭位性眼振は誘発されない' },
+    eye_roll_r: { horizontal: 5, torsional: 5, frequency: 3, caption: '頭位に関わらず同じ眼振が続く' },
+    eye_roll_l: { horizontal: 5, torsional: 5, frequency: 3, caption: '頭位に関わらず同じ眼振が続く' },
+  },
+
   redFlagActions: [],
 
   required: [

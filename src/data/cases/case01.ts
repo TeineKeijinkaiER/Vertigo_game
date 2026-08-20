@@ -34,8 +34,8 @@ export const case01: CaseDef = {
     eye_dh_l: '左Dix-Hallpike：陰性。眼振は誘発されない。',
     eye_roll_r: '右耳下（右側臥位）：明らかな水平眼振は誘発されない。',
     eye_roll_l: '左耳下（左側臥位）：明らかな水平眼振は誘発されない。',
-    eye_hit: 'HIT：陰性（補償性サッケードなし）。……そもそも本例は体位で誘発される短時間のめまいであり、HINTSの適応ではない。',
-    eye_skew: '交代遮蔽で垂直方向のずれを認めない。……本例はt-EVSであり、HINTSの適応ではない。',
+    eye_hit: 'HIT：陰性（補償性サッケードなし）。……ただし本例は体位で誘発される短時間のめまい（t-EVS）であり、HITは解釈できない。',
+    eye_skew: '交代遮蔽で垂直方向のずれを認めない。Test of Skew：陰性。脳幹病変を否定する材料になる。',
 
     nr_vitals: '血圧 142/84、脈拍 78・整、SpO2 98%、体温 36.4℃。',
     nr_cpss: 'CPSS：正常（0点）。顔面下垂なし、上肢下垂なし、言語障害なし。',
@@ -44,9 +44,24 @@ export const case01: CaseDef = {
     nr_romberg_c: '閉眼でも著明な動揺は認めない。',
     nr_hearing: '聴力は左右とも正常。耳鳴・耳閉感もない。',
 
+    tr_epley_r: '右のEpley法を施行。各体位で30〜60秒保持したのち起坐させた。直後に再度Dix-Hallpikeを行うと、眼振もめまいも誘発されない。患者は「治りました」と目を丸くしている。',
+    tr_epley_l: '左のEpley法を施行した。眼振・めまいに変化はない。……患側の判断を誤っている可能性がある。',
     tx_fluid: '輸液を開始した。患者はやや落ち着いた様子。',
     tx_atarax: 'アタラックスP 25mg + 生食50mLを15分で投与した。……ただし本例のめまいは30秒で自然に消える。',
     tx_primperan: 'プリンペラン1A + 生食50mLを15分で投与した。軽度の嘔気は和らいだ。',
+  },
+
+  nystagmus: {
+    eye_frenzel: { frenzel: true, caption: 'Frenzel眼鏡下でも眼振なし' },
+    eye_dh_r: {
+      // 上向き＋患者から見て時計回りの回旋。潜時2.5秒、約18秒で疲労
+      vertical: 5,
+      torsional: 14,
+      frequency: 3,
+      latencySec: 2.5,
+      durationSec: 18,
+      caption: '右Dix-Hallpike：潜時のある上向き回旋眼振（患者から見て時計回り）',
+    },
   },
 
   redFlagActions: [],
@@ -66,8 +81,7 @@ export const case01: CaseDef = {
   ],
   recommended: ['hx_course', 'hx_past', 'hx_meds', 'hx_ear', 'eye_frenzel', 'nr_hearing', 'nr_tandem'],
   penalties: [
-    { id: 'eye_hit', points: -3, reason: 'HINTSはAVSでのみ有効な診察法。t-EVS（BPPV疑い）に実施すべきではない' },
-    { id: 'eye_skew', points: -3, reason: 'HINTSはAVSでのみ有効な診察法。t-EVS（BPPV疑い）に実施すべきではない' },
+    { id: 'eye_hit', points: -3, reason: 'Head Impulse TestはAVSでのみ意味を持つ。t-EVS（BPPV疑い）に実施しても解釈できない' },
   ],
 
   vestibularType: 't-EVS',
@@ -128,7 +142,8 @@ export const case01: CaseDef = {
     '頭位変換で誘発される1分以内の回転性めまいは、まずBPPV（t-EVS）を考える',
     'Dix-Hallpikeで潜時・疲労性のある上向き回旋眼振が出れば後半規管BPPVが確定的',
     '右Dix-Hallpikeで時計回り（患者から見て）の上向き回旋眼振 ＝ 右後半規管',
-    'HINTSはAVSでのみ有効。t-EVSに実施してはいけない',
+    'Head Impulse TestはAVSでのみ意味を持つ。t-EVSに実施しても解釈できない',
+    'ただしTest of Skewは脳幹所見の診察なので、t-EVSでも行ってよい',
     '神経所見陰性・聴力正常なら中枢性・蝸牛病変は考えにくく、画像は不要',
   ],
   explanation:

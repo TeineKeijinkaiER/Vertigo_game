@@ -1,4 +1,4 @@
-import { ACTION_MAP, DISPOSITION_MAP, IMAGING_CRITERIA, STUDY_MAP, TREATMENT_MAP } from '../data/actions'
+import { ACTION_MAP, DISPOSITION_MAP, IMAGING_CRITERIA, MANEUVER_IDS, STUDY_MAP, TREATMENT_MAP } from '../data/actions'
 import type { CaseDef } from '../data/types'
 import type { GameState } from './state'
 
@@ -56,6 +56,12 @@ function label(id: string): string {
 export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
   const lines: ScoreLine[] = []
   const deductions: Deduction[] = []
+
+  // 耳石置換法は診察中の「てあて」でも治療フェーズでも選べる。どちらで実施しても同じ扱いにする。
+  const treatmentsDone = new Set([
+    ...s.treatmentsChosen,
+    ...s.performed.filter((id) => MANEUVER_IDS.includes(id)),
+  ])
 
   // ── 診察プロセス（必須）
   const missedRequired = c.required.filter((id) => !s.performed.includes(id))
@@ -174,7 +180,7 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
   }
 
   // ── 治療
-  const missedTx = c.treatment.required.filter((id) => !s.treatmentsChosen.includes(id))
+  const missedTx = c.treatment.required.filter((id) => !treatmentsDone.has(id))
   const txRate =
     c.treatment.required.length === 0 ? 1 : (c.treatment.required.length - missedTx.length) / c.treatment.required.length
   lines.push({
@@ -192,7 +198,7 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     if (s.studiesOrdered.includes(p.id)) deductions.push({ label: label(p.id), points: p.points, reason: p.reason })
   }
   for (const f of c.treatment.forbidden) {
-    if (s.treatmentsChosen.includes(f.id)) deductions.push({ label: label(f.id), points: f.points, reason: f.reason })
+    if (treatmentsDone.has(f.id)) deductions.push({ label: label(f.id), points: f.points, reason: f.reason })
   }
 
   const subtotal = lines.reduce((a, l) => a + l.earned, 0)
