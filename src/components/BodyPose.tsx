@@ -1,17 +1,16 @@
 import { useEffect, useRef } from 'react'
 
 /**
- * 体位の動的イラスト。
+ * 体位の動的イラスト。二面図で示す。
  *
- * 前のバージョンは記号的すぎてどの方向から見た図か分からなかったため作り直した。
- * 二面図にして、それぞれに「横から見た図」「頭の方から見た図」と明記している。
- *
- *   横から見た図 … 患者の左側から見る。顔は画面の左を向く。
- *                  座位から仰臥位・頭部懸垂位への動きが読める。
+ *   横から見た図 … 患者の左側から見る。仰臥位では顔が上（天井）を向く。
+ *                  座位から倒していく動き、頭部懸垂位で頭が台から外れる様子が読める。
  *   頭の方から見た図 … 患者の頭側に立って見下ろす。画面の左が患者の右。
- *                  頭の回旋と体幹のロール、顔が床を向くか天井を向くかが読める。
+ *                  頭の回旋と、顔が床を向くか天井を向くかが読める。
  *
- * 姿勢はキーフレームの列で与え、間を補間して繰り返し再生する。
+ * 横から見た図は「仰臥位で顔が上を向いている」姿を基準に描き、
+ * 体幹角度で起こす。頭は体幹と一緒に回るので、座位では自然に前を向く。
+ * 下肢は台の上に伸ばしたままなので、体幹とは別に描いて回さない。
  */
 
 export type PoseKey =
@@ -31,15 +30,14 @@ export type PoseKey =
   | 'side_l_faceup'
 
 interface PoseParams {
-  /** 横から見た図の体幹角度。90 = 座位、0 = 仰臥位 */
+  /** 体幹角度。90 = 座位、0 = 仰臥位 */
   trunk: number
-  /** 頭部の後屈。懸垂位で正の値 */
+  /** 頸部の後屈。頭部懸垂位で正の値 */
   ext: number
   /** 頭の回旋。患者から見て + = 右 */
   turn: number
   /** 体幹のロール。患者から見て + = 右を下に */
   roll: number
-  /** 顔の向き。front = 天井（正面）、down = 床、up = 天井（側臥位で上を向く） */
   face: 'front' | 'down' | 'up'
 }
 
@@ -48,8 +46,8 @@ const POSES: Record<PoseKey, PoseParams> = {
   sitting_turn_r: { trunk: 90, ext: 0, turn: 45, roll: 0, face: 'front' },
   sitting_turn_l: { trunk: 90, ext: 0, turn: -45, roll: 0, face: 'front' },
   supine: { trunk: 0, ext: 0, turn: 0, roll: 0, face: 'front' },
-  hang_r: { trunk: 0, ext: 28, turn: 45, roll: 0, face: 'front' },
-  hang_l: { trunk: 0, ext: 28, turn: -45, roll: 0, face: 'front' },
+  hang_r: { trunk: 0, ext: 40, turn: 45, roll: 0, face: 'front' },
+  hang_l: { trunk: 0, ext: 40, turn: -45, roll: 0, face: 'front' },
   roll_r: { trunk: 0, ext: 0, turn: 90, roll: 0, face: 'front' },
   roll_l: { trunk: 0, ext: 0, turn: -90, roll: 0, face: 'front' },
   side_r: { trunk: 0, ext: 0, turn: 0, roll: 90, face: 'front' },
@@ -60,27 +58,23 @@ const POSES: Record<PoseKey, PoseParams> = {
   side_l_faceup: { trunk: 0, ext: 0, turn: 0, roll: -90, face: 'up' },
 }
 
-const HOLD = 1.1 // 各姿勢を保つ秒数
-const MOVE = 0.7 // 姿勢の間を動く秒数
+const HOLD = 1.2
+const MOVE = 0.8
 
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t
-}
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t))
 
-function easeInOut(t: number) {
-  return t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t)
-}
-
-/** 時刻 t（秒）における補間後の姿勢 */
 function sample(seq: PoseKey[], t: number): PoseParams {
-  if (seq.length === 1) return POSES[seq[0]]
+  // 未知のキーが混ざっても描画全体が止まらないようにする
+  const at = (k: PoseKey | undefined): PoseParams => POSES[k as PoseKey] ?? POSES.supine
+  if (!seq || seq.length === 0) return POSES.supine
+  if (seq.length === 1) return at(seq[0])
   const span = HOLD + MOVE
-  const total = span * seq.length
-  const local = t % total
-  const i = Math.floor(local / span)
+  const local = t % (span * seq.length)
+  const i = Math.min(seq.length - 1, Math.max(0, Math.floor(local / span)))
   const within = local - i * span
-  const from = POSES[seq[i]]
-  const to = POSES[seq[(i + 1) % seq.length]]
+  const from = at(seq[i])
+  const to = at(seq[(i + 1) % seq.length])
   if (within < HOLD) return from
   const k = easeInOut((within - HOLD) / MOVE)
   return {
@@ -99,11 +93,15 @@ const HAIR = '#3a2b23'
 const TABLE = '#1b2a63'
 const LINE = '#8fa8e8'
 
+// 横から見た図の基準点
+const HIP = { x: 46, y: 98 }
+const NECK = { x: 84, y: 90 }
+
 export function BodyPose({ seq, caption }: { seq: PoseKey[]; caption?: string }) {
-  // 横から見た図
+  // 体幹が起き上がる／倒れる動きがあるときだけ、横から見た図に矢印を出す
+  const trunkMoves = new Set(seq.map((k) => (POSES[k] ?? POSES.supine).trunk)).size > 1
   const trunkRef = useRef<SVGGElement | null>(null)
   const headSideRef = useRef<SVGGElement | null>(null)
-  // 頭の方から見た図
   const shoulderRef = useRef<SVGGElement | null>(null)
   const headTopRef = useRef<SVGGElement | null>(null)
   const faceFrontRef = useRef<SVGGElement | null>(null)
@@ -116,14 +114,15 @@ export function BodyPose({ seq, caption }: { seq: PoseKey[]; caption?: string })
     const frame = (now: number) => {
       const p = sample(seq, (now - start) / 1000)
 
-      // 横から見た図：体幹は腰(30,96)を軸に起こす。0=水平で頭が右、90=座位
-      trunkRef.current?.setAttribute('transform', `rotate(${-p.trunk} 30 96)`)
-      // 頭は首(96,96)を軸に後屈させる
-      headSideRef.current?.setAttribute('transform', `rotate(${p.ext} 96 96)`)
+      trunkRef.current?.setAttribute('transform', `rotate(${-p.trunk} ${HIP.x} ${HIP.y})`)
+      // 後屈させるだけでは台の上に留まってしまうので、端から外へ出す分も加える
+      headSideRef.current?.setAttribute(
+        'transform',
+        `rotate(${p.ext} ${NECK.x} ${NECK.y}) translate(${p.ext * 0.24} ${p.ext * 0.16})`,
+      )
 
-      // 頭の方から見た図：患者から見た向きなので画面上は反転する
-      shoulderRef.current?.setAttribute('transform', `rotate(${-p.roll * 0.35} 60 86)`)
-      headTopRef.current?.setAttribute('transform', `rotate(${-p.turn - p.roll * 0.75} 60 44)`)
+      shoulderRef.current?.setAttribute('transform', `rotate(${-p.roll * 0.3} 60 86)`)
+      headTopRef.current?.setAttribute('transform', `rotate(${-p.turn - p.roll * 0.8} 60 44)`)
 
       faceFrontRef.current?.setAttribute('opacity', p.face === 'front' ? '1' : '0')
       faceBackRef.current?.setAttribute('opacity', p.face === 'down' ? '1' : '0')
@@ -140,91 +139,117 @@ export function BodyPose({ seq, caption }: { seq: PoseKey[]; caption?: string })
       <div className="bodypose-panels">
         {/* ── 横から見た図 ───────────────── */}
         <div className="bodypose-panel">
-          <svg viewBox="0 0 150 120" role="img" aria-label="横から見た図">
-            {/* 診察台 */}
-            <rect x={8} y={96} width={124} height={12} rx={2} fill={TABLE} stroke={LINE} strokeWidth={1.2} />
-            <line x1={132} y1={96} x2={148} y2={96} stroke={LINE} strokeWidth={1} strokeDasharray="3 3" />
+          <svg viewBox="0 0 150 130" role="img" aria-label="横から見た図">
+            {/* 診察台。右端がここで終わり、頭を下げる余地がある */}
+            <rect x={6} y={98} width={102} height={16} rx={2} fill={TABLE} stroke={LINE} strokeWidth={1.2} />
+
+            {/* 下肢は台の上に伸ばしたまま。体幹とは別に描いて回さない */}
+            <path d={`M${HIP.x} 98 L${HIP.x} 86 L20 88 L18 98 Z`} fill={GOWN} stroke={LINE} strokeWidth={1.1} />
+            <path d="M18 98 L18 90 L10 92 L10 98 Z" fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.9} />
 
             <g ref={trunkRef}>
-              {/* 脚 */}
-              <path d="M30 90 L14 90 L14 96 L30 96 Z" fill={GOWN} stroke={SKIN_DARK} strokeWidth={0.8} />
-              {/* 体幹（腰30 → 首96） */}
-              <path d="M30 78 L92 80 L92 96 L30 96 Z" fill={GOWN} stroke={LINE} strokeWidth={1.2} />
+              {/* 体幹（腰から肩へ） */}
+              <path
+                d={`M${HIP.x} 98 L${HIP.x} 82 Q66 78 88 82 L88 98 Z`}
+                fill={GOWN}
+                stroke={LINE}
+                strokeWidth={1.2}
+              />
               {/* 腕 */}
-              <path d="M52 82 L74 88" stroke={SKIN} strokeWidth={5} strokeLinecap="round" />
+              <path d="M56 87 L80 92" stroke={SKIN} strokeWidth={5} strokeLinecap="round" />
+              {/* 首 */}
+              <rect x={82} y={84} width={9} height={12} fill={SKIN} />
 
               <g ref={headSideRef}>
-                {/* 首 */}
-                <rect x={92} y={82} width={9} height={14} fill={SKIN} />
-                {/* 横顔。顔は画面の右（頭側）を向く */}
-                <circle cx={110} cy={82} r={15} fill={SKIN} stroke={SKIN_DARK} strokeWidth={1} />
-                {/* 後頭部の髪 */}
-                <path d="M97 76 A15 15 0 0 1 116 70 L116 76 A11 11 0 0 0 99 82 Z" fill={HAIR} />
-                {/* 鼻・口・眼 */}
-                <polygon points="124,82 118,78 118,86" fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
-                <circle cx={117} cy={78} r={1.8} fill="#20232f" />
-                <line x1={119} y1={88} x2={114} y2={89} stroke={SKIN_DARK} strokeWidth={1.2} />
+                {/*
+                  仰臥位を基準に描く。顔は上（天井）を向き、
+                  後頭部が下（台）に接し、頭頂は右（足と反対側）を向く。
+                */}
+                <circle cx={96} cy={88} r={12} fill={SKIN} stroke={SKIN_DARK} strokeWidth={1} />
+                {/* 後頭部から頭頂にかけての髪 */}
+                <path
+                  d="M96 100 A12 12 0 0 0 108 88 A12 12 0 0 0 101 77 L99 82 A7 7 0 0 1 103 88 A7 7 0 0 1 96 95 Z"
+                  fill={HAIR}
+                />
+                {/* 鼻は上（天井）を向く */}
+                <polygon points="94,75 89,81 98,81" fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
+                {/* 眼 */}
+                <circle cx={93} cy={84} r={1.7} fill="#20232f" />
+                {/* 口 */}
+                <line x1={87} y1={86} x2={88} y2={90} stroke={SKIN_DARK} strokeWidth={1.1} />
                 {/* 耳 */}
-                <circle cx={106} cy={84} r={3} fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
+                <circle cx={98} cy={91} r={2.6} fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
               </g>
             </g>
+
+            {/* 動きの向きを示す矢印。体幹が倒れる手技のときだけ描く */}
+            {trunkMoves && (
+              <path
+                d="M52 24 Q96 26 112 66"
+                fill="none"
+                stroke="#ffd75e"
+                strokeWidth={1.8}
+                strokeDasharray="4 3"
+                markerEnd="url(#bp-arrow)"
+                opacity={0.7}
+              />
+            )}
+            <defs>
+              <marker id="bp-arrow" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+                <path d="M0,0 L7,3.5 L0,7 Z" fill="#ffd75e" />
+              </marker>
+            </defs>
           </svg>
           <span className="bodypose-view">横から見た図</span>
         </div>
 
         {/* ── 頭の方から見た図 ────────────── */}
         <div className="bodypose-panel">
-          <svg viewBox="0 0 120 120" role="img" aria-label="頭の方から見た図">
-            <rect x={16} y={8} width={88} height={104} rx={3} fill={TABLE} stroke={LINE} strokeWidth={1.2} />
+          <svg viewBox="0 0 120 134" role="img" aria-label="頭の方から見た図">
+            <rect x={14} y={10} width={92} height={106} rx={3} fill={TABLE} stroke={LINE} strokeWidth={1.2} />
 
             <g ref={shoulderRef}>
-              {/* 肩と体幹 */}
-              <rect x={34} y={70} width={52} height={40} rx={12} fill={GOWN} stroke={LINE} strokeWidth={1.2} />
-              {/* 腕 */}
-              <line x1={36} y1={80} x2={26} y2={104} stroke={SKIN} strokeWidth={5} strokeLinecap="round" />
-              <line x1={84} y1={80} x2={94} y2={104} stroke={SKIN} strokeWidth={5} strokeLinecap="round" />
-              {/* 首 */}
-              <rect x={52} y={60} width={16} height={14} fill={SKIN} />
+              <rect x={32} y={72} width={56} height={44} rx={13} fill={GOWN} stroke={LINE} strokeWidth={1.2} />
+              <line x1={34} y1={82} x2={24} y2={108} stroke={SKIN} strokeWidth={5} strokeLinecap="round" />
+              <line x1={86} y1={82} x2={96} y2={108} stroke={SKIN} strokeWidth={5} strokeLinecap="round" />
+              <rect x={51} y={62} width={18} height={14} fill={SKIN} />
             </g>
 
             <g ref={headTopRef}>
-              {/* 頭 */}
-              <circle cx={60} cy={44} r={20} fill={SKIN} stroke={SKIN_DARK} strokeWidth={1.2} />
-              {/* 耳（頭の左右） */}
-              <circle cx={40} cy={46} r={3.4} fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
-              <circle cx={80} cy={46} r={3.4} fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
+              <circle cx={60} cy={44} r={21} fill={SKIN} stroke={SKIN_DARK} strokeWidth={1.2} />
+              <circle cx={39} cy={46} r={3.6} fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
+              <circle cx={81} cy={46} r={3.6} fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
 
-              {/* 顔（天井を向いている＝こちらを向いている） */}
+              {/* 顔が天井を向いている（こちらを向いている） */}
               <g ref={faceFrontRef}>
-                <path d="M42 34 A20 20 0 0 1 78 34 L78 30 A20 20 0 0 0 42 30 Z" fill={HAIR} />
-                <circle cx={52} cy={41} r={2.4} fill="#20232f" />
-                <circle cx={68} cy={41} r={2.4} fill="#20232f" />
-                <polygon points="60,44 56,52 64,52" fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
-                <path d="M53 57 Q60 60 67 57" fill="none" stroke={SKIN_DARK} strokeWidth={1.4} />
+                <path d="M41 33 A21 21 0 0 1 79 33 L79 28 A21 21 0 0 0 41 28 Z" fill={HAIR} />
+                <circle cx={51} cy={41} r={2.5} fill="#20232f" />
+                <circle cx={69} cy={41} r={2.5} fill="#20232f" />
+                <polygon points="60,44 55,53 65,53" fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
+                <path d="M52 58 Q60 62 68 58" fill="none" stroke={SKIN_DARK} strokeWidth={1.4} />
               </g>
 
               {/* 顔が床を向いている＝後頭部が見えている */}
               <g ref={faceBackRef} opacity={0}>
-                <circle cx={60} cy={44} r={19} fill={HAIR} />
-                <path d="M52 60 Q60 66 68 60" fill="none" stroke={SKIN_DARK} strokeWidth={1.4} />
+                <circle cx={60} cy={44} r={20} fill={HAIR} />
+                <path d="M52 61 Q60 67 68 61" fill="none" stroke={SKIN_DARK} strokeWidth={1.4} />
               </g>
 
-              {/* 顔が天井を向いている（側臥位で上を向く）＝あごが上がった正面顔 */}
+              {/* 顔が天井を向いている（側臥位であごを上げた状態） */}
               <g ref={faceUpRef} opacity={0}>
-                <path d="M42 32 A20 20 0 0 1 78 32 L78 28 A20 20 0 0 0 42 28 Z" fill={HAIR} />
-                <circle cx={52} cy={38} r={2.4} fill="#20232f" />
-                <circle cx={68} cy={38} r={2.4} fill="#20232f" />
-                <polygon points="60,42 55,51 65,51" fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
-                <path d="M52 56 Q60 61 68 56" fill="none" stroke={SKIN_DARK} strokeWidth={1.4} />
+                <path d="M41 31 A21 21 0 0 1 79 31 L79 26 A21 21 0 0 0 41 26 Z" fill={HAIR} />
+                <circle cx={51} cy={38} r={2.5} fill="#20232f" />
+                <circle cx={69} cy={38} r={2.5} fill="#20232f" />
+                <polygon points="60,42 54,52 66,52" fill={SKIN} stroke={SKIN_DARK} strokeWidth={0.8} />
+                <path d="M51 57 Q60 63 69 57" fill="none" stroke={SKIN_DARK} strokeWidth={1.4} />
               </g>
             </g>
 
-            {/* 左右のラベル。画面の左が患者の右になる */}
-            <text x={20} y={20} fontSize={9} fill="#ffd75e">
-              患者の右
+            <text x={16} y={130} fontSize={8} fill="#ffd75e">
+              ← 患者の右
             </text>
-            <text x={78} y={20} fontSize={9} fill="#ffd75e">
-              患者の左
+            <text x={71} y={130} fontSize={8} fill="#ffd75e">
+              患者の左 →
             </text>
           </svg>
           <span className="bodypose-view">頭の方から見た図</span>
@@ -239,19 +264,21 @@ export function BodyPose({ seq, caption }: { seq: PoseKey[]; caption?: string })
 const EXAM_SEQ: Record<string, { seq: PoseKey[]; caption: string }> = {
   eye_dh_r: {
     seq: ['sitting_turn_r', 'hang_r'],
-    caption: '座位で頭を右へ45°回し、その向きを保ったまま素早く仰臥位・頭部懸垂位にする',
+    caption:
+      '① 座位で頭を右へ45°回す　② その向きのまま素早く仰臥位にし、頭を台の端から下げる（右耳が下を向く）　③ 眼振を観察する',
   },
   eye_dh_l: {
     seq: ['sitting_turn_l', 'hang_l'],
-    caption: '座位で頭を左へ45°回し、その向きを保ったまま素早く仰臥位・頭部懸垂位にする',
+    caption:
+      '① 座位で頭を左へ45°回す　② その向きのまま素早く仰臥位にし、頭を台の端から下げる（左耳が下を向く）　③ 眼振を観察する',
   },
   eye_roll_r: {
     seq: ['supine', 'roll_r'],
-    caption: '仰臥位のまま、頭だけを右へ90°向ける（右耳が下になる）',
+    caption: '仰臥位のまま、頭だけを右へ90°向ける（右耳が下になる）。体は動かさない',
   },
   eye_roll_l: {
     seq: ['supine', 'roll_l'],
-    caption: '仰臥位のまま、頭だけを左へ90°向ける（左耳が下になる）',
+    caption: '仰臥位のまま、頭だけを左へ90°向ける（左耳が下になる）。体は動かさない',
   },
 }
 

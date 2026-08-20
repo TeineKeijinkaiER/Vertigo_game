@@ -171,6 +171,9 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     if (!tookAny) {
       imagingEarned = MAX.imaging
       imagingNotes.push('所見が典型的であり、画像検査が不要な症例と正しく判断しています')
+    } else if (c.imagingOptional) {
+      imagingEarned = MAX.imaging
+      imagingNotes.push('必須ではありませんが、中枢性を除外するために画像を撮る判断は妥当です')
     } else {
       imagingEarned = Math.round(MAX.imaging / 2)
       imagingNotes.push('所見が典型的であり、この症例で画像検査は不要でした')

@@ -81,6 +81,8 @@ export interface CaseDef {
 
   /** そもそも画像を撮るべき症例か */
   imagingIndicated: boolean
+  /** 撮る必要はないが、撮る判断も妥当な症例（減点しない） */
+  imagingOptional?: boolean
   /** 撮るならどちらが第一選択か。撮らないのが正解なら null */
   imagingPreferred: 'ct' | 'mri' | null
   /** MRIが禁忌か。禁忌ならCTを選ぶのが正解になる */
