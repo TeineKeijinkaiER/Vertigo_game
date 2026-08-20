@@ -1,4 +1,4 @@
-import type { PoseKey } from '../components/PoseFigure'
+import type { PoseImageId } from './poseImages'
 import type { Side } from './types'
 
 /**
@@ -39,8 +39,8 @@ export const MANEUVER_KINDS: { id: ManeuverKind; label: string; hint: string }[]
 export interface StepOption {
   label: string
   value: string
-  /** 選択肢のイラストとして再生する体位の列 */
-  seq: PoseKey[]
+  /** 選択肢のイラスト */
+  image: PoseImageId
 }
 
 export interface ManeuverStep {
@@ -54,54 +54,49 @@ type LR = 'R' | 'L'
 const jp = (s: LR) => (s === 'R' ? '右' : '左')
 const other = (s: LR): LR => (s === 'R' ? 'L' : 'R')
 
-// 側面図（患側から見る）
-const dhSit = (s: LR): PoseKey => (s === 'R' ? 'dh_sit_r' : 'dh_sit_l')
-const dhHang = (s: LR): PoseKey => (s === 'R' ? 'dh_hang_r' : 'dh_hang_l')
-const epCross = (s: LR): PoseKey => (s === 'R' ? 'ep_cross_r' : 'ep_cross_l')
-// 正面図（坐位から左右へ倒す）
-const frFall = (s: LR): PoseKey => (s === 'R' ? 'fr_fall_r' : 'fr_fall_l')
-// 頭側図（側臥位と顔の向き）
-const axSide = (s: LR): PoseKey => (s === 'R' ? 'ax_side_r' : 'ax_side_l')
-const axSideUp = (s: LR): PoseKey => (s === 'R' ? 'ax_side_r_up' : 'ax_side_l_up')
-const axSideDown = (s: LR): PoseKey => (s === 'R' ? 'ax_side_r_down' : 'ax_side_l_down')
+const dhHang = (s: LR): PoseImageId => (s === 'R' ? 'dh_hang_r' : 'dh_hang_l')
+const epCross = (s: LR): PoseImageId => (s === 'R' ? 'ep_cross_r' : 'ep_cross_l')
+const gufoniFall = (s: LR): PoseImageId => (s === 'R' ? 'gufoni_fall_r' : 'gufoni_fall_l')
+const lempertRoll = (s: LR): PoseImageId => (s === 'R' ? 'lempert_roll_r' : 'lempert_roll_l')
+const sideDown = (s: LR): PoseImageId => (s === 'R' ? 'side_r_facedown' : 'side_l_facedown')
+const sideUp = (s: LR): PoseImageId => (s === 'R' ? 'side_r_faceup' : 'side_l_faceup')
 
 export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]): ManeuverStep[] {
   const healthy = other(affected)
 
   switch (kind) {
     case 'epley': {
-      const hangSide = (answers[0] as LR | undefined) ?? affected
       const crossSide = (answers[1] as LR | undefined) ?? healthy
       return [
         {
           question: '①　坐位で頭を45°回し、どちらを下にして懸垂位にしますか',
           options: [
-            { label: '右を下に', value: 'R', seq: [dhSit('R'), dhHang('R')] },
-            { label: '左を下に', value: 'L', seq: [dhSit('L'), dhHang('L')] },
+            { label: '右を下に', value: 'R', image: dhHang('R') },
+            { label: '左を下に', value: 'L', image: dhHang('L') },
           ],
           correct: affected,
         },
         {
           question: '②　懸垂位のまま、体は動かさずに頭だけをどちらへ90°回しますか',
           options: [
-            { label: '右へ回す', value: 'R', seq: [dhHang(hangSide), epCross('L')] },
-            { label: '左へ回す', value: 'L', seq: [dhHang(hangSide), epCross('R')] },
+            { label: '右へ回す', value: 'R', image: epCross('L') },
+            { label: '左へ回す', value: 'L', image: epCross('R') },
           ],
           correct: healthy,
         },
         {
           question: '③　次に体ごと側臥位にします。鼻はどちらに向けますか',
           options: [
-            { label: '鼻を床に向ける', value: 'down', seq: [axSide(crossSide), axSideDown(crossSide)] },
-            { label: '鼻を天井に向ける', value: 'up', seq: [axSide(crossSide), axSideUp(crossSide)] },
+            { label: '鼻を床に向ける', value: 'down', image: sideDown(crossSide) },
+            { label: '鼻を天井に向ける', value: 'up', image: sideUp(crossSide) },
           ],
           correct: 'down',
         },
         {
           question: '④　最後はどうしますか',
           options: [
-            { label: 'ゆっくり起坐させる', value: 'sit', seq: [axSideDown(crossSide), 'ax_supine', 'side_sit'] },
-            { label: 'そのまま仰臥位に戻す', value: 'supine', seq: [axSideDown(crossSide), 'ax_supine'] },
+            { label: 'ゆっくり起坐させる', value: 'sit', image: 'sit_up' },
+            { label: 'そのまま仰臥位に戻す', value: 'supine', image: 'supine' },
           ],
           correct: 'sit',
         },
@@ -113,36 +108,32 @@ export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]):
         {
           question: '①　どの体位から始めますか',
           options: [
-            { label: '仰臥位から', value: 'supine', seq: ['ax_supine'] },
-            { label: '坐位から', value: 'sitting', seq: ['fr_sit'] },
+            { label: '仰臥位から', value: 'supine', image: 'supine' },
+            { label: '坐位から', value: 'sitting', image: 'sitting_front' },
           ],
           correct: 'supine',
         },
         {
           question: '②　仰臥位から、どちらの方向へ90°ずつ回していきますか',
           options: [
-            { label: jp(healthy) + '方向へ（健側へ）', value: 'healthy', seq: ['ax_supine', axSide(healthy)] },
-            { label: jp(affected) + '方向へ（患側へ）', value: 'affected', seq: ['ax_supine', axSide(affected)] },
+            { label: jp(healthy) + '方向へ（健側へ）', value: 'healthy', image: lempertRoll(healthy) },
+            { label: jp(affected) + '方向へ（患側へ）', value: 'affected', image: lempertRoll(affected) },
           ],
           correct: 'healthy',
         },
         {
           question: '③　側臥位の次はどうしますか',
           options: [
-            { label: '同じ方向へ回して腹臥位にする', value: 'prone', seq: [axSide(healthy), 'ax_prone'] },
-            { label: '仰臥位へ戻す', value: 'back', seq: [axSide(healthy), 'ax_supine'] },
+            { label: '同じ方向へ回して腹臥位にする', value: 'prone', image: 'prone' },
+            { label: '仰臥位へ戻す', value: 'back', image: 'supine' },
           ],
           correct: 'prone',
         },
         {
           question: '④　合計で何度回しますか',
           options: [
-            { label: '180°でやめる', value: '180', seq: ['ax_supine', axSide(healthy), 'ax_prone'] },
-            {
-              label: '270〜360°まで回す',
-              value: '360',
-              seq: ['ax_supine', axSide(healthy), 'ax_prone', axSide(affected), 'ax_supine'],
-            },
+            { label: '180°でやめる', value: '180', image: 'lempert_half' },
+            { label: '270〜360°まで回す', value: '360', image: 'lempert_full' },
           ],
           correct: '360',
         },
@@ -154,24 +145,24 @@ export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]):
         {
           question: '①　どの体位から始めますか',
           options: [
-            { label: '坐位から', value: 'sitting', seq: ['fr_sit'] },
-            { label: '仰臥位から', value: 'supine', seq: ['ax_supine'] },
+            { label: '坐位から', value: 'sitting', image: 'sitting_front' },
+            { label: '仰臥位から', value: 'supine', image: 'supine' },
           ],
           correct: 'sitting',
         },
         {
           question: '②　坐位からどちらへすばやく倒して側臥位にしますか',
           options: [
-            { label: '右へ倒す', value: 'R', seq: ['fr_sit', frFall('R')] },
-            { label: '左へ倒す', value: 'L', seq: ['fr_sit', frFall('L')] },
+            { label: '右へ倒す', value: 'R', image: gufoniFall('R') },
+            { label: '左へ倒す', value: 'L', image: gufoniFall('L') },
           ],
           correct: healthy,
         },
         {
           question: '③　そのまま頭部をどちらへ45°回しますか',
           options: [
-            { label: '下方（床）へ45°', value: 'down', seq: [axSide(fallen), axSideDown(fallen)] },
-            { label: '上方（天井）へ45°', value: 'up', seq: [axSide(fallen), axSideUp(fallen)] },
+            { label: '下方（床）へ45°', value: 'down', image: sideDown(fallen) },
+            { label: '上方（天井）へ45°', value: 'up', image: sideUp(fallen) },
           ],
           correct: 'down',
         },
@@ -184,24 +175,24 @@ export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]):
         {
           question: '①　どの体位から始めますか',
           options: [
-            { label: '坐位から', value: 'sitting', seq: ['fr_sit'] },
-            { label: '仰臥位から', value: 'supine', seq: ['ax_supine'] },
+            { label: '坐位から', value: 'sitting', image: 'sitting_front' },
+            { label: '仰臥位から', value: 'supine', image: 'supine' },
           ],
           correct: 'sitting',
         },
         {
           question: '②　坐位からどちらへすばやく倒して側臥位にしますか',
           options: [
-            { label: '右へ倒す', value: 'R', seq: ['fr_sit', frFall('R')] },
-            { label: '左へ倒す', value: 'L', seq: ['fr_sit', frFall('L')] },
+            { label: '右へ倒す', value: 'R', image: gufoniFall('R') },
+            { label: '左へ倒す', value: 'L', image: gufoniFall('L') },
           ],
           correct: affected,
         },
         {
           question: '③　そのまま頭部をどちらへ45°回しますか',
           options: [
-            { label: '下方（床）へ45°', value: 'down', seq: [axSide(fallen), axSideDown(fallen)] },
-            { label: '上方（天井）へ45°', value: 'up', seq: [axSide(fallen), axSideUp(fallen)] },
+            { label: '下方（床）へ45°', value: 'down', image: sideDown(fallen) },
+            { label: '上方（天井）へ45°', value: 'up', image: sideUp(fallen) },
           ],
           correct: 'up',
         },

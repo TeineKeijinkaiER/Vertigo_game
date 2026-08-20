@@ -358,47 +358,6 @@ button {
   background: #1c2560;
 }
 
-/* ── 頭位のイラスト ─────────────────────── */
-.headpose {
-  margin: 0;
-  text-align: center;
-}
-
-.headpose svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 108px;
-  margin: 0 auto;
-}
-
-.headpose figcaption {
-  font-size: 10px;
-  line-height: 1.5;
-  color: var(--dim);
-  margin-top: 2px;
-}
-
-.exampose {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-  padding: 8px;
-  background: #060a26;
-  border: 1px solid #2c3468;
-  border-radius: 2px;
-}
-
-.exampose .headpose {
-  flex: 0 0 88px;
-}
-
-.exampose p {
-  margin: 0;
-  text-align: left;
-}
-
 /* ── 耳石置換法のミニゲーム ───────────────── */
 .pose-choices {
   display: flex;
@@ -427,50 +386,6 @@ button {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
-}
-
-/* ── 体位の動的イラスト ───────────────────── */
-.bodypose {
-  margin: 0 0 10px;
-  padding: 8px 6px 6px;
-  background: #060a26;
-  border: 1px solid #2c3468;
-  border-radius: 2px;
-}
-
-.bodypose-panels {
-  display: flex;
-  gap: 6px;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.bodypose-panel {
-  flex: 1 1 0;
-  min-width: 0;
-  text-align: center;
-}
-
-.bodypose-panel svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.bodypose-view {
-  display: block;
-  font-size: 10px;
-  color: var(--accent);
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-}
-
-.bodypose figcaption {
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--dim);
-  text-align: center;
-  margin-top: 6px;
 }
 
 /* ── Test of Skew ─────────────────────── */
@@ -514,64 +429,99 @@ button {
   font-size: 8px;
 }
 
-/* ── 体位イラスト ─────────────────────── */
-.posefig {
+
+/* ── 体位イラスト（画像） ───────────────── */
+.poseimg,
+.posefilm {
   margin: 0 0 10px;
-  padding: 8px 6px 6px;
-  background: #060a26;
+  padding: 6px;
+  background: #0d1440;
   border: 1px solid #2c3468;
-  border-radius: 2px;
-}
-
-.posefig-panels {
-  display: flex;
-  gap: 6px;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.posefig-panel {
-  flex: 1 1 0;
-  min-width: 0;
+  border-radius: 3px;
   text-align: center;
 }
 
-.posefig-panel svg {
+.poseimg img {
   display: block;
   width: 100%;
   height: auto;
+  max-width: 300px;
+  margin: 0 auto;
+  border-radius: 3px;
 }
 
-.posefig-view {
-  display: block;
-  font-size: 10px;
-  color: var(--accent);
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-}
-
-.posefig-label {
-  display: block;
+.posefilm-stage {
+  position: relative;
   width: 100%;
-  height: auto;
-  margin-top: 6px;
+  max-width: 300px;
+  margin: 0 auto;
+  /* 画像の縦横比に合わせて場所を確保し、切り替えで高さが動かないようにする */
+  aspect-ratio: 480 / 470;
 }
 
-.posefig figcaption {
+.posefilm-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.14s linear;
+}
+
+.poseimg figcaption,
+.posefilm figcaption {
   font-size: 11px;
   line-height: 1.6;
-  color: var(--dim);
-  text-align: center;
   margin-top: 4px;
 }
 
-.pose-choice .posefig {
-  margin: 0;
-  padding: 2px;
-  border: none;
-  background: none;
-  width: 100%;
+.poseimg-missing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 96px;
+  padding: 10px 8px;
+  border: 1px dashed #4a5da8;
+  border-radius: 3px;
+  background: #070b28;
 }
 
-.pose-choice .posefig-panels { gap: 2px; }
-.pose-choice .posefig-view { font-size: 8px; }
+.poseimg-missing-title {
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+
+.poseimg-missing-file {
+  font-size: 10px;
+  color: var(--dim);
+  word-break: break-all;
+}
+
+.poseimg-missing-spec {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--dim);
+  text-align: left;
+}
+
+/* ミニゲームの選択肢では小さく詰めて出す */
+.poseimg--compact {
+  margin: 0;
+  padding: 3px;
+}
+
+.poseimg--compact img,
+.poseimg--compact .posefilm-stage {
+  max-width: 140px;
+}
+
+.poseimg--compact figcaption {
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.poseimg--compact .poseimg-missing {
+  min-height: 64px;
+}
