@@ -5,6 +5,8 @@
 - Epley frame 04 cervical anatomy was reconstructed to match frame 03 neck length, width, shoulder attachment, and extension, with rotation but no lateral bending.
 - Right Epley now ends in edge sitting on the screen-right long edge, with both legs hanging off the right side after rising from left side-lying; the left asset is its exact mirror.
 - Right Epley frame 05 was compared at 0:47-0:54 with the Michigan Medicine Right Epley video. The final fixed-camera mapping places the chest/face toward screen-right and the back toward screen-left for true left side-lying, while the shoulder pillow remains visible at the head end.
+- The right Epley patient layer is anchored 48 pixels toward the screen-right bed edge from the first frame onward, so the final edge-sitting pelvis reaches that edge and both lower legs clear the mattress. The left sequence mirrors this placement.
+- Right Epley frame 06 keeps the torso and legs directed toward the screen-right bed edge while the head remains turned toward screen-left in continuity with frame 05.
 - All exported frames now receive a restrained RGB-only focus correction; alpha geometry and frame registration remain unchanged.
 - Dix-Hallpike frame 03 was revised so the pillow supports the upper shoulders only and the occiput hangs visibly below the support with approximately 20 to 25 degrees of extension.
 - Epley frames 03 and 04 received the same more visible shoulder-supported head-hanging position while retaining their opposite 45-degree yaw directions.

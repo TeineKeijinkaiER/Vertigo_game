@@ -124,6 +124,8 @@ def build(
     frame_overrides: dict[int, Path] | None = None,
     copy_right_indices: dict[int, int] | None = None,
     fixed_background: tuple[Path, int] | None = None,
+    fixed_background_image: Path | None = None,
+    subject_offset: tuple[int, int] = (0, 0),
 ) -> list[dict[str, object]]:
     rgba_sheet = chroma_to_alpha(Image.open(source))
     masters = ASSET_ROOT / "masters"
@@ -136,10 +138,21 @@ def build(
         right[target] = right[source_index].copy()
     for index in flip_right_indices or set():
         right[index] = right[index].transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    if subject_offset != (0, 0):
+        shifted_frames = []
+        for frame in right:
+            shifted = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+            shifted.alpha_composite(frame, subject_offset)
+            shifted_frames.append(shifted)
+        right = shifted_frames
     if fixed_background is not None:
         background_source, background_index = fixed_background
         background_sheet = chroma_to_alpha(Image.open(background_source))
         background = split_grid(background_sheet, columns, rows, count)[background_index]
+        right = [Image.alpha_composite(background, frame) for frame in right]
+    if fixed_background_image is not None:
+        background = chroma_to_alpha(Image.open(fixed_background_image))
+        background = background.resize(right[0].size, Image.Resampling.LANCZOS)
         right = [Image.alpha_composite(background, frame) for frame in right]
     right = [polish_frame(frame) for frame in right]
     compose_grid(right, columns, rows).save(masters / f"{maneuver}-right-rgba.png")
@@ -173,10 +186,13 @@ def main() -> None:
                 7,
                 [0, 1, 2, 3, 4, 5],
                 [700, 700, 1800, 1800, 1800, 1800],
-                fixed_background=(
-                    generated / "exec-e8cc24b8-2829-474b-9ce9-dfa22544e60b.png",
-                    6,
+                frame_overrides={
+                    5: generated / "exec-9865b974-1b07-4dc7-974d-ca858ec92935.png"
+                },
+                fixed_background_image=(
+                    generated / "exec-7119533c-8e52-4764-94b5-c2baab35a01a.png"
                 ),
+                subject_offset=(48, 0),
             ),
             "gufoni-horizontal-geotropic": build(
                 "gufoni-horizontal-geotropic",
