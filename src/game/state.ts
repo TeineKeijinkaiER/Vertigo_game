@@ -1,19 +1,12 @@
+import type { ManeuverAttempt } from '../data/maneuvers'
 import type { Side, VestibularType } from '../data/types'
 
-export type Phase =
-  | 'title'
-  | 'select'
-  | 'brief'
-  | 'exam'
-  | 'triage'
-  | 'criteria'
-  | 'studies'
-  | 'studyResult'
-  | 'disposition'
-  | 'day2'
-  | 'diagnosis'
-  | 'treatment'
-  | 'result'
+/**
+ * 診察を終えると、すぐに鑑別診断 → 方針決定に進む。
+ * GRACE-3の分類とHOWTO 4条件は独立した画面ではなく、
+ * 診察フェーズの「みたてる」コマンドとして扱う。
+ */
+export type Phase = 'title' | 'select' | 'brief' | 'exam' | 'diagnosis' | 'disposition' | 'result'
 
 export interface LogEntry {
   actionId: string
@@ -24,17 +17,16 @@ export interface LogEntry {
 export interface GameState {
   phase: Phase
   caseId: number | null
-  /** 実施した診察コマンド（順序を保つ） */
+  /** 実施した診察・検査・治療コマンド（順序を保つ） */
   performed: string[]
   log: LogEntry[]
   vestibularAnswer: VestibularType | null
   criteriaAnswers: boolean[]
-  studiesOrdered: string[]
-  dispositionChoice: string | null
-  day2Seen: boolean
+  /** 耳石置換法の実施内容。組み立てを誤っていても記録する */
+  maneuver: ManeuverAttempt | null
   diagnosisAnswer: string | null
   sideAnswer: Side
-  treatmentsChosen: string[]
+  dispositionChoice: string | null
 }
 
 export const initialState: GameState = {
@@ -44,12 +36,10 @@ export const initialState: GameState = {
   log: [],
   vestibularAnswer: null,
   criteriaAnswers: [false, false, false, false],
-  studiesOrdered: [],
-  dispositionChoice: null,
-  day2Seen: false,
+  maneuver: null,
   diagnosisAnswer: null,
   sideAnswer: null,
-  treatmentsChosen: [],
+  dispositionChoice: null,
 }
 
 export type Action =
@@ -58,12 +48,11 @@ export type Action =
   | { type: 'PERFORM'; entry: LogEntry }
   | { type: 'SET_VESTIBULAR'; value: VestibularType }
   | { type: 'TOGGLE_CRITERION'; index: number }
-  | { type: 'TOGGLE_STUDY'; id: string }
-  | { type: 'SET_DISPOSITION'; id: string }
-  | { type: 'SEE_DAY2' }
+  | { type: 'CONFIRM_ASSESS'; id: 'as_grace' | 'as_criteria' }
+  | { type: 'SET_MANEUVER'; attempt: ManeuverAttempt; entry: LogEntry }
   | { type: 'SET_DIAGNOSIS'; value: string }
   | { type: 'SET_SIDE'; value: Side }
-  | { type: 'TOGGLE_TREATMENT'; id: string }
+  | { type: 'SET_DISPOSITION'; id: string }
   | { type: 'RESET' }
 
 export function reducer(state: GameState, action: Action): GameState {
@@ -91,21 +80,22 @@ export function reducer(state: GameState, action: Action): GameState {
       return { ...state, criteriaAnswers: next }
     }
 
-    case 'TOGGLE_STUDY': {
-      const has = state.studiesOrdered.includes(action.id)
+    // 「どれも該当しない」が正解の症例があるので、
+    // 選択の有無ではなく決定したことをもって実施済みとする
+    case 'CONFIRM_ASSESS':
+      return state.performed.includes(action.id)
+        ? state
+        : { ...state, performed: [...state.performed, action.id] }
+
+    case 'SET_MANEUVER':
       return {
         ...state,
-        studiesOrdered: has
-          ? state.studiesOrdered.filter((s) => s !== action.id)
-          : [...state.studiesOrdered, action.id],
+        maneuver: action.attempt,
+        performed: state.performed.includes('tx_maneuver')
+          ? state.performed
+          : [...state.performed, 'tx_maneuver'],
+        log: [...state.log, action.entry],
       }
-    }
-
-    case 'SET_DISPOSITION':
-      return { ...state, dispositionChoice: action.id }
-
-    case 'SEE_DAY2':
-      return { ...state, day2Seen: true }
 
     case 'SET_DIAGNOSIS':
       return { ...state, diagnosisAnswer: action.value }
@@ -113,15 +103,8 @@ export function reducer(state: GameState, action: Action): GameState {
     case 'SET_SIDE':
       return { ...state, sideAnswer: action.value }
 
-    case 'TOGGLE_TREATMENT': {
-      const has = state.treatmentsChosen.includes(action.id)
-      return {
-        ...state,
-        treatmentsChosen: has
-          ? state.treatmentsChosen.filter((t) => t !== action.id)
-          : [...state.treatmentsChosen, action.id],
-      }
-    }
+    case 'SET_DISPOSITION':
+      return { ...state, dispositionChoice: action.id }
 
     case 'RESET':
       return { ...initialState }

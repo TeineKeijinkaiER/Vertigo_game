@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { IMAGING_CRITERIA } from '../data/actions'
 import type { CaseDef } from '../data/types'
 import { Button, TypedText, Win } from '../components/ui'
 import { sfxFanfare, sfxGameOver } from '../audio/sfx'
@@ -13,6 +14,8 @@ const RANK_COLOR: Record<string, string> = {
   D: 'var(--danger)',
 }
 
+type Step = 'day2' | 'ending' | 'score' | 'review'
+
 export function ResultScreen({
   caseDef,
   state,
@@ -22,26 +25,9 @@ export function ResultScreen({
   state: GameState
   dispatch: (a: Action) => void
 }) {
-  const [step, setStep] = useState<'ending' | 'score' | 'review'>('ending')
   const result = scoreGame(caseDef, state)
+  const [step, setStep] = useState<Step>(result.showsDay2 ? 'day2' : 'ending')
   const isBad = result.ending === 'worst'
-
-  // 講評は減点理由と項目コメントが重複しうるので、本文で重複排除する
-  const review: { text: string; bad: boolean }[] = []
-  const seen = new Set<string>()
-  const deductionReasons = new Set(result.deductions.map((d) => d.reason))
-  for (const l of result.lines) {
-    for (const n of l.notes) {
-      if (seen.has(n)) continue
-      seen.add(n)
-      review.push({ text: n, bad: deductionReasons.has(n) })
-    }
-  }
-  for (const d of result.deductions) {
-    if (seen.has(d.reason)) continue
-    seen.add(d.reason)
-    review.push({ text: d.reason, bad: true })
-  }
 
   useEffect(() => {
     if (step === 'score') {
@@ -49,6 +35,20 @@ export function ResultScreen({
       else sfxFanfare()
     }
   }, [step, isBad])
+
+  // 入院させた症例では、翌日の再検で何が起きたかを先に見せる
+  if (step === 'day2') {
+    return (
+      <div className="stack grow">
+        <Win title="第2病日" className="grow scroll">
+          <TypedText text={caseDef.day2 ?? ''} speed={20} />
+        </Win>
+        <Button variant="primary" onClick={() => setStep('ending')}>
+          そのあと
+        </Button>
+      </div>
+    )
+  }
 
   if (step === 'ending') {
     return (
@@ -104,6 +104,23 @@ export function ResultScreen({
     )
   }
 
+  // 講評は減点理由と項目コメントが重複しうるので、本文で重複排除する
+  const review: { text: string; bad: boolean }[] = []
+  const seen = new Set<string>()
+  const deductionReasons = new Set(result.deductions.map((d) => d.reason))
+  for (const l of result.lines) {
+    for (const n of l.notes) {
+      if (seen.has(n)) continue
+      seen.add(n)
+      review.push({ text: n, bad: deductionReasons.has(n) })
+    }
+  }
+  for (const d of result.deductions) {
+    if (seen.has(d.reason)) continue
+    seen.add(d.reason)
+    review.push({ text: d.reason, bad: true })
+  }
+
   return (
     <div className="stack grow">
       <div className="stack grow scroll">
@@ -112,6 +129,19 @@ export function ResultScreen({
             {review.map((r) => (
               <div className={`msg small${r.bad ? ' danger' : ''}`} key={r.text}>
                 ・{r.text}
+              </div>
+            ))}
+          </div>
+        </Win>
+
+        <Win title="この症例の画像適応（HOWTO 4条件）">
+          <div className="stack">
+            {IMAGING_CRITERIA.map((q, i) => (
+              <div className="msg small" key={q}>
+                <span className={caseDef.criteria[i] ? 'danger' : 'dim'}>
+                  {caseDef.criteria[i] ? '該当する' : '該当しない'}
+                </span>
+                　{q}
               </div>
             ))}
           </div>

@@ -61,6 +61,7 @@ export const case19: CaseDef = {
     nr_bp_both: '両上肢の血圧に有意差なし（右 148/86、左 146/84）。橈骨動脈は左右とも良好に触知。',
     nr_orthostatic: '起立後3分の血圧低下は認めない（起立性低血圧は否定的）。',
 
+    hx_device: '体内にデバイスは入っていないと話す。ペースメーカーの植込みもない。',
     tx_fluid: '輸液を開始した。',
     tx_atarax: 'アタラックスP 25mg + 生食50mLを15分で投与した。……本例の主症状は強い回転性めまいではなく、ふらつきである。',
     tx_primperan: 'プリンペラン1A + 生食50mLを15分で投与した。軽度の嘔気は和らいだ。',
@@ -84,6 +85,8 @@ export const case19: CaseDef = {
     'nr_tandem',
     'nr_romberg_c',
     'nr_onefoot',
+    'as_grace',
+    'as_criteria',
   ],
   recommended: ['hx_witness', 'hx_trigger', 'hx_meds', 'eye_gaze', 'eye_skew', 'nr_fnf', 'nr_romberg_o', 'nr_vitals'],
   penalties: [],
@@ -93,34 +96,13 @@ export const case19: CaseDef = {
   // 1: Af・高血圧というリスク因子あり  2: 眼振が全くないのに強い失調は末梢性として矛盾
   // 3: 継ぎ足歩行障害・Romberg閉眼増悪という中枢性所見あり  4: ふらつきが強い
   criteria: [true, true, true, true],
-  imagingStance: 'indicated',
+  mriStance: 'indicated',
+  mriResult:
+    '頭部MRI-DWI：明らかな高信号域を指摘できない。放射線科読影も「急性期梗塞を示唆する所見なし」。\n\n……画面には、何も写っていない。',
+  day2:
+    '第2病日。昨日と同じ条件で撮り直した頭部MRIのDWIに、右小脳半球下部（PICA領域）の径8mmの高信号域が、はっきりと出現していた。\n\n初回のMRIには、確かに写っていなかったものである。\n\n放射線科医が言った。「昨日の画像と並べると分かりますね。これは新しく出てきた急性期梗塞です」',
   // 継ぎ足歩行が崩れ、閉眼で著明に動揺する。失調が明らかであり帰宅は見逃しになる
   dischargeAfterNegativeOk: false,
-  imagingExpected: ['st_mri'],
-  studyResults: {
-    st_mri: {
-      text:
-        '頭部MRI-DWI：明らかな高信号域を指摘できない。放射線科読影も「急性期梗塞を示唆する所見なし」。\n\n……画面には、何も写っていない。',
-      diagnostic: false,
-    },
-    st_mra: {
-      text: 'MRA：右椎骨動脈にやや不整を認めるが、有意狭窄と言い切れる所見ではない。PICAは描出されている。',
-      diagnostic: false,
-    },
-    st_ct: { text: '頭部CT：頭蓋内出血なし。後頭蓋窩はアーチファクトが強く、微小病変の評価は困難。', diagnostic: false },
-    st_ecg: { text: '心電図：心房細動。心拍数 76/分。ST-T変化なし。', diagnostic: false },
-    st_echo: { text: '心エコー：左房拡大あり。明らかな左房内血栓は指摘できない。EF 62%。', diagnostic: false },
-    st_blood: { text: '血液検査：特記すべき異常なし。D-dimer 軽度上昇。', diagnostic: false },
-    st_audio: { text: '純音聴力検査：両耳とも正常範囲。', diagnostic: false },
-    st_cta: { text: 'CTA：右椎骨動脈は描出されるが、明らかな解離所見・閉塞は指摘できない。', diagnostic: false },
-  },
-  studyPenalties: [],
-
-  day2: {
-    text:
-      '第2病日。昨日と同じ条件で撮り直した頭部MRIのDWIに、右小脳半球下部（PICA領域）の径8mmの高信号域が、はっきりと出現していた。\n\n初回のMRIには、確かに写っていなかったものである。\n\n放射線科医が言った。「昨日の画像と並べると分かりますね。これは新しく出てきた急性期梗塞です」',
-    diagnostic: true,
-  },
 
   diagnosis: {
     correct: '小脳梗塞（PICA領域）',
@@ -129,22 +111,17 @@ export const case19: CaseDef = {
     asksSide: true,
   },
 
+  maneuver: null,
+
   treatment: {
-    required: ['tr_anticoag', 'tr_bp_control', 'tr_vestibular_rehab'],
-    forbidden: [
-      { id: 'tr_epley_r', points: -15, reason: '中枢性めまいに耳石置換法は無効かつ危険。診断を誤っている' },
-      { id: 'tr_epley_l', points: -15, reason: '中枢性めまいに耳石置換法は無効かつ危険。診断を誤っている' },
-      { id: 'tr_lempert_r', points: -15, reason: '中枢性めまいに耳石置換法は無効かつ危険。診断を誤っている' },
-      { id: 'tr_lempert_l', points: -15, reason: '中枢性めまいに耳石置換法は無効かつ危険。診断を誤っている' },
-      { id: 'tr_home_rx', points: -10, reason: '急性期脳梗塞を帰宅処方で済ませてはいけない' },
-    ],
+    required: [],
+    forbidden: [{ id: 'tx_oral', points: -10, reason: '急性期脳梗塞を内服処方で済ませてはいけない' }],
   },
 
   disposition: {
-    correct: ['dp_observe', 'dp_consult', 'dp_admit'],
+    correct: ['dp_admit', 'dp_consult'],
     forbidden: [
       { id: 'dp_home', points: -20, reason: 'MRI陰性は中枢性の除外にならない。強く疑うなら入院して翌日に再検する' },
-      { id: 'dp_ent', points: -10, reason: '中枢性を疑う所見が揃っており、耳鼻科外来紹介では不十分' },
     ],
   },
 

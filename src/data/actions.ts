@@ -1,9 +1,11 @@
-import type { ActionDef, ActionGroup, DispositionDef, ImagingCriterion, StudyDef, TreatmentDef } from './types'
+import type { ActionDef, ActionGroup, DispositionDef } from './types'
 
 export const ACTION_GROUPS: { id: ActionGroup; label: string }[] = [
   { id: 'history', label: 'きく' },
   { id: 'eye', label: 'めをみる' },
   { id: 'neuro', label: 'しらべる' },
+  { id: 'assess', label: 'みたてる' },
+  { id: 'study', label: 'けんさ' },
   { id: 'tx', label: 'てあて' },
 ]
 
@@ -11,7 +13,7 @@ export const ACTION_GROUPS: { id: ActionGroup; label: string }[] = [
  * 全症例共通のコマンドマスタ。
  * 症例データは「このコマンドを叩いたら何が返るか」だけを持つ。
  * 粗い診察と細かい診察を別コマンドに分けているのが要点
- * （裸眼 / Frenzel、普通歩行 / 継ぎ足歩行、顔面感覚 片側ずつ / 両側同時、片腕 / 両上肢血圧）。
+ * （裸眼 / Frenzel、普通歩行 / 継ぎ足歩行、顔面感覚 片側ずつ / 両側同時）。
  */
 export const ACTIONS: ActionDef[] = [
   // ── きく（問診）
@@ -22,6 +24,7 @@ export const ACTIONS: ActionDef[] = [
   { id: 'hx_assoc', group: 'history', label: '随伴症状', hint: '嘔気・頭痛・複視・しびれ', fallback: '嘔気以外の随伴症状は訴えない。' },
   { id: 'hx_ear', group: 'history', label: '耳の症状', hint: '難聴・耳鳴・耳閉感', fallback: '難聴・耳鳴・耳閉感はないと話す。' },
   { id: 'hx_past', group: 'history', label: '既往歴・リスク因子', fallback: '特記すべき既往はないと話す。' },
+  { id: 'hx_device', group: 'history', label: '体内デバイスの有無', hint: 'ペースメーカーなど', fallback: '体内に金属やデバイスは入っていないと話す。' },
   { id: 'hx_meds', group: 'history', label: '内服薬', fallback: '常用薬はないと話す。' },
   { id: 'hx_social', group: 'history', label: '生活歴', hint: '喫煙・飲酒', fallback: '喫煙・飲酒の習慣はない。' },
   { id: 'hx_witness', group: 'history', label: '家族から話を聞く', fallback: '付き添いはおらず、追加の情報は得られない。' },
@@ -36,7 +39,7 @@ export const ACTIONS: ActionDef[] = [
   { id: 'eye_roll_r', group: 'eye', label: 'Supine Head Roll（右耳下）', fallback: '右耳下で明らかな水平眼振は誘発されない。' },
   { id: 'eye_roll_l', group: 'eye', label: 'Supine Head Roll（左耳下）', fallback: '左耳下で明らかな水平眼振は誘発されない。' },
   { id: 'eye_hit', group: 'eye', label: 'Head Impulse Test', fallback: 'HIT：陰性（補償性サッケードを認めない）。' },
-  { id: 'eye_skew', group: 'eye', label: 'Test of Skew（交代遮蔽）', fallback: '交代遮蔽で垂直方向の眼球のずれを認めない。' },
+  { id: 'eye_skew', group: 'eye', label: 'Test of Skew（交代遮蔽）', fallback: '交代遮蔽で垂直方向のずれを認めない。' },
 
   // ── しらべる（神経・全身）
   { id: 'nr_vitals', group: 'neuro', label: 'バイタルサイン', fallback: 'バイタルは安定している。' },
@@ -56,92 +59,55 @@ export const ACTIONS: ActionDef[] = [
   { id: 'nr_horner', group: 'neuro', label: 'Horner徴候', hint: '瞳孔・眼瞼', fallback: '瞳孔不同・眼瞼下垂を認めない。' },
   { id: 'nr_hearing', group: 'neuro', label: '聴力（音叉）', fallback: '聴力は左右とも正常。' },
   { id: 'nr_limb', group: 'neuro', label: '四肢の筋力・感覚', fallback: '四肢の筋力・感覚とも正常。' },
-  { id: 'nr_bp_both', group: 'neuro', label: '両上肢の血圧・橈骨動脈', fallback: '両上肢の血圧に有意差なし。橈骨動脈は左右とも良好に触知。' },
   { id: 'nr_orthostatic', group: 'neuro', label: '起立試験（血圧）', fallback: '起立後3分の血圧低下は認めない。' },
 
-  // ── てあて（診察中に行う対症療法と耳石置換法）
+  // ── みたてる（画面を開いて自分で判断する。所見テキストは返らない）
+  { id: 'as_grace', group: 'assess', label: 'めまいのタイプを分類する', hint: 'GRACE-3', fallback: '' },
+  { id: 'as_criteria', group: 'assess', label: '画像検査の適応を考える', hint: 'HOWTO 4条件', fallback: '' },
+
+  // ── けんさ
+  // 夜間ERで研修医が本当に判断すべきなのは「MRIを撮るか撮らないか」の一点に尽きる。
+  { id: 'st_mri', group: 'study', label: '頭部MRIを撮る', hint: 'DWI', fallback: 'DWIで明らかな高信号域を認めない。' },
+
+  // ── てあて
   { id: 'tx_fluid', group: 'tx', label: '輸液を開始する', fallback: '輸液を開始した。' },
   { id: 'tx_atarax', group: 'tx', label: 'アタラックスP DIV', hint: '25mg+生食50mL 15分', fallback: 'アタラックスP 25mg + 生食50mLを15分で投与した。' },
   { id: 'tx_primperan', group: 'tx', label: 'プリンペラン DIV', hint: '1A+生食50mL 15分', fallback: 'プリンペラン1A + 生食50mLを15分で投与した。' },
-  // 耳石置換法はベッドサイドでその場で行う手技なので、診察中に選べる必要がある。
-  // 治療フェーズでも同じIDを選べるようにし、採点はどちらで実施しても同一に扱う。
-  { id: 'tr_epley_r', group: 'tx', label: 'Epley法（右）', hint: '後半規管', fallback: '右のEpley法を施行した。眼振・めまいに明らかな変化はない。' },
-  { id: 'tr_epley_l', group: 'tx', label: 'Epley法（左）', hint: '後半規管', fallback: '左のEpley法を施行した。眼振・めまいに明らかな変化はない。' },
-  { id: 'tr_lempert_r', group: 'tx', label: 'Lempert法（右）', hint: '水平半規管・向地性', fallback: '右を患側としてLempert法（Barbecue回転）を施行した。明らかな変化はない。' },
-  { id: 'tr_lempert_l', group: 'tx', label: 'Lempert法（左）', hint: '水平半規管・向地性', fallback: '左を患側としてLempert法（Barbecue回転）を施行した。明らかな変化はない。' },
-  { id: 'tr_gufoni_geo_r', group: 'tx', label: 'Gufoni法 向地性（右）', hint: '健側へ倒れ顔を下', fallback: '右を患側としてGufoni法（向地性型）を施行した。明らかな変化はない。' },
-  { id: 'tr_gufoni_geo_l', group: 'tx', label: 'Gufoni法 向地性（左）', hint: '健側へ倒れ顔を下', fallback: '左を患側としてGufoni法（向地性型）を施行した。明らかな変化はない。' },
-  { id: 'tr_gufoni_apo_r', group: 'tx', label: 'Gufoni法 背地性（右）', hint: '患側へ倒れ顔を上', fallback: '右を患側としてGufoni法（背地性型）を施行した。明らかな変化はない。' },
-  { id: 'tr_gufoni_apo_l', group: 'tx', label: 'Gufoni法 背地性（左）', hint: '患側へ倒れ顔を上', fallback: '左を患側としてGufoni法（背地性型）を施行した。明らかな変化はない。' },
-]
-
-/** 耳石置換法のID。診察中の「てあて」と治療フェーズの両方に出現する */
-export const MANEUVER_IDS = [
-  'tr_epley_r',
-  'tr_epley_l',
-  'tr_lempert_r',
-  'tr_lempert_l',
-  'tr_gufoni_geo_r',
-  'tr_gufoni_geo_l',
-  'tr_gufoni_apo_r',
-  'tr_gufoni_apo_l',
+  // 耳石置換法はここから手技を組み立てるミニゲームに入る
+  { id: 'tx_maneuver', group: 'tx', label: '耳石置換法をおこなう', hint: '手技を組み立てる', fallback: '' },
+  { id: 'tx_steroid', group: 'tx', label: 'ステロイドを投与する', fallback: 'ステロイドの投与を開始した。' },
+  { id: 'tx_oral', group: 'tx', label: '内服を処方する', fallback: 'めまい・嘔気に対する内服を処方した。' },
+  { id: 'tx_rehab', group: 'tx', label: '前庭リハビリを指導する', fallback: '前庭リハビリテーションの方法を説明し、自宅で行うよう指導した。' },
+  { id: 'tx_fall', group: 'tx', label: '転倒予防を指導する', fallback: '起床時の動作をゆっくり行うこと、手すりを使うことを指導した。' },
 ]
 
 export const ACTION_MAP = new Map(ACTIONS.map((a) => [a.id, a]))
 
-/** HOWTO「画像検査の適応」の4条件 */
-export const IMAGING_CRITERIA: ImagingCriterion[] = [
-  { id: 'c1', question: 'リスクファクターのある症例の突然発症である' },
-  { id: 'c2', question: '眼振が末梢性として矛盾する（方向・固視による減弱など）' },
-  { id: 'c3', question: '中枢性を疑わせる随伴症状や神経所見がある' },
-  { id: 'c4', question: '起立時・歩行時のふらつきが強い' },
-]
-
-export const STUDIES: StudyDef[] = [
-  { id: 'st_blood', label: '血液検査', fallback: '特記すべき異常を認めない。' },
-  { id: 'st_ecg', label: '心電図', fallback: '洞調律。ST-T変化なし。' },
-  { id: 'st_ct', label: '頭部CT', fallback: '頭蓋内出血を認めない。明らかな低吸収域も指摘できない。' },
-  { id: 'st_mri', label: '頭部MRI（DWI）', fallback: 'DWIで明らかな高信号域を認めない。' },
-  { id: 'st_mra', label: 'MRA（頭蓋内血管）', fallback: '主幹動脈に明らかな狭窄・閉塞を認めない。' },
-  { id: 'st_cta', label: 'CTA（頸部〜頭蓋内）', fallback: '解離所見・有意狭窄を認めない。' },
-  { id: 'st_audio', label: '純音聴力検査', fallback: '聴力は正常範囲。' },
-  { id: 'st_echo', label: '心エコー', fallback: '明らかな塞栓源を指摘できない。' },
-]
-
-export const STUDY_MAP = new Map(STUDIES.map((s) => [s.id, s]))
-
+/**
+ * 方針。夜間ERを想定しているため耳鼻科は選択肢に置かない。
+ */
 export const DISPOSITIONS: DispositionDef[] = [
-  { id: 'dp_home', label: '帰宅（内服処方）', hint: 'セファドール・五苓散・トラベルミン' },
-  { id: 'dp_ent', label: '耳鼻科へ紹介（外来）' },
-  { id: 'dp_observe', label: '経過観察入院', hint: '翌日にMRIを再検する' },
-  { id: 'dp_admit', label: '緊急入院・脳卒中プロトコル' },
-  { id: 'dp_consult', label: '神経内科・脳神経外科に緊急コンサルト' },
+  { id: 'dp_home', label: '帰宅させる', hint: '内服処方・翌日以降に外来' },
+  { id: 'dp_admit', label: '入院させる', hint: '経過観察・翌日に再検' },
+  { id: 'dp_consult', label: '脳神経外科にコンサルト', hint: '緊急' },
 ]
 
 export const DISPOSITION_MAP = new Map(DISPOSITIONS.map((d) => [d.id, d]))
 
-export const TREATMENTS: TreatmentDef[] = [
-  { id: 'tr_epley_r', group: 'maneuver', label: 'Epley法（右）' },
-  { id: 'tr_epley_l', group: 'maneuver', label: 'Epley法（左）' },
-  { id: 'tr_lempert_r', group: 'maneuver', label: 'Lempert法（右）' },
-  { id: 'tr_lempert_l', group: 'maneuver', label: 'Lempert法（左）' },
-  { id: 'tr_gufoni_geo_r', group: 'maneuver', label: 'Gufoni法 向地性（右）' },
-  { id: 'tr_gufoni_geo_l', group: 'maneuver', label: 'Gufoni法 向地性（左）' },
-  { id: 'tr_gufoni_apo_r', group: 'maneuver', label: 'Gufoni法 背地性（右）' },
-  { id: 'tr_gufoni_apo_l', group: 'maneuver', label: 'Gufoni法 背地性（左）' },
-  { id: 'tr_steroid', group: 'drug', label: 'ステロイド（PSL 1mg/kg）' },
-  { id: 'tr_antiplatelet', group: 'drug', label: '抗血小板療法（アスピリン100mg/日）' },
-  { id: 'tr_anticoag', group: 'drug', label: '抗凝固療法の開始・再開' },
-  { id: 'tr_triptan', group: 'drug', label: 'トリプタン製剤' },
-  { id: 'tr_isobide', group: 'drug', label: 'イソバイド・ベタヒスチン' },
-  { id: 'tr_home_rx', group: 'drug', label: '帰宅処方（セファドール・五苓散・トラベルミン）' },
-  { id: 'tr_stroke_protocol', group: 'protocol', label: '脳卒中プロトコルを起動' },
-  { id: 'tr_swallow_eval', group: 'protocol', label: '嚥下評価・誤嚥予防' },
-  { id: 'tr_bp_control', group: 'protocol', label: '血圧・血糖・脂質の管理' },
-  { id: 'tr_vestibular_rehab', group: 'advice', label: '前庭リハビリを指導' },
-  { id: 'tr_brandt_daroff', group: 'advice', label: 'Brandt-Daroff運動を指導' },
-  { id: 'tr_fall_prevention', group: 'advice', label: '転倒予防を指導' },
-  { id: 'tr_smoking', group: 'advice', label: '禁煙指導' },
+/** HOWTO「画像検査の適応」の4条件。当てはまるものを選ばせる */
+export const IMAGING_CRITERIA = [
+  'リスクファクターのある症例の突然発症である',
+  '眼振が末梢性として矛盾する（方向・固視による減弱など）',
+  '中枢性を疑わせる随伴症状や神経所見がある',
+  '起立時・歩行時のふらつきが強い',
 ]
 
-export const TREATMENT_MAP = new Map(TREATMENTS.map((t) => [t.id, t]))
+/** GRACE-3 のめまい3分類 */
+export const VESTIBULAR_TYPES: { id: 'AVS' | 's-EVS' | 't-EVS'; label: string; hint: string }[] = [
+  { id: 'AVS', label: 'AVS', hint: '急に始まり安静時も24時間以上持続' },
+  { id: 's-EVS', label: 's-EVS', hint: 'きっかけなく数分〜数時間、反復' },
+  { id: 't-EVS', label: 't-EVS', hint: '体位で誘発、数秒〜数分、反復' },
+]
+
+/** 画面を開いて判断するコマンド（所見テキストを返さない） */
+export const MODAL_ACTIONS = ['as_grace', 'as_criteria', 'tx_maneuver']

@@ -56,6 +56,9 @@ export const case06: CaseDef = {
     nr_hearing: '聴力は左右とも正常。',
     nr_limb: '四肢の筋力・感覚とも正常。',
 
+    hx_device: '体内にデバイスは入っていないと話す。',
+    tx_steroid: 'ステロイドの投与を開始した。発症72時間以内であり、早期開始が望ましい。',
+    tx_rehab: '前庭リハビリテーションについて説明した。症状が落ち着き次第、早期に開始する方針とした。',
     tx_fluid: '生食の輸液を開始した。嘔吐による脱水の補正を兼ねる。',
     tx_atarax: 'アタラックスP 25mg + 生食50mLを15分で投与。10分ほどで「少し楽になった」と話す。',
     tx_primperan: 'プリンペラン1A + 生食50mLを15分で投与。嘔気が和らぎ、水分を口にできるようになった。',
@@ -109,6 +112,8 @@ export const case06: CaseDef = {
     'nr_gait',
     'nr_hearing',
     'tx_fluid',
+    'as_grace',
+    'as_criteria',
   ],
   recommended: [
     'hx_ear',
@@ -130,17 +135,11 @@ export const case06: CaseDef = {
   // 神経所見は陰性、ふらつきは一方向。HINTSも末梢性パターン。
   criteria: [true, false, false, false],
   // 45歳・高血圧あり。HINTSが末梢性で揃えばMRIは必須ではないが、撮る判断も妥当
-  imagingStance: 'optional',
+  mriStance: 'optional',
+  mriResult: 'DWIで明らかな高信号域を認めない。後頭蓋窩にも急性期梗塞を示唆する所見なし。',
+  day2: '第2病日。めまいは依然として続いているが、嘔吐は止まり、水分と食事を口にできるようになった。介助すれば数歩は歩ける。\n\n昨日と同じく、眼振は右向き方向不変のまま。新たな神経所見は出現していない。',
   // 帰宅が減点になるのは「中枢性の見逃し」ではなく、嘔吐で経口摂取できず起立も困難だから
   dischargeAfterNegativeOk: false,
-  imagingExpected: [],
-  studyResults: {
-    st_mri: { text: 'DWIで明らかな高信号域を認めない。後頭蓋窩にも急性期梗塞を示唆する所見なし。', diagnostic: false },
-    st_audio: { text: '純音聴力検査：両耳とも正常範囲。低音部の閾値上昇もない。', diagnostic: false },
-  },
-  studyPenalties: [{ id: 'st_blood', points: -3, reason: 'めまい診療にルーチンの血液検査は不要' }],
-
-  day2: null,
 
   diagnosis: {
     correct: '前庭神経炎',
@@ -149,20 +148,18 @@ export const case06: CaseDef = {
     asksSide: true,
   },
 
+  maneuver: null,
+
   treatment: {
-    required: ['tr_steroid', 'tr_vestibular_rehab'],
-    forbidden: [
-      { id: 'tr_epley_l', points: -5, reason: '耳石置換法の適応ではない（頭位性眼振がない）' },
-      { id: 'tr_epley_r', points: -5, reason: '耳石置換法の適応ではない（頭位性眼振がない）' },
-      { id: 'tr_stroke_protocol', points: -8, reason: 'HINTSが末梢性パターンであり脳卒中プロトコルは不要' },
-    ],
+    required: ['tx_fluid', 'tx_steroid', 'tx_rehab'],
+    forbidden: [],
   },
 
   disposition: {
-    correct: ['dp_observe', 'dp_ent'],
+    correct: ['dp_admit'],
     forbidden: [
       { id: 'dp_home', points: -12, reason: '嘔吐で経口摂取できず起立も困難。支持療法のため入院が必要' },
-      { id: 'dp_admit', points: -5, reason: '中枢性は否定的であり脳卒中プロトコルは過剰' },
+      { id: 'dp_consult', points: -5, reason: 'HINTSが末梢性パターンで揃っており、脳神経外科コンサルトは過剰' },
     ],
   },
 

@@ -44,8 +44,8 @@ export const case01: CaseDef = {
     nr_romberg_c: '閉眼でも著明な動揺は認めない。',
     nr_hearing: '聴力は左右とも正常。耳鳴・耳閉感もない。',
 
-    tr_epley_r: '右のEpley法を施行。各体位で30〜60秒保持したのち起坐させた。直後に再度Dix-Hallpikeを行うと、眼振もめまいも誘発されない。患者は「治りました」と目を丸くしている。',
-    tr_epley_l: '左のEpley法を施行した。眼振・めまいに変化はない。……患側の判断を誤っている可能性がある。',
+    hx_device: '体内に金属やデバイスは入っていないと話す。手術歴もない。',
+    tx_rehab: 'Brandt-Daroff運動のやり方を紙に書いて渡し、朝晩に行うよう指導した。再発予防になることも説明した。',
     tx_fluid: '輸液を開始した。患者はやや落ち着いた様子。',
     tx_atarax: 'アタラックスP 25mg + 生食50mLを15分で投与した。……ただし本例のめまいは30秒で自然に消える。',
     tx_primperan: 'プリンペラン1A + 生食50mLを15分で投与した。軽度の嘔気は和らいだ。',
@@ -78,6 +78,8 @@ export const case01: CaseDef = {
     'eye_roll_l',
     'nr_cpss',
     'nr_gait',
+    'as_grace',
+    'as_criteria',
   ],
   recommended: ['hx_course', 'hx_past', 'hx_meds', 'hx_ear', 'eye_frenzel', 'nr_hearing', 'nr_tandem'],
   penalties: [
@@ -88,19 +90,10 @@ export const case01: CaseDef = {
 
   criteria: [false, false, false, false],
   // Dix-Hallpikeが明確に陽性で潜時・疲労性まで揃っている。ここまで典型的なら画像は不要
-  imagingStance: 'unnecessary',
-  dischargeAfterNegativeOk: true,
-  imagingExpected: [],
-  studyResults: {},
-  studyPenalties: [
-    { id: 'st_mri', points: -3, reason: 'Dix-Hallpike陽性の典型的BPPVにMRIは不要' },
-    { id: 'st_ct', points: -3, reason: 'Dix-Hallpike陽性の典型的BPPVにCTは不要' },
-    { id: 'st_mra', points: -3, reason: '典型的なBPPVに血管評価は不要' },
-    { id: 'st_cta', points: -3, reason: '典型的なBPPVに血管評価は不要' },
-    { id: 'st_blood', points: -3, reason: 'めまい診療にルーチンの血液検査は不要' },
-  ],
-
+  mriStance: 'unnecessary',
+  mriResult: 'DWIで明らかな高信号域を認めない。……そもそもこの所見でMRIを撮る必要はなかった。',
   day2: null,
+  dischargeAfterNegativeOk: true,
 
   diagnosis: {
     correct: '後半規管BPPV',
@@ -109,21 +102,18 @@ export const case01: CaseDef = {
     asksSide: true,
   },
 
+  maneuver: { kind: 'epley', side: 'R' },
+
   treatment: {
-    required: ['tr_epley_r', 'tr_brandt_daroff'],
-    forbidden: [
-      { id: 'tr_epley_l', points: -5, reason: '患側は右。左のEpley法では耳石は戻らない' },
-      { id: 'tr_steroid', points: -5, reason: 'BPPVにステロイドの適応はない' },
-      { id: 'tr_stroke_protocol', points: -10, reason: '典型的なBPPVに脳卒中プロトコルは不要' },
-    ],
+    required: ['tx_rehab'],
+    forbidden: [{ id: 'tx_steroid', points: -5, reason: 'BPPVにステロイドの適応はない' }],
   },
 
   disposition: {
-    correct: ['dp_home', 'dp_ent'],
+    correct: ['dp_home'],
     forbidden: [
-      { id: 'dp_observe', points: -3, reason: '典型的なBPPVで入院は不要（医療資源の適正利用）' },
-      { id: 'dp_admit', points: -8, reason: '典型的なBPPVに脳卒中プロトコルは不要' },
-      { id: 'dp_consult', points: -5, reason: '典型的なBPPVに神経内科・脳外科コンサルトは不要' },
+      { id: 'dp_admit', points: -5, reason: '典型的なBPPVで入院は不要（医療資源の適正利用）' },
+      { id: 'dp_consult', points: -8, reason: '典型的なBPPVに脳神経外科コンサルトは不要' },
     ],
   },
 

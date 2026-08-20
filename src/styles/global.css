@@ -357,3 +357,74 @@ button {
 .nystagmus .replay:active {
   background: #1c2560;
 }
+
+/* ── 頭位のイラスト ─────────────────────── */
+.headpose {
+  margin: 0;
+  text-align: center;
+}
+
+.headpose svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 108px;
+  margin: 0 auto;
+}
+
+.headpose figcaption {
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--dim);
+  margin-top: 2px;
+}
+
+.exampose {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #060a26;
+  border: 1px solid #2c3468;
+  border-radius: 2px;
+}
+
+.exampose .headpose {
+  flex: 0 0 88px;
+}
+
+.exampose p {
+  margin: 0;
+  text-align: left;
+}
+
+/* ── 耳石置換法のミニゲーム ───────────────── */
+.pose-choices {
+  display: flex;
+  gap: 8px;
+}
+
+.pose-choice {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: 2px solid var(--frame);
+  border-radius: 2px;
+  background: var(--navy);
+  min-height: 44px;
+}
+
+.pose-choice:active {
+  background: #1c2560;
+  border-color: var(--accent);
+}
+
+.pose-choice .pose-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
