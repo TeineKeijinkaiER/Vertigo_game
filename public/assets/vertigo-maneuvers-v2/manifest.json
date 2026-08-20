@@ -1,0 +1,148 @@
+{
+  "camera": "Locked elevated foot-end view; patient right is screen-left in right-side masters.",
+  "mirroring": "Left variants are exact horizontal mirrors of reviewed right-side frames.",
+  "maneuvers": {
+    "dix-hallpike-posterior": [
+      {
+        "side": "right",
+        "gif": "public/assets/vertigo-maneuvers-v2/dix-hallpike-posterior/right/dix-hallpike-posterior-right.gif",
+        "keyframes": 4,
+        "encoded_frames": 5,
+        "durations_ms": [
+          700,
+          700,
+          1800,
+          800,
+          700
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      {
+        "side": "left",
+        "gif": "public/assets/vertigo-maneuvers-v2/dix-hallpike-posterior/left/dix-hallpike-posterior-left.gif",
+        "keyframes": 4,
+        "encoded_frames": 5,
+        "durations_ms": [
+          700,
+          700,
+          1800,
+          800,
+          700
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    ],
+    "epley-posterior": [
+      {
+        "side": "right",
+        "gif": "public/assets/vertigo-maneuvers-v2/epley-posterior/right/epley-posterior-right.gif",
+        "keyframes": 7,
+        "encoded_frames": 6,
+        "durations_ms": [
+          700,
+          700,
+          1800,
+          1800,
+          1800,
+          1800
+        ],
+        "size": [
+          444,
+          444
+        ]
+      },
+      {
+        "side": "left",
+        "gif": "public/assets/vertigo-maneuvers-v2/epley-posterior/left/epley-posterior-left.gif",
+        "keyframes": 7,
+        "encoded_frames": 6,
+        "durations_ms": [
+          700,
+          700,
+          1800,
+          1800,
+          1800,
+          1800
+        ],
+        "size": [
+          444,
+          444
+        ]
+      }
+    ],
+    "gufoni-horizontal-geotropic": [
+      {
+        "side": "right",
+        "gif": "public/assets/vertigo-maneuvers-v2/gufoni-horizontal-geotropic/right/gufoni-horizontal-geotropic-right.gif",
+        "keyframes": 4,
+        "encoded_frames": 4,
+        "durations_ms": [
+          700,
+          1800,
+          1800,
+          900
+        ],
+        "size": [
+          627,
+          627
+        ]
+      },
+      {
+        "side": "left",
+        "gif": "public/assets/vertigo-maneuvers-v2/gufoni-horizontal-geotropic/left/gufoni-horizontal-geotropic-left.gif",
+        "keyframes": 4,
+        "encoded_frames": 4,
+        "durations_ms": [
+          700,
+          1800,
+          1800,
+          900
+        ],
+        "size": [
+          627,
+          627
+        ]
+      }
+    ],
+    "gufoni-horizontal-apogeotropic": [
+      {
+        "side": "right",
+        "gif": "public/assets/vertigo-maneuvers-v2/gufoni-horizontal-apogeotropic/right/gufoni-horizontal-apogeotropic-right.gif",
+        "keyframes": 4,
+        "encoded_frames": 4,
+        "durations_ms": [
+          700,
+          1800,
+          1800,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      {
+        "side": "left",
+        "gif": "public/assets/vertigo-maneuvers-v2/gufoni-horizontal-apogeotropic/left/gufoni-horizontal-apogeotropic-left.gif",
+        "keyframes": 4,
+        "encoded_frames": 4,
+        "durations_ms": [
+          700,
+          1800,
+          1800,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    ]
+  }
+}
