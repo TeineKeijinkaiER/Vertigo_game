@@ -8,7 +8,7 @@ import { register } from 'node:module'
 register('./rig-ts-loader.mjs', import.meta.url)
 
 const { MANEUVERS, TREE, HEAD_RADIUS, V, bodyAxis, widthAxis, neckToHead, mirrorPose } = await import('../src/rig/poses.ts')
-const { framingPoints, viewDirection } = await import('../src/rig/scene.ts')
+const { framingPoints, viewDirection, screenUp } = await import('../src/rig/scene.ts')
 
 const allPoses = () => Object.values(MANEUVERS).flatMap((maneuver) => maneuver.poses)
 const failures = []
@@ -287,6 +287,29 @@ await check('どの視点も頭頂を正面から見ない', async () => {
       assert.ok(
         alignment < 0.85,
         `${id} (${spec.view}) の視線が頭頂を向いている: |視線・頸→頭| = ${alignment.toFixed(2)}`,
+      )
+    }
+  }
+})
+
+await check('頭側視点は真上からの俯瞰で、画面上方向が体軸に固定される', async () => {
+  const { POSE_IDS, resolvePanels, resolvePose } = await import('../src/rig/catalog.ts')
+  for (const id of POSE_IDS) {
+    for (const spec of resolvePanels(id)) {
+      if (spec.view !== 'cranial') continue
+      const pose = resolvePose(spec)
+      const direction = viewDirection(pose, spec.view)
+      assert.ok(
+        direction.y < -0.9,
+        `${id} の頭側視点が俯瞰になっていない: 視線の y = ${direction.y.toFixed(2)}`,
+      )
+      // 顔の向きが変わっても画面の上下が回らないこと。
+      // 頭部回旋のコマ送りで画像全体が回転すると動きが読めなくなる
+      const up = screenUp(pose, spec.view)
+      const alongBody = Math.abs(up.dot(bodyAxis(pose)))
+      assert.ok(
+        alongBody > 0.9,
+        `${id} の画面上方向が体軸に沿っていない: |上方向・体軸| = ${alongBody.toFixed(2)}`,
       )
     }
   }

@@ -161,18 +161,29 @@ export function positionCamera(camera: THREE.PerspectiveCamera, maneuver: Maneuv
 export type View = 'front' | 'lateral' | 'cranial'
 export type Framing = 'full' | 'head'
 
-/** 頭側視点の見下ろし角。検者が頭側に立って患者を見下ろす構図に合わせる */
-const CRANIAL_ELEVATION = 2.0
-
 /** カメラが向く方向。カメラ位置は注視点からこの逆向きに離れた場所になる */
 export function viewDirection(pose: RigPose, view: View): THREE.Vector3 {
   if (view === 'front') return pose.faceDirection.clone().negate()
   if (view === 'lateral') return widthAxis(pose)
-  // 体軸の延長線上から覗くと頭頂を正面から見ることになり、顔が頭部の陰に隠れる。
-  // 頭側かつ上方にカメラを置き、見下ろす向きにする
-  const raised = bodyAxis(pose).clone().addScaledVector(V(0, 1, 0), CRANIAL_ELEVATION)
-  if (raised.lengthSq() < 0.04) return bodyAxis(pose).clone().negate()
-  return raised.normalize().negate()
+  // 「頭の方から見た図」は真上からの俯瞰。体軸の延長から覗くと頭頂＝髪しか
+  // 見えず、頸を前屈したポーズでは顔が視線と直交して完全に隠れる。
+  // 体軸が鉛直に近いポーズ（坐位）だけは俯瞰にできないので体軸沿いに退避する
+  if (Math.abs(bodyAxis(pose).y) > 0.9) return bodyAxis(pose).clone().negate()
+  return V(0, -1, 0)
+}
+
+/**
+ * 画面の上方向。
+ *
+ * 通常は世界の上方向を使う。床と天井の区別が臨床的な意味を持つため。
+ * 俯瞰では世界の上方向が視線と平行になって使えないので、体軸を使い
+ * 頭が画面上に来るようにする。顔の向きを使うと、頭部回旋のコマ送りで
+ * 画像全体が回ってしまい動きが読めなくなる。
+ */
+export function screenUp(pose: RigPose, view: View): THREE.Vector3 {
+  const direction = viewDirection(pose, view)
+  if (Math.abs(direction.y) <= 0.95) return V(0, 1, 0)
+  return bodyAxis(pose).clone()
 }
 
 /**
@@ -211,7 +222,7 @@ export function fitCamera(
   margin = 0.08,
 ): void {
   const direction = viewDirection(pose, view)
-  const worldUp = Math.abs(direction.y) > 0.95 ? pose.faceDirection.clone() : V(0, 1, 0)
+  const worldUp = screenUp(pose, view)
   const right = worldUp.clone().cross(direction).normalize()
   const up = direction.clone().cross(right).normalize()
 
