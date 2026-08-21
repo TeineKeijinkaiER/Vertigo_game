@@ -126,6 +126,7 @@ def build(
     fixed_background: tuple[Path, int] | None = None,
     fixed_background_image: Path | None = None,
     subject_offset: tuple[int, int] = (0, 0),
+    subject_offsets: dict[int, tuple[int, int]] | None = None,
 ) -> list[dict[str, object]]:
     rgba_sheet = chroma_to_alpha(Image.open(source))
     masters = ASSET_ROOT / "masters"
@@ -138,11 +139,12 @@ def build(
         right[target] = right[source_index].copy()
     for index in flip_right_indices or set():
         right[index] = right[index].transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-    if subject_offset != (0, 0):
+    if subject_offset != (0, 0) or subject_offsets:
         shifted_frames = []
-        for frame in right:
+        for index, frame in enumerate(right):
             shifted = Image.new("RGBA", frame.size, (0, 0, 0, 0))
-            shifted.alpha_composite(frame, subject_offset)
+            offset = (subject_offsets or {}).get(index, subject_offset)
+            shifted.alpha_composite(frame, offset)
             shifted_frames.append(shifted)
         right = shifted_frames
     if fixed_background is not None:
@@ -192,7 +194,8 @@ def main() -> None:
                 fixed_background_image=(
                     generated / "exec-7119533c-8e52-4764-94b5-c2baab35a01a.png"
                 ),
-                subject_offset=(48, 0),
+                subject_offset=(78, 0),
+                subject_offsets={5: (48, 0), 6: (48, 0)},
             ),
             "gufoni-horizontal-geotropic": build(
                 "gufoni-horizontal-geotropic",
