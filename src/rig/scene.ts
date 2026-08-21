@@ -272,37 +272,25 @@ export type ArrowKind = 'fall-left' | 'fall-right' | 'roll-left' | 'roll-right'
 
 const ARROW_COLOR = 0xe23b32
 
-/** 図の一部として描く方向指示。鼻方向のデバッグ矢印とは別物で、書き出しにも含める */
+/**
+ * 図の一部として描く方向指示。鼻方向のデバッグ矢印とは別物で、書き出しにも含める。
+ *
+ * 弧ではなく直線にしているのは、仰臥位を真上から見る画角では体軸まわりの弧が
+ * 画面に対して真横を向き、線に潰れて読めなくなるため。倒れる向きも回す向きも
+ * 「患者のどちら側へ動くか」なので、肩幅軸に沿った直線で表せる。
+ */
 export function makeDirectionArrow(pose: RigPose, kind: ArrowKind): THREE.Group {
   const group = new THREE.Group()
   const material = new THREE.MeshToonMaterial({ color: ARROW_COLOR })
+  const towards = widthAxis(pose).multiplyScalar(kind.endsWith('left') ? 1 : -1)
   const origin = pose.joints.shoulderCenter.clone()
-
-  if (kind === 'fall-left' || kind === 'fall-right') {
-    const towards = widthAxis(pose).multiplyScalar(kind === 'fall-left' ? 1 : -1)
-    const start = origin.clone().addScaledVector(towards, 0.55)
-    const shaft = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.55, 6, 12), material)
-    shaft.position.copy(start).addScaledVector(towards, 0.35)
-    shaft.quaternion.setFromUnitVectors(V(0, 1, 0), towards)
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.10, 0.24, 16), material)
-    tip.position.copy(start).addScaledVector(towards, 0.78)
-    tip.quaternion.setFromUnitVectors(V(0, 1, 0), towards)
-    group.add(shaft, tip)
-    return group
-  }
-
-  const axis = bodyAxis(pose)
-  const sign = kind === 'roll-left' ? 1 : -1
-  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.035, 8, 32, Math.PI * 0.75), material)
-  arc.position.copy(origin)
-  arc.quaternion.setFromUnitVectors(V(0, 0, 1), axis.clone().multiplyScalar(sign))
+  const start = origin.clone().addScaledVector(towards, 0.55)
+  const shaft = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.55, 6, 12), material)
+  shaft.position.copy(start).addScaledVector(towards, 0.35)
+  shaft.quaternion.setFromUnitVectors(V(0, 1, 0), towards)
   const tip = new THREE.Mesh(new THREE.ConeGeometry(0.10, 0.24, 16), material)
-  const tipAngle = Math.PI * 0.75
-  tip.position.copy(origin).add(
-    new THREE.Vector3(Math.cos(tipAngle) * 0.85, Math.sin(tipAngle) * 0.85, 0)
-      .applyQuaternion(arc.quaternion),
-  )
-  tip.quaternion.copy(arc.quaternion)
-  group.add(arc, tip)
+  tip.position.copy(start).addScaledVector(towards, 0.78)
+  tip.quaternion.setFromUnitVectors(V(0, 1, 0), towards)
+  group.add(shaft, tip)
   return group
 }

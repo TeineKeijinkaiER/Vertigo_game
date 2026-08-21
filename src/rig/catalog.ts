@@ -58,8 +58,10 @@ export const POSE_CATALOG = {
   gufoni_fall_r: panel('gufoni-apogeotropic', 'gufoni-a-start', 'front', 'full', { arrow: 'fall-right' }),
   gufoni_fall_l: panel('gufoni-geotropic', 'gufoni-g-start', 'front', 'full', { arrow: 'fall-left' }),
 
-  lempert_roll_r: panel('lempert', 'lempert-side', 'cranial', 'upper', { mirror: true, arrow: 'roll-right' }),
-  lempert_roll_l: panel('lempert', 'lempert-side', 'cranial', 'upper', { arrow: 'roll-left' }),
+  // 矢印は「回す前」の仰臥位に付ける。90°ロール後は widthAxis が垂直に
+  // 回っており、矢印が画面に対して真横を向いて潰れる。gufoni_fall_* と同じ
+  lempert_roll_r: panel('lempert', 'lempert-supine', 'cranial', 'upper', { arrow: 'roll-right' }),
+  lempert_roll_l: panel('lempert', 'lempert-supine', 'cranial', 'upper', { arrow: 'roll-left' }),
 
   lempert_full: {
     panels: [
