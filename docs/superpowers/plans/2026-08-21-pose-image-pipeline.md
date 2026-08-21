@@ -520,16 +520,25 @@ export function viewDirection(pose: RigPose, view: View): THREE.Vector3 {
   return bodyAxis(pose).negate()
 }
 
+/**
+ * 頭関節のまわりに6方向の点を置き、頭部メッシュの体積を画角計算に含める。
+ *
+ * 関節座標だけを囲むと、頭の球（半径 HEAD_RADIUS、身長のおよそ15%）が
+ * はみ出して頭頂が切れる。四肢や体幹の太さは margin で吸収できるが、
+ * 頭の半径は吸収できない。全身・頭部寄りのどちらの画角でも必要。
+ */
+const headVolumePoints = (pose: RigPose): THREE.Vector3[] =>
+  [V(1, 0, 0), V(-1, 0, 0), V(0, 1, 0), V(0, -1, 0), V(0, 0, 1), V(0, 0, -1)].map((axis) =>
+    pose.joints.head.clone().addScaledVector(axis, HEAD_RADIUS * 1.15),
+  )
+
 /** head は頭と肩に絞る。「体は動かさず頭だけ回す」ポーズで体幹の静止が見えるよう肩を含める */
 export function framingPoints(pose: RigPose, framing: Framing): THREE.Vector3[] {
-  if (framing === 'full') return Object.values(pose.joints).map((point) => point.clone())
-  const core = ['head', 'neck', 'shoulderCenter', 'shoulderLeft', 'shoulderRight']
-  const points = core.map((name) => pose.joints[name].clone())
-  // 頭部の体積を含めるため、頭関節まわりに軸方向の6点を足す
-  for (const axis of [V(1, 0, 0), V(-1, 0, 0), V(0, 1, 0), V(0, -1, 0), V(0, 0, 1), V(0, 0, -1)]) {
-    points.push(pose.joints.head.clone().add(axis.multiplyScalar(HEAD_RADIUS * 1.15)))
+  if (framing === 'full') {
+    return [...Object.values(pose.joints).map((point) => point.clone()), ...headVolumePoints(pose)]
   }
-  return points
+  const core = ['head', 'neck', 'shoulderCenter', 'shoulderLeft', 'shoulderRight']
+  return [...core.map((name) => pose.joints[name].clone()), ...headVolumePoints(pose)]
 }
 
 /**
@@ -1034,8 +1043,12 @@ export const POSE_CATALOG = {
   side_r_faceup: panel('gufoni-apogeotropic', 'gufoni-a-up', 'cranial', 'head'),
   side_l_faceup: panel('gufoni-apogeotropic', 'gufoni-a-up', 'cranial', 'head', { mirror: true }),
 
-  gufoni_fall_r: panel('gufoni-apogeotropic', 'gufoni-a-fall', 'front', 'full', { arrow: 'fall-right' }),
-  gufoni_fall_l: panel('gufoni-geotropic', 'gufoni-g-fall', 'front', 'full', { arrow: 'fall-left' }),
+  // 矢印は「倒れる前」の端座位に付ける。倒れた後のポーズでは width が
+  // V(0, -direction, 0) と垂直に回っており、widthAxis を使う矢印が
+  // 左右どちらの場合も真下を向いて区別できなくなる。
+  // spec の「坐位から…倒れるところ」にもこちらが合う
+  gufoni_fall_r: panel('gufoni-apogeotropic', 'gufoni-a-start', 'front', 'full', { arrow: 'fall-right' }),
+  gufoni_fall_l: panel('gufoni-geotropic', 'gufoni-g-start', 'front', 'full', { arrow: 'fall-left' }),
 
   lempert_roll_r: panel('lempert', 'lempert-side', 'cranial', 'full', { mirror: true, arrow: 'roll-right' }),
   lempert_roll_l: panel('lempert', 'lempert-side', 'cranial', 'full', { arrow: 'roll-left' }),
@@ -1536,18 +1549,15 @@ ROOT = Path(__file__).resolve().parents[1]
 POSES = ROOT / "public" / "poses"
 POSE_IMAGES_TS = ROOT / "src" / "data" / "poseImages.ts"
 SIZE = 512
-MIN_FILL = 0.55
-# 頭部寄りは頭と肩しか写らないので、より高い占有率を要求できる。
-# 頭部 bbox そのものは画像単体からは測れないため、全体占有率で代用する
-MIN_FILL_HEAD = 0.70
+# fitCamera は被写体の bbox を margin 0.08 でフレームに収めるので、
+# 制約側の軸は必ず 1/1.08 = 0.926 前後まで埋まる。
+# 「縦横とも」を要求すると、仰臥位のような横長の被写体が
+# 正方形フレームで縦に余るため必ず落ちる。長い方の軸だけを見る
+MIN_FILL_LONG = 0.90
+# 短い方の軸がここまで潰れていたら、画角か framing の選択が間違っている
+MIN_FILL_SHORT = 0.20
 
 ENTRY = re.compile(r"^  ([a-z0-9_]+): \{\s*\n\s*file: '([^']+)'", re.MULTILINE)
-# head フレーミングで書き出す ID。src/rig/catalog.ts と一致させること
-HEAD_FRAMED = {
-    "headroll_c", "headroll_r45", "headroll_r90", "headroll_l45", "headroll_l90",
-    "ep_cross_r", "ep_cross_l",
-    "side_r_facedown", "side_l_facedown", "side_r_faceup", "side_l_faceup",
-}
 STRIPS = {"lempert_full", "lempert_half"}
 
 
@@ -1577,13 +1587,18 @@ def main() -> None:
         fill_x = (box[2] - box[0]) / SIZE
         fill_y = (box[3] - box[1]) / SIZE
         if pose_id in STRIPS:
-            if fill_x < 0.9:
-                failures.append(f"{pose_id}: 帯の横占有率が {fill_x:.2f}（0.90 未満）")
+            if fill_x < MIN_FILL_LONG:
+                failures.append(f"{pose_id}: 帯の横占有率が {fill_x:.2f}（{MIN_FILL_LONG} 未満）")
         else:
-            minimum = MIN_FILL_HEAD if pose_id in HEAD_FRAMED else MIN_FILL
-            if fill_x < minimum or fill_y < minimum:
+            if max(fill_x, fill_y) < MIN_FILL_LONG:
                 failures.append(
-                    f"{pose_id}: 被写体占有率が {fill_x:.2f}x{fill_y:.2f}（{minimum} 未満）"
+                    f"{pose_id}: 長辺の占有率が {max(fill_x, fill_y):.2f}"
+                    f"（{MIN_FILL_LONG} 未満、実測 {fill_x:.2f}x{fill_y:.2f}）"
+                )
+            if min(fill_x, fill_y) < MIN_FILL_SHORT:
+                failures.append(
+                    f"{pose_id}: 短辺の占有率が {min(fill_x, fill_y):.2f}"
+                    f"（{MIN_FILL_SHORT} 未満、実測 {fill_x:.2f}x{fill_y:.2f}）"
                 )
 
         signature = image.tobytes()
