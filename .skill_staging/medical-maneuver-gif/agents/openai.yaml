@@ -1,0 +1,4 @@
+interface:
+  display_name: "Medical Maneuver GIF"
+  short_description: "Create clinically reviewed animated maneuver illustrations"
+  default_prompt: "Use $medical-maneuver-gif to research and create a clinically reviewed maneuver GIF."

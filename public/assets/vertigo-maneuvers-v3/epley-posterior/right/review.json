@@ -1,0 +1,31 @@
+{
+  "status": "technical-pass-clinical-review-pending",
+  "reviewed_on": "2026-08-21",
+  "checks": [
+    {
+      "id": "EP-R-001",
+      "category": "direction",
+      "finding": "Generated initial right yaw pointed screen-right.",
+      "status": "fixed",
+      "resolution": "Corrected by nose landmark: initial right yaw points screen-left; the opposite head-only turn points screen-right.",
+      "correction_cycle": 1
+    },
+    {
+      "id": "EP-R-002",
+      "category": "sequence",
+      "finding": "The v2 GIF omitted its seventh neutral return keyframe.",
+      "status": "fixed",
+      "resolution": "The v3 GIF encodes all seven poses including neutral return.",
+      "correction_cycle": 1
+    },
+    {
+      "id": "EP-R-003",
+      "category": "clinical-signoff",
+      "finding": "Final clinician/domain-owner review is not yet recorded.",
+      "status": "open",
+      "resolution": "Pending visual review of the v3 GIF.",
+      "correction_cycle": 1
+    }
+  ],
+  "clinical_signoff": null
+}

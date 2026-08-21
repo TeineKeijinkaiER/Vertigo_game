@@ -1,0 +1,15 @@
+{
+  "maneuver": "Gufoni maneuver",
+  "variant": "right horizontal canal, geotropic",
+  "side": "right",
+  "canvas": [768, 512],
+  "style_reference": "../../shared/patient-style-reference.png",
+  "source_sheet": "../../sources/gufoni-right-subjects.png",
+  "sequence": [
+    "seated neutral",
+    "rapid descent to anatomical left/unaffected side",
+    "remain side-lying and rotate nose down about 45 degrees",
+    "return seated"
+  ],
+  "build_script": "../../../../../scripts/build_maneuver_gifs_v3.py"
+}
