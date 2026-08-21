@@ -68,9 +68,13 @@ type PoseRecipe = {
   headUp?: THREE.Vector3
   legs?: THREE.Vector3
   thighs?: THREE.Vector3
+  thighsRight?: THREE.Vector3
   shins?: THREE.Vector3
+  shinsRight?: THREE.Vector3
   arms?: THREE.Vector3
+  armsRight?: THREE.Vector3
   forearms?: THREE.Vector3
+  forearmsRight?: THREE.Vector3
   upperBodyOnly?: boolean
 }
 
@@ -88,20 +92,25 @@ export function makePose(recipe: PoseRecipe): RigPose {
   const hipRight = step(pelvis, width.clone().negate(), LENGTHS.hip)
   const thighAxis = recipe.thighs ?? recipe.legs ?? V(0, -0.055, 0.998)
   const shinAxis = recipe.shins ?? recipe.legs ?? thighAxis
+  // 真横から見たとき左右の脚が完全に重ならないよう、右側だけ別の軸を許す
+  const thighAxisRight = recipe.thighsRight ?? thighAxis
+  const shinAxisRight = recipe.shinsRight ?? shinAxis
   const kneeLeft = step(hipLeft, thighAxis, LENGTHS.thigh)
-  const kneeRight = step(hipRight, thighAxis, LENGTHS.thigh)
+  const kneeRight = step(hipRight, thighAxisRight, LENGTHS.thigh)
   const ankleLeft = step(kneeLeft, shinAxis, LENGTHS.shin)
-  const ankleRight = step(kneeRight, shinAxis, LENGTHS.shin)
+  const ankleRight = step(kneeRight, shinAxisRight, LENGTHS.shin)
   const toeLeft = step(ankleLeft, shinAxis, LENGTHS.foot)
-  const toeRight = step(ankleRight, shinAxis, LENGTHS.foot)
+  const toeRight = step(ankleRight, shinAxisRight, LENGTHS.foot)
   const armAxis = recipe.arms ?? V(0.08, -0.72, 0.69)
   const forearmAxis = recipe.forearms ?? V(-0.03, -0.34, 0.94)
+  const armAxisRight = recipe.armsRight ?? armAxis
+  const forearmAxisRight = recipe.forearmsRight ?? forearmAxis
   const elbowLeft = step(shoulderLeft, armAxis, LENGTHS.upperArm)
-  const elbowRight = step(shoulderRight, armAxis, LENGTHS.upperArm)
+  const elbowRight = step(shoulderRight, armAxisRight, LENGTHS.upperArm)
   const wristLeft = step(elbowLeft, forearmAxis, LENGTHS.forearm)
-  const wristRight = step(elbowRight, forearmAxis, LENGTHS.forearm)
+  const wristRight = step(elbowRight, forearmAxisRight, LENGTHS.forearm)
   const handLeft = step(wristLeft, forearmAxis, LENGTHS.hand)
-  const handRight = step(wristRight, forearmAxis, LENGTHS.hand)
+  const handRight = step(wristRight, forearmAxisRight, LENGTHS.hand)
 
   return {
     id: recipe.id,
@@ -187,6 +196,23 @@ function lempertStep(id: string, label: string, note: string, quarter: 0 | 1 | 2
     forearms: rotate(V(-0.06, 0.02, 0.06)).add(V(0, 0, 0.99)),
   })
 }
+
+/**
+ * 介助でゆっくり起坐させる途中の体位。
+ *
+ * basic-positions の sit-up と lempert の最終ポーズが同じものなので共通化する。
+ * 左右の大腿・下腿にわずかな差を付けているのは、lateral 画角の視線が
+ * widthAxis と一致し、左右対称のままだと投影で脚が1本に潰れるため。
+ */
+const assistedSitting = (id: string, label: string, note: string) => makePose({
+  id, label, note, holdMs: 1500,
+  pelvis: V(0, 1.00, 0.80), body: V(0, 0.985, 0.17),
+  head: V(0, 0.99, 0.14), face: V(0, 0.05, 0.999), headUp: V(0, 0.99, 0.14),
+  thighs: V(0, -0.35, 0.94), shins: V(0, -0.97, 0.24),
+  thighsRight: V(0, -0.60, 0.80), shinsRight: V(0, -0.99, 0.14),
+  arms: V(0, -0.85, 0.52), forearms: V(0, -0.30, 0.95),
+  armsRight: V(0, -0.90, 0.44), forearmsRight: V(0, -0.42, 0.91),
+})
 
 export const MANEUVERS: Record<ManeuverId, Maneuver> = {
   'dix-hallpike': {
@@ -274,13 +300,7 @@ export const MANEUVERS: Record<ManeuverId, Maneuver> = {
         legs: V(0, 0.02, 1), arms: V(0.10, 0.02, 0.995), forearms: V(-0.06, -0.02, 0.998),
       }),
       // 介助起坐。側臥位から支えて起こす途中
-      makePose({
-        id: 'sit-up', label: 'ゆっくり起坐させる', note: '側臥位から支えてゆっくり坐位へ戻す',
-        holdMs: 1500, pelvis: V(0, 1.00, 0.72), body: V(0, 0.82, 0.57),
-        head: V(0, 0.94, 0.34), face: V(0, 0.10, 0.995), headUp: V(0, 0.94, 0.34),
-        thighs: V(0, -0.42, 0.91), shins: V(0, -0.98, 0.20),
-        arms: V(0, -0.72, 0.69), forearms: V(0, -0.55, 0.84),
-      }),
+      assistedSitting('sit-up', 'ゆっくり起坐させる', '側臥位から支えてゆっくり坐位へ戻す'),
     ],
   },
   lempert: {
@@ -292,13 +312,7 @@ export const MANEUVERS: Record<ManeuverId, Maneuver> = {
       lempertStep('lempert-side', '2. 健側へ90°', '患側上・健側下の側臥位。各頭位を30〜60秒維持', 1),
       lempertStep('lempert-prone', '3. さらに90°で腹臥位', '体ごと回して腹臥位にする', 2),
       lempertStep('lempert-side-far', '4. さらに90°で患側下', '反対の側臥位へ', 3),
-      makePose({
-        id: 'lempert-sit', label: '5. 坐位へ戻す', note: '270〜360°まで回してから起坐させる',
-        holdMs: 1500, pelvis: V(0, 1.00, 0.72), body: V(0, 0.82, 0.57),
-        head: V(0, 0.94, 0.34), face: V(0, 0.10, 0.995), headUp: V(0, 0.94, 0.34),
-        thighs: V(0, -0.42, 0.91), shins: V(0, -0.98, 0.20),
-        arms: V(0, -0.72, 0.69), forearms: V(0, -0.55, 0.84),
-      }),
+      assistedSitting('lempert-sit', '5. 坐位へ戻す', '270〜360°まで回してから起坐させる'),
     ],
   },
 }

@@ -249,6 +249,32 @@ await check('倒れる方向の矢印が水平で、左右の名前どおりの�
   }
 })
 
+await check('坐位は体幹が起き、肘が曲がり、真横からでも左右の脚が分かれる', () => {
+  for (const [maneuverId, poseId] of [['basic-positions', 'sit-up'], ['lempert', 'lempert-sit']]) {
+    const pose = MANEUVERS[maneuverId].poses.find((item) => item.id === poseId)
+    assert.ok(pose, `${maneuverId}/${poseId} が無い`)
+
+    const trunk = bodyAxis(pose)
+    assert.ok(trunk.y > 0.9, `${poseId} の体幹が前傾しすぎている: bodyAxis.y = ${trunk.y.toFixed(2)}`)
+
+    for (const side of ['Left', 'Right']) {
+      const upper = pose.joints[`elbow${side}`].clone().sub(pose.joints[`shoulder${side}`]).normalize()
+      const fore = pose.joints[`wrist${side}`].clone().sub(pose.joints[`elbow${side}`]).normalize()
+      const bend = (Math.acos(Math.min(1, Math.max(-1, upper.dot(fore)))) * 180) / Math.PI
+      assert.ok(bend > 20, `${poseId} の${side}肘がほぼ直線: ${bend.toFixed(0)}度`)
+    }
+
+    // lateral 画角は視線が widthAxis。その成分を落とした平面で左右の関節が
+    // どれだけ離れているかが、画像上で脚を見分けられるかを決める
+    const direction = viewDirection(pose, 'lateral')
+    const flatten = (point) => point.clone().addScaledVector(direction, -point.dot(direction))
+    for (const joint of ['knee', 'ankle']) {
+      const gap = flatten(pose.joints[`${joint}Left`]).distanceTo(flatten(pose.joints[`${joint}Right`]))
+      assert.ok(gap > 0.12, `${poseId} の左右の${joint}が真横投影で重なる: 距離 ${gap.toFixed(3)}`)
+    }
+  }
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)
