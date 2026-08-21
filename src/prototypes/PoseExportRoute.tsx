@@ -28,7 +28,8 @@ export function PoseExportRoute() {
 
   useEffect(() => {
     window.__POSE_IDS__ = POSE_IDS
-  }, [])
+    if (id) document.body.dataset.panelCount = String(resolvePanels(id).length)
+  }, [id])
 
   // global.css は body に --navy-deep を塗っている。透過スクリーンショットは
   // キャンバス側だけでなくページ側も透明である必要があるため、
