@@ -1,0 +1,15 @@
+{
+  "maneuver": "Appiani / modified Gufoni maneuver",
+  "variant": "right horizontal canal, apogeotropic",
+  "side": "right",
+  "canvas": [768, 512],
+  "style_reference": "../../shared/patient-style-reference.png",
+  "source_sheet": "../../sources/gufoni-right-subjects.png",
+  "sequence": [
+    "seated neutral",
+    "rapid descent to anatomical right/affected side",
+    "remain side-lying and rotate nose up about 45 degrees",
+    "return seated"
+  ],
+  "build_script": "../../../../../scripts/build_maneuver_gifs_v3.py"
+}

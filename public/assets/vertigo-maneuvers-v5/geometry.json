@@ -1,0 +1,710 @@
+{
+  "version": 5,
+  "status": "programmatic-prototype-clinical-review-required",
+  "rendering": "192x128 fixed-bone game sprite, upscaled 4x with nearest-neighbor",
+  "fixed_anchors": {
+    "posterior_hip": [
+      82,
+      70
+    ],
+    "gufoni_hip": [
+      96,
+      67
+    ]
+  },
+  "maneuvers": {
+    "dix-hallpike-posterior": {
+      "durations_ms": [
+        800,
+        900,
+        1800,
+        900
+      ],
+      "encoded_frames": 10,
+      "all_frame_invariants": {
+        "max_hip_drift_px": 0.0,
+        "max_torso_length_delta_px": 7.105427357601002e-15,
+        "max_thigh_length_delta_px": 0.0,
+        "max_lower_leg_length_delta_px": 0.0,
+        "body_width_px": 12,
+        "head_diameter_px": 18,
+        "logical_frames_checked": 13
+      },
+      "hip_coordinates": [
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ]
+      ],
+      "torso_lengths": [
+        25.0,
+        25.0,
+        25.0,
+        25.0
+      ],
+      "thigh_lengths": [
+        24.083,
+        24.083,
+        24.083,
+        24.083
+      ],
+      "lower_leg_lengths": [
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ],
+      "facings": [
+        "neutral-left",
+        "patient-right",
+        "patient-right",
+        "neutral-left"
+      ],
+      "joints": [
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            82,
+            45
+          ],
+          "head": [
+            82,
+            30
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            82,
+            45
+          ],
+          "head": [
+            82,
+            30
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            107,
+            70
+          ],
+          "head": [
+            118,
+            81
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            82,
+            45
+          ],
+          "head": [
+            82,
+            30
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        }
+      ]
+    },
+    "epley-posterior": {
+      "durations_ms": [
+        700,
+        700,
+        1700,
+        1700,
+        1700,
+        900,
+        700
+      ],
+      "encoded_frames": 15,
+      "all_frame_invariants": {
+        "max_hip_drift_px": 0.0,
+        "max_torso_length_delta_px": 7.105427357601002e-15,
+        "max_thigh_length_delta_px": 7.105427357601002e-15,
+        "max_lower_leg_length_delta_px": 3.552713678800501e-15,
+        "body_width_px": 12,
+        "head_diameter_px": 18,
+        "logical_frames_checked": 25
+      },
+      "hip_coordinates": [
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ],
+        [
+          82,
+          70
+        ]
+      ],
+      "torso_lengths": [
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0
+      ],
+      "thigh_lengths": [
+        24.083,
+        24.083,
+        24.083,
+        24.083,
+        24.083,
+        24.083,
+        24.083
+      ],
+      "lower_leg_lengths": [
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ],
+      "facings": [
+        "neutral-left",
+        "patient-right",
+        "patient-right",
+        "patient-left",
+        "nose-down",
+        "screen-right",
+        "screen-right"
+      ],
+      "joints": [
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            82,
+            45
+          ],
+          "head": [
+            82,
+            30
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            82,
+            45
+          ],
+          "head": [
+            82,
+            30
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            107,
+            70
+          ],
+          "head": [
+            118,
+            81
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            107,
+            70
+          ],
+          "head": [
+            118,
+            81
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            107,
+            70
+          ],
+          "head": [
+            122,
+            70
+          ],
+          "knee": [
+            58,
+            72
+          ],
+          "ankle": [
+            34,
+            72
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            88,
+            45.73067780097681
+          ],
+          "head": [
+            98.04504595497235,
+            34.68112725050723
+          ],
+          "knee": [
+            88,
+            93.3238075793812
+          ],
+          "ankle": [
+            94,
+            116.5617076566257
+          ]
+        },
+        {
+          "hip": [
+            82,
+            70
+          ],
+          "shoulder": [
+            88,
+            45.73067780097681
+          ],
+          "head": [
+            98.04504595497235,
+            34.68112725050723
+          ],
+          "knee": [
+            88,
+            93.3238075793812
+          ],
+          "ankle": [
+            94,
+            116.5617076566257
+          ]
+        }
+      ]
+    },
+    "gufoni-horizontal-geotropic": {
+      "durations_ms": [
+        700,
+        1500,
+        1700,
+        900
+      ],
+      "encoded_frames": 10,
+      "all_frame_invariants": {
+        "max_hip_drift_px": 0.0,
+        "max_torso_length_delta_px": 7.105427357601002e-15,
+        "max_thigh_length_delta_px": 7.105427357601002e-15,
+        "max_lower_leg_length_delta_px": 7.105427357601002e-15,
+        "body_width_px": 12,
+        "head_diameter_px": 18,
+        "logical_frames_checked": 13
+      },
+      "hip_coordinates": [
+        [
+          96,
+          67
+        ],
+        [
+          96,
+          67
+        ],
+        [
+          96,
+          67
+        ],
+        [
+          96,
+          67
+        ]
+      ],
+      "torso_lengths": [
+        25.0,
+        25.0,
+        25.0,
+        25.0
+      ],
+      "thigh_lengths": [
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ],
+      "lower_leg_lengths": [
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ],
+      "facings": [
+        "neutral-left",
+        "front",
+        "nose-down",
+        "neutral-left"
+      ],
+      "joints": [
+        {
+          "hip": [
+            96,
+            67
+          ],
+          "shoulder": [
+            96,
+            42
+          ],
+          "head": [
+            96,
+            27
+          ],
+          "knee": [
+            96,
+            91
+          ],
+          "ankle": [
+            96,
+            115
+          ]
+        },
+        {
+          "hip": [
+            96,
+            67
+          ],
+          "shoulder": [
+            121,
+            67
+          ],
+          "head": [
+            136,
+            67
+          ],
+          "knee": [
+            72,
+            67
+          ],
+          "ankle": [
+            48,
+            67
+          ]
+        },
+        {
+          "hip": [
+            96,
+            67
+          ],
+          "shoulder": [
+            121,
+            67
+          ],
+          "head": [
+            136,
+            67
+          ],
+          "knee": [
+            72,
+            67
+          ],
+          "ankle": [
+            48,
+            67
+          ]
+        },
+        {
+          "hip": [
+            96,
+            67
+          ],
+          "shoulder": [
+            96,
+            42
+          ],
+          "head": [
+            96,
+            27
+          ],
+          "knee": [
+            96,
+            91
+          ],
+          "ankle": [
+            96,
+            115
+          ]
+        }
+      ]
+    },
+    "gufoni-horizontal-apogeotropic": {
+      "durations_ms": [
+        700,
+        1500,
+        1700,
+        900
+      ],
+      "encoded_frames": 10,
+      "all_frame_invariants": {
+        "max_hip_drift_px": 0.0,
+        "max_torso_length_delta_px": 7.105427357601002e-15,
+        "max_thigh_length_delta_px": 7.105427357601002e-15,
+        "max_lower_leg_length_delta_px": 7.105427357601002e-15,
+        "body_width_px": 12,
+        "head_diameter_px": 18,
+        "logical_frames_checked": 13
+      },
+      "hip_coordinates": [
+        [
+          96,
+          67
+        ],
+        [
+          96,
+          67
+        ],
+        [
+          96,
+          67
+        ],
+        [
+          96,
+          67
+        ]
+      ],
+      "torso_lengths": [
+        25.0,
+        25.0,
+        25.0,
+        25.0
+      ],
+      "thigh_lengths": [
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ],
+      "lower_leg_lengths": [
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ],
+      "facings": [
+        "neutral-left",
+        "front",
+        "nose-up",
+        "neutral-left"
+      ],
+      "joints": [
+        {
+          "hip": [
+            96,
+            67
+          ],
+          "shoulder": [
+            96,
+            42
+          ],
+          "head": [
+            96,
+            27
+          ],
+          "knee": [
+            96,
+            91
+          ],
+          "ankle": [
+            96,
+            115
+          ]
+        },
+        {
+          "hip": [
+            96,
+            67
+          ],
+          "shoulder": [
+            71,
+            67
+          ],
+          "head": [
+            56,
+            67
+          ],
+          "knee": [
+            120,
+            67
+          ],
+          "ankle": [
+            144,
+            67
+          ]
+        },
+        {
+          "hip": [
+            96,
+            67
+          ],
+          "shoulder": [
+            71,
+            67
+          ],
+          "head": [
+            56,
+            67
+          ],
+          "knee": [
+            120,
+            67
+          ],
+          "ankle": [
+            144,
+            67
+          ]
+        },
+        {
+          "hip": [
+            96,
+            67
+          ],
+          "shoulder": [
+            96,
+            42
+          ],
+          "head": [
+            96,
+            27
+          ],
+          "knee": [
+            96,
+            91
+          ],
+          "ankle": [
+            96,
+            115
+          ]
+        }
+      ]
+    }
+  }
+}

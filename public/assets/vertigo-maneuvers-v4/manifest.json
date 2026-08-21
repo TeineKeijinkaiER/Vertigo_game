@@ -1,0 +1,140 @@
+{
+  "version": 4,
+  "status": "rejected-inconsistent-character-scale-and-position",
+  "accuracy_priority": "movement geometry and support points outrank realism",
+  "camera_rules": {
+    "dix_hallpike_epley": "centered foot-end view; backward movement follows the vertical table axis",
+    "gufoni": "straight frontal view; lateral movement follows the horizontal table axis"
+  },
+  "transform_rule": "No patient pose is rotated or skewed to fit a table.",
+  "maneuvers": {
+    "dix-hallpike-posterior": {
+      "right": {
+        "gif": "public/assets/vertigo-maneuvers-v4/dix-hallpike-posterior/right/dix-hallpike-posterior-right.gif",
+        "keyframes": 3,
+        "durations_ms": [
+          900,
+          900,
+          1800,
+          350,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      "left": {
+        "gif": "public/assets/vertigo-maneuvers-v4/dix-hallpike-posterior/left/dix-hallpike-posterior-left.gif",
+        "keyframes": 3,
+        "durations_ms": [
+          900,
+          900,
+          1800,
+          350,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    },
+    "epley-posterior": {
+      "right": {
+        "gif": "public/assets/vertigo-maneuvers-v4/epley-posterior/right/epley-posterior-right.gif",
+        "keyframes": 7,
+        "durations_ms": [
+          700,
+          700,
+          1700,
+          1700,
+          1700,
+          900,
+          700
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      "left": {
+        "gif": "public/assets/vertigo-maneuvers-v4/epley-posterior/left/epley-posterior-left.gif",
+        "keyframes": 7,
+        "durations_ms": [
+          700,
+          700,
+          1700,
+          1700,
+          1700,
+          900,
+          700
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    },
+    "gufoni-horizontal-geotropic": {
+      "right": {
+        "gif": "public/assets/vertigo-maneuvers-v4/gufoni-horizontal-geotropic/right/gufoni-horizontal-geotropic-right.gif",
+        "keyframes": 4,
+        "durations_ms": [
+          700,
+          1500,
+          1700,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      "left": {
+        "gif": "public/assets/vertigo-maneuvers-v4/gufoni-horizontal-geotropic/left/gufoni-horizontal-geotropic-left.gif",
+        "keyframes": 4,
+        "durations_ms": [
+          700,
+          1500,
+          1700,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    },
+    "gufoni-horizontal-apogeotropic": {
+      "right": {
+        "gif": "public/assets/vertigo-maneuvers-v4/gufoni-horizontal-apogeotropic/right/gufoni-horizontal-apogeotropic-right.gif",
+        "keyframes": 4,
+        "durations_ms": [
+          700,
+          1500,
+          1700,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      "left": {
+        "gif": "public/assets/vertigo-maneuvers-v4/gufoni-horizontal-apogeotropic/left/gufoni-horizontal-apogeotropic-left.gif",
+        "keyframes": 4,
+        "durations_ms": [
+          700,
+          1500,
+          1700,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    }
+  }
+}

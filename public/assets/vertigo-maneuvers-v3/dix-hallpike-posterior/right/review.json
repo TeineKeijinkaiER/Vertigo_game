@@ -1,0 +1,39 @@
+{
+  "status": "technical-pass-clinical-review-pending",
+  "reviewed_on": "2026-08-21",
+  "checks": [
+    {
+      "id": "DH-R-001",
+      "category": "character-style",
+      "finding": "Realistic Western patient in scrubs did not match the v2 character family.",
+      "status": "fixed",
+      "resolution": "Rebuilt as a Japanese adult 3D animated character in casual patient clothing using v2 as the style reference.",
+      "correction_cycle": 1
+    },
+    {
+      "id": "DH-R-002",
+      "category": "direction",
+      "finding": "The first draft labeled right 45 degrees while the nose pointed screen-right.",
+      "status": "fixed",
+      "resolution": "Right master now records patient right as screen-left; the nose points screen-left in the turned and supine poses.",
+      "correction_cycle": 1
+    },
+    {
+      "id": "DH-R-003",
+      "category": "background",
+      "finding": "The generated three-panel draft changed bed scale and camera in the supine pose.",
+      "status": "fixed",
+      "resolution": "Patient poses were isolated and composited over one unchanged background image.",
+      "correction_cycle": 2
+    },
+    {
+      "id": "DH-R-004",
+      "category": "clinical-signoff",
+      "finding": "Final clinician/domain-owner review is not yet recorded.",
+      "status": "open",
+      "resolution": "Pending visual review of the v3 GIF.",
+      "correction_cycle": 2
+    }
+  ],
+  "clinical_signoff": null
+}

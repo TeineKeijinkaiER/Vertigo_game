@@ -1,0 +1,18 @@
+{
+  "maneuver": "Epley maneuver",
+  "variant": "right posterior canal",
+  "side": "right",
+  "canvas": [768, 512],
+  "style_reference": "../../shared/patient-style-reference.png",
+  "source_sheet": "../../sources/epley-right-subjects.png",
+  "sequence": [
+    "seated neutral",
+    "head right 45 degrees, nose screen-left",
+    "right Dix-Hallpike position",
+    "head-only turn left 90 degrees",
+    "log roll to left side, nose down",
+    "return seated with head maintained",
+    "seated neutral"
+  ],
+  "build_script": "../../../../../scripts/build_maneuver_gifs_v3.py"
+}

@@ -1,0 +1,23 @@
+{
+  "status": "technical-pass-clinical-review-pending",
+  "reviewed_on": "2026-08-21",
+  "checks": [
+    {
+      "id": "GF-GEO-R-001",
+      "category": "variant",
+      "finding": "Geotropic and apogeotropic sequences must not be blended despite inconsistent naming across sources.",
+      "status": "fixed",
+      "resolution": "Geotropic sequence is stored separately: descend to the unaffected side, then rotate the nose down.",
+      "correction_cycle": 1
+    },
+    {
+      "id": "GF-GEO-R-002",
+      "category": "clinical-signoff",
+      "finding": "Final clinician/domain-owner review is not yet recorded.",
+      "status": "open",
+      "resolution": "Pending visual review of descent side and nose-down pose.",
+      "correction_cycle": 1
+    }
+  ],
+  "clinical_signoff": null
+}

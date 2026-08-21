@@ -1,0 +1,20 @@
+{
+  "maneuver": "Dix-Hallpike test",
+  "variant": "posterior canal",
+  "side": "right",
+  "canvas": [768, 512],
+  "camera": "elevated foot-end view facing the seated patient",
+  "style": {
+    "patient": "Japanese adult woman",
+    "render": "stylized 3D animated medical illustration matching v2",
+    "clothing": "blue casual V-neck T-shirt, navy casual pants, white socks"
+  },
+  "direction": {
+    "anatomical": "right",
+    "screen": "left",
+    "landmark": "nose points screen-left in frames 2 and 3"
+  },
+  "background": "../../shared/scene-background.png",
+  "source_sheet": "../../sources/dix-hallpike-right-subjects.png",
+  "build_script": "../../../../../scripts/build_maneuver_gifs_v3.py"
+}

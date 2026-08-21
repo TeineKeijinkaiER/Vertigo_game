@@ -1,0 +1,146 @@
+{
+  "version": 3,
+  "status": "rejected-clinical-geometry",
+  "rejection_reason": "A shared diagonal table obscured the distinct backward and lateral movement axes; Epley head direction was also incorrect.",
+  "camera": "Locked elevated foot-end view; the background is identical in every frame.",
+  "direction_rule": "In the right master, patient right is screen-left and the nose points screen-left after rotation.",
+  "mirroring": "The left variant is an exact horizontal mirror of the reviewed right master.",
+  "maneuvers": {
+    "dix-hallpike-posterior": {
+      "right": {
+        "gif": "public/assets/vertigo-maneuvers-v3/dix-hallpike-posterior/right/dix-hallpike-posterior-right.gif",
+        "frames": 3,
+        "encoded_frames": 5,
+        "durations_ms": [
+          900,
+          900,
+          1800,
+          350,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      "left": {
+        "gif": "public/assets/vertigo-maneuvers-v3/dix-hallpike-posterior/left/dix-hallpike-posterior-left.gif",
+        "frames": 3,
+        "encoded_frames": 5,
+        "durations_ms": [
+          900,
+          900,
+          1800,
+          350,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    },
+    "epley-posterior": {
+      "right": {
+        "gif": "public/assets/vertigo-maneuvers-v3/epley-posterior/right/epley-posterior-right.gif",
+        "frames": 7,
+        "encoded_frames": 7,
+        "durations_ms": [
+          700,
+          700,
+          1700,
+          1700,
+          1700,
+          900,
+          700
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      "left": {
+        "gif": "public/assets/vertigo-maneuvers-v3/epley-posterior/left/epley-posterior-left.gif",
+        "frames": 7,
+        "encoded_frames": 7,
+        "durations_ms": [
+          700,
+          700,
+          1700,
+          1700,
+          1700,
+          900,
+          700
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    },
+    "gufoni-horizontal-geotropic": {
+      "right": {
+        "gif": "public/assets/vertigo-maneuvers-v3/gufoni-horizontal-geotropic/right/gufoni-horizontal-geotropic-right.gif",
+        "frames": 4,
+        "encoded_frames": 4,
+        "durations_ms": [
+          700,
+          1500,
+          1700,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      "left": {
+        "gif": "public/assets/vertigo-maneuvers-v3/gufoni-horizontal-geotropic/left/gufoni-horizontal-geotropic-left.gif",
+        "frames": 4,
+        "encoded_frames": 4,
+        "durations_ms": [
+          700,
+          1500,
+          1700,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    },
+    "gufoni-horizontal-apogeotropic": {
+      "right": {
+        "gif": "public/assets/vertigo-maneuvers-v3/gufoni-horizontal-apogeotropic/right/gufoni-horizontal-apogeotropic-right.gif",
+        "frames": 4,
+        "encoded_frames": 4,
+        "durations_ms": [
+          700,
+          1500,
+          1700,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      },
+      "left": {
+        "gif": "public/assets/vertigo-maneuvers-v3/gufoni-horizontal-apogeotropic/left/gufoni-horizontal-apogeotropic-left.gif",
+        "frames": 4,
+        "encoded_frames": 4,
+        "durations_ms": [
+          700,
+          1500,
+          1700,
+          900
+        ],
+        "size": [
+          768,
+          512
+        ]
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { useReducer } from 'react'
+import { lazy, Suspense, useReducer } from 'react'
 import { CASE_MAP } from './data/cases'
 import { initialState, reducer } from './game/state'
 import { BriefScreen, CaseSelectScreen, TitleScreen } from './screens/Opening'
@@ -6,7 +6,19 @@ import { ExamScreen } from './screens/Exam'
 import { DiagnosisScreen, DispositionScreen } from './screens/Decision'
 import { ResultScreen } from './screens/Result'
 
+const DixHallpikeRigPrototype = lazy(() =>
+  import('./prototypes/DixHallpikeRigPrototype').then((module) => ({ default: module.DixHallpikeRigPrototype })),
+)
+
 export default function App() {
+  if (new URLSearchParams(window.location.search).get('prototype') === 'dix-rig') {
+    return (
+      <Suspense fallback={<div className="rig-loading">3Dモデルを読み込み中...</div>}>
+        <DixHallpikeRigPrototype />
+      </Suspense>
+    )
+  }
+
   const [state, dispatch] = useReducer(reducer, initialState)
   const caseDef = state.caseId !== null ? CASE_MAP.get(state.caseId) : undefined
 
