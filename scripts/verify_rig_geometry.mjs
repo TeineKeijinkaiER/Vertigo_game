@@ -106,6 +106,35 @@ check('head フレーミングは頭と肩だけを対象にする', () => {
   }
 })
 
+check('カタログが要求する単体ポーズが存在する', () => {
+  const required = {
+    'supine-roll': ['roll-neutral', 'roll-right-45', 'roll-right', 'roll-left-45', 'roll-left'],
+    'basic-positions': ['sitting-front', 'supine-full', 'prone', 'sit-up'],
+  }
+  for (const [maneuverId, poseIds] of Object.entries(required)) {
+    const maneuver = MANEUVERS[maneuverId]
+    assert.ok(maneuver, `手技 ${maneuverId} が無い`)
+    for (const poseId of poseIds) {
+      assert.ok(maneuver.poses.some((pose) => pose.id === poseId), `${maneuverId} に ${poseId} が無い`)
+    }
+  }
+})
+
+check('腹臥位は鼻が床を向く', () => {
+  const prone = MANEUVERS['basic-positions'].poses.find((pose) => pose.id === 'prone')
+  assert.ok(prone.faceDirection.y < -0.8, `腹臥位の鼻が下を向いていない: y=${prone.faceDirection.y}`)
+})
+
+check('45度頭位は90度頭位の中間にある', () => {
+  const poses = MANEUVERS['supine-roll'].poses
+  const at = (id) => poses.find((pose) => pose.id === id)
+  const half = at('roll-right-45').faceDirection
+  const full = at('roll-right').faceDirection
+  const neutral = at('roll-neutral').faceDirection
+  assert.ok(half.dot(full) > half.dot(neutral) - 0.35, '45度が90度側に寄りすぎている')
+  assert.ok(half.dot(neutral) > 0.3, '45度が正中から離れすぎている')
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)

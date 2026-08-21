@@ -1,6 +1,12 @@
 import * as THREE from 'three'
 
-export type ManeuverId = 'dix-hallpike' | 'epley' | 'gufoni-geotropic' | 'gufoni-apogeotropic' | 'supine-roll'
+export type ManeuverId =
+  | 'dix-hallpike'
+  | 'epley'
+  | 'gufoni-geotropic'
+  | 'gufoni-apogeotropic'
+  | 'supine-roll'
+  | 'basic-positions'
 
 export type RigPose = {
   id: string
@@ -215,9 +221,46 @@ export const MANEUVERS: Record<ManeuverId, Maneuver> = {
     bedAxis: 'longitudinal', pillow: 'none',
     poses: [
       supine('roll-neutral', '1. 仰臥位・正中', '頭部を約30°前屈して水平半規管面を整える', V(0, 0.50, 0.866)),
-      supine('roll-right', '2. 右へ90°', '眼振を観察し、消退するまで保持', V(-1, 0, 0)),
-      supine('roll-center', '3. 正中へ戻す', '誘発反応が消退してから反対側へ', V(0, 0.50, 0.866)),
-      supine('roll-left', '4. 左へ90°', '反対側の眼振方向と強度を観察', V(1, 0, 0)),
+      supine('roll-right-45', '2. 右へ45°', '正中から患者右へ45°', V(-0.707, 0.354, 0.612)),
+      supine('roll-right', '3. 右へ90°', '眼振を観察し、消退するまで保持', V(-1, 0, 0)),
+      supine('roll-left-45', '4. 左へ45°', '正中から患者左へ45°', V(0.707, 0.354, 0.612)),
+      supine('roll-left', '5. 左へ90°', '反対側の眼振方向と強度を観察', V(1, 0, 0)),
+    ],
+  },
+  'basic-positions': {
+    id: 'basic-positions', shortLabel: '基本体位', title: '基本体位',
+    subtitle: '手技の選択肢で使う坐位・仰臥位・腹臥位・起坐', camera: 'lateral',
+    bedAxis: 'longitudinal', pillow: 'none',
+    poses: [
+      // 正面座位。診察台に腰かけ検者と向かい合う
+      makePose({
+        id: 'sitting-front', label: '正面を向いた坐位', note: '診察台に腰かけ正面を向く',
+        pelvis: V(0, 1.00, 0.88), body: V(0, 1, 0), head: V(0, 1, 0), face: V(0, 0, 1),
+        thighs: V(0, -0.46, 0.89), shins: V(0, -1, 0),
+        arms: V(0, -0.96, 0.28), forearms: V(0, -0.92, 0.38),
+      }),
+      // 全身仰臥位。supine() は上半身のみなので別に作る
+      makePose({
+        id: 'supine-full', label: '仰臥位', note: '診察台に仰向け。顔は天井を向く',
+        holdMs: 1300, pelvis: V(0, 1.00, 0.38), body: V(0, 0.12, -0.993),
+        head: V(0, 0.12, -0.993), face: V(0, 1, 0.08), headUp: V(0, 0.12, -0.993),
+        legs: V(0, 0.02, 1), arms: V(0.10, -0.02, 0.995), forearms: V(-0.06, 0.02, 0.998),
+      }),
+      // 腹臥位。仰臥位から体軸まわりに180°ロールし、鼻を床へ
+      makePose({
+        id: 'prone', label: '腹臥位（うつ伏せ）', note: '診察台にうつ伏せ。後頭部が見えている',
+        holdMs: 1300, pelvis: V(0, 1.00, 0.38), body: V(0, 0.12, -0.993), width: V(-1, 0, 0),
+        head: V(0, 0.12, -0.993), face: V(0, -1, -0.08), headUp: V(0, 0.12, -0.993),
+        legs: V(0, 0.02, 1), arms: V(0.10, 0.02, 0.995), forearms: V(-0.06, -0.02, 0.998),
+      }),
+      // 介助起坐。側臥位から支えて起こす途中
+      makePose({
+        id: 'sit-up', label: 'ゆっくり起坐させる', note: '側臥位から支えてゆっくり坐位へ戻す',
+        holdMs: 1500, pelvis: V(0, 1.00, 0.72), body: V(0, 0.82, 0.57),
+        head: V(0, 0.94, 0.34), face: V(0, 0.10, 0.995), headUp: V(0, 0.94, 0.34),
+        thighs: V(0, -0.42, 0.91), shins: V(0, -0.98, 0.20),
+        arms: V(0, -0.72, 0.69), forearms: V(0, -0.55, 0.84),
+      }),
     ],
   },
 }
