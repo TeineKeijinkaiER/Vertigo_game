@@ -294,3 +294,28 @@ export function bodyAxis(pose: RigPose): THREE.Vector3 {
 export function widthAxis(pose: RigPose): THREE.Vector3 {
   return pose.joints.shoulderLeft.clone().sub(pose.joints.shoulderRight).normalize()
 }
+
+const swapSide = (name: string) =>
+  name.includes('Left') ? name.replace('Left', 'Right')
+  : name.includes('Right') ? name.replace('Right', 'Left')
+  : name
+
+/**
+ * 左右を反転したポーズを返す。
+ *
+ * 画像の水平反転ではなくポーズデータを反転するのは、キーライトが非対称なため。
+ * 画像を反転すると陰の向きが画像間で揃わなくなる。
+ */
+export function mirrorPose(pose: RigPose): RigPose {
+  const flip = (vector: THREE.Vector3) => new THREE.Vector3(-vector.x, vector.y, vector.z)
+  const joints: Record<string, THREE.Vector3> = {}
+  for (const [name, point] of Object.entries(pose.joints)) joints[swapSide(name)] = flip(point)
+  return {
+    ...pose,
+    id: `${pose.id}-mirrored`,
+    joints,
+    faceDirection: flip(pose.faceDirection),
+    headUp: flip(pose.headUp),
+    fallSide: pose.fallSide === 'left' ? 'right' : pose.fallSide === 'right' ? 'left' : undefined,
+  }
+}

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { MANEUVERS, TREE, bodyAxis, widthAxis, neckToHead } from '../src/rig/poses.ts'
+import { MANEUVERS, TREE, bodyAxis, widthAxis, neckToHead, mirrorPose } from '../src/rig/poses.ts'
 
 const allPoses = () => Object.values(MANEUVERS).flatMap((maneuver) => maneuver.poses)
 const failures = []
@@ -50,6 +50,27 @@ check('側臥位で下になる肩が転倒方向と一致する', () => {
       lower, pose.fallSide,
       `${pose.id} は ${pose.fallSide} へ倒れたのに ${lower} 肩が下になっていない`,
     )
+  }
+})
+
+check('ミラーは X 反転で、2回かけると元に戻る', () => {
+  for (const pose of allPoses()) {
+    const mirrored = mirrorPose(pose)
+    assert.ok(
+      Math.abs(mirrored.faceDirection.x + pose.faceDirection.x) < 1e-9,
+      `${pose.id} のミラーで鼻の X が反転していない`,
+    )
+    assert.ok(
+      Math.abs(mirrored.joints.shoulderLeft.x + pose.joints.shoulderRight.x) < 1e-9,
+      `${pose.id} のミラーで左右の肩が入れ替わっていない`,
+    )
+    const back = mirrorPose(mirrored)
+    for (const name of Object.keys(pose.joints)) {
+      assert.ok(
+        back.joints[name].distanceTo(pose.joints[name]) < 1e-9,
+        `${pose.id} の ${name} が2回ミラーで元に戻らない`,
+      )
+    }
   }
 })
 
