@@ -51,8 +51,12 @@ export const POSE_CATALOG = {
   side_r_faceup: panel('gufoni-apogeotropic', 'gufoni-a-up', 'cranial', 'head'),
   side_l_faceup: panel('gufoni-apogeotropic', 'gufoni-a-up', 'cranial', 'head', { mirror: true }),
 
-  gufoni_fall_r: panel('gufoni-apogeotropic', 'gufoni-a-fall', 'front', 'full', { arrow: 'fall-right' }),
-  gufoni_fall_l: panel('gufoni-geotropic', 'gufoni-g-fall', 'front', 'full', { arrow: 'fall-left' }),
+  // 矢印は「倒れる前」の端座位に付ける。倒れた後のポーズでは width が
+  // V(0, -direction, 0) と垂直に回っており、widthAxis を使う矢印が
+  // 左右どちらの場合も真下を向いて区別できなくなる。
+  // spec の「坐位から…倒れるところ」にもこちらが合う
+  gufoni_fall_r: panel('gufoni-apogeotropic', 'gufoni-a-start', 'front', 'full', { arrow: 'fall-right' }),
+  gufoni_fall_l: panel('gufoni-geotropic', 'gufoni-g-start', 'front', 'full', { arrow: 'fall-left' }),
 
   lempert_roll_r: panel('lempert', 'lempert-side', 'cranial', 'full', { mirror: true, arrow: 'roll-right' }),
   lempert_roll_l: panel('lempert', 'lempert-side', 'cranial', 'full', { arrow: 'roll-left' }),

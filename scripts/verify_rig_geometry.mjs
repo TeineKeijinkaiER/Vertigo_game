@@ -196,6 +196,33 @@ await check('帯状合成は lempert_full と lempert_half のみ', async () => 
   assert.equal(resolvePanels('lempert_half').length, 3)
 })
 
+await check('倒れる方向の矢印が水平で、左右の名前どおりの向きを指す', async () => {
+  // makeDirectionArrow の fall-left/fall-right 分岐と同じ計算
+  // (widthAxis(pose) を fall-left なら +1、fall-right なら -1 倍) を
+  // カタログが参照するポーズに対して行い、矢印が実際にどちらを向くかを検証する。
+  // 倒れた後のポーズ（sideLying の width = V(0, -direction, 0)）を参照すると
+  // 矢印が垂直（真下）になり左右の区別がつかなくなるので、それを検出する
+  const { POSE_IDS, resolvePanels, resolvePose } = await import('../src/rig/catalog.ts')
+  const fmt = (v) => `(${v.x.toFixed(3)}, ${v.y.toFixed(3)}, ${v.z.toFixed(3)})`
+  for (const id of POSE_IDS) {
+    for (const spec of resolvePanels(id)) {
+      if (spec.arrow !== 'fall-left' && spec.arrow !== 'fall-right') continue
+      const pose = resolvePose(spec)
+      const sign = spec.arrow === 'fall-left' ? 1 : -1
+      const direction = widthAxis(pose).multiplyScalar(sign)
+      assert.ok(
+        Math.abs(direction.y) < 0.3,
+        `${id} (${spec.maneuver}/${spec.pose}, ${spec.arrow}) の矢印が水平でない: ${fmt(direction)}`,
+      )
+      const wantsLeft = spec.arrow === 'fall-left'
+      assert.ok(
+        wantsLeft ? direction.x > 0.3 : direction.x < -0.3,
+        `${id} (${spec.maneuver}/${spec.pose}) の矢印 ${spec.arrow} が名前どおりの向き（x${wantsLeft ? '>0' : '<0'}）でない: ${fmt(direction)}`,
+      )
+    }
+  }
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)
