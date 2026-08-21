@@ -297,3 +297,29 @@
     max-width: 280px;
   }
 }
+
+.pose-export {
+  width: 1024px;
+  height: 1024px;
+  margin: 0;
+  background: transparent;
+}
+
+.pose-export-canvas,
+.pose-export-canvas canvas {
+  width: 1024px;
+  height: 1024px;
+  display: block;
+}
+
+.pose-export-list {
+  font: 12px/1.4 ui-monospace, monospace;
+  word-break: break-all;
+}
+
+/* global.css が body に --navy-deep を塗るため、書き出しルートがマウントされている
+   間だけ上書きして透過にする。screenshot の omitBackground はブラウザの既定背景
+   しか透過にしないので、明示的な background は消しておかないと不透明になる。 */
+body.pose-export-body {
+  background: transparent;
+}

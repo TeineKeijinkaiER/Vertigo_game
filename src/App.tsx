@@ -9,9 +9,20 @@ import { ResultScreen } from './screens/Result'
 const ManeuverRigPrototype = lazy(() =>
   import('./prototypes/ManeuverRigPrototype').then((module) => ({ default: module.ManeuverRigPrototype })),
 )
+const PoseExportRoute = lazy(() =>
+  import('./prototypes/PoseExportRoute').then((module) => ({ default: module.PoseExportRoute })),
+)
 
 export default function App() {
-  if (['dix-rig', 'maneuver-rig'].includes(new URLSearchParams(window.location.search).get('prototype') ?? '')) {
+  const prototype = new URLSearchParams(window.location.search).get('prototype') ?? ''
+  if (prototype === 'pose-export') {
+    return (
+      <Suspense fallback={<div className="rig-loading">読み込み中...</div>}>
+        <PoseExportRoute />
+      </Suspense>
+    )
+  }
+  if (['dix-rig', 'maneuver-rig'].includes(prototype)) {
     return (
       <Suspense fallback={<div className="rig-loading">3Dモデルを読み込み中...</div>}>
         <ManeuverRigPrototype />
