@@ -162,6 +162,18 @@ check('Lempert は仰臥位から健側方向へ90度ずつ一周する', () => 
   )
 })
 
+check('Lempert は健側（患者左）から先に下になる', () => {
+  const poses = MANEUVERS.lempert.poses
+  const faceDown = (id) => widthAxis(poses.find((pose) => pose.id === id))
+  // widthAxis は患者左を指すので、左が下になれば y < 0。
+  // 鼻の向きだけを見る検査では、回転を逆にした（患側から先に倒す）実装を
+  // 素通ししてしまう。絶対的な左右を明示的に固定する
+  const near = faceDown('lempert-side')
+  const far = faceDown('lempert-side-far')
+  assert.ok(near.y < -0.9, `2番目の側臥位で患者左が下になっていない: widthAxis.y = ${near.y.toFixed(3)}`)
+  assert.ok(far.y > 0.9, `4番目の側臥位で患者右が下になっていない: widthAxis.y = ${far.y.toFixed(3)}`)
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)
