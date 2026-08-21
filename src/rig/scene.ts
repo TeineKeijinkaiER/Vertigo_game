@@ -161,11 +161,18 @@ export function positionCamera(camera: THREE.PerspectiveCamera, maneuver: Maneuv
 export type View = 'front' | 'lateral' | 'cranial'
 export type Framing = 'full' | 'head'
 
+/** 頭側視点の見下ろし角。検者が頭側に立って患者を見下ろす構図に合わせる */
+const CRANIAL_ELEVATION = 2.0
+
 /** カメラが向く方向。カメラ位置は注視点からこの逆向きに離れた場所になる */
 export function viewDirection(pose: RigPose, view: View): THREE.Vector3 {
   if (view === 'front') return pose.faceDirection.clone().negate()
   if (view === 'lateral') return widthAxis(pose)
-  return bodyAxis(pose).negate()
+  // 体軸の延長線上から覗くと頭頂を正面から見ることになり、顔が頭部の陰に隠れる。
+  // 頭側かつ上方にカメラを置き、見下ろす向きにする
+  const raised = bodyAxis(pose).clone().addScaledVector(V(0, 1, 0), CRANIAL_ELEVATION)
+  if (raised.lengthSq() < 0.04) return bodyAxis(pose).clone().negate()
+  return raised.normalize().negate()
 }
 
 /**

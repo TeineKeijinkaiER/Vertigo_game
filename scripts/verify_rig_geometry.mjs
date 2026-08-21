@@ -275,6 +275,23 @@ await check('坐位は体幹が起き、肘が曲がり、真横からでも左�
   }
 })
 
+await check('どの視点も頭頂を正面から見ない', async () => {
+  const { POSE_IDS, resolvePanels, resolvePose } = await import('../src/rig/catalog.ts')
+  for (const id of POSE_IDS) {
+    for (const spec of resolvePanels(id)) {
+      const pose = resolvePose(spec)
+      const direction = viewDirection(pose, spec.view)
+      // 頸→頭の向きと視線が平行だと、頭頂を正面から見ることになり
+      // 顔も体幹も頭部の陰に隠れる
+      const alignment = Math.abs(direction.dot(neckToHead(pose)))
+      assert.ok(
+        alignment < 0.85,
+        `${id} (${spec.view}) の視線が頭頂を向いている: |視線・頸→頭| = ${alignment.toFixed(2)}`,
+      )
+    }
+  }
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)
