@@ -125,14 +125,22 @@ check('腹臥位は鼻が床を向く', () => {
   assert.ok(prone.faceDirection.y < -0.8, `腹臥位の鼻が下を向いていない: y=${prone.faceDirection.y}`)
 })
 
-check('45度頭位は90度頭位の中間にある', () => {
+check('45度頭位が正中と90度頭位の中間にある', () => {
   const poses = MANEUVERS['supine-roll'].poses
-  const at = (id) => poses.find((pose) => pose.id === id)
-  const half = at('roll-right-45').faceDirection
-  const full = at('roll-right').faceDirection
-  const neutral = at('roll-neutral').faceDirection
-  assert.ok(half.dot(full) > half.dot(neutral) - 0.35, '45度が90度側に寄りすぎている')
-  assert.ok(half.dot(neutral) > 0.3, '45度が正中から離れすぎている')
+  const faceOf = (id) => poses.find((pose) => pose.id === id).faceDirection
+  const neutral = faceOf('roll-neutral')
+  // 正中と90度は直交するので、45度の定義は「両端との内積が等しい」こと。
+  // 内積の不等式で挟むだけだと 31〜72度が通ってしまい、検査にならない
+  for (const [halfId, fullId] of [['roll-right-45', 'roll-right'], ['roll-left-45', 'roll-left']]) {
+    const half = faceOf(halfId)
+    const toNeutral = half.dot(neutral)
+    const toFull = half.dot(faceOf(fullId))
+    assert.ok(
+      Math.abs(toNeutral - toFull) < 0.05,
+      `${halfId} が中間でない: 正中との内積 ${toNeutral.toFixed(3)}、90度との内積 ${toFull.toFixed(3)}`,
+    )
+    assert.ok(toNeutral > 0.5, `${halfId} が正中から離れすぎている: ${toNeutral.toFixed(3)}`)
+  }
 })
 
 if (failures.length > 0) {
