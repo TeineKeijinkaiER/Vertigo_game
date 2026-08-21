@@ -12,9 +12,9 @@ const { framingPoints, viewDirection } = await import('../src/rig/scene.ts')
 
 const allPoses = () => Object.values(MANEUVERS).flatMap((maneuver) => maneuver.poses)
 const failures = []
-const check = (name, fn) => {
+const check = async (name, fn) => {
   try {
-    fn()
+    await fn()
     console.log(`  ok  ${name}`)
   } catch (error) {
     failures.push(`${name}: ${error.message}`)
@@ -22,7 +22,7 @@ const check = (name, fn) => {
   }
 }
 
-check('骨長が全ポーズで一致する', () => {
+await check('骨長が全ポーズで一致する', () => {
   const poses = allPoses()
   const reference = poses[0]
   for (const pose of poses) {
@@ -37,21 +37,21 @@ check('骨長が全ポーズで一致する', () => {
   }
 })
 
-check('肩幅軸と体幹軸が直交する', () => {
+await check('肩幅軸と体幹軸が直交する', () => {
   for (const pose of allPoses()) {
     const dot = Math.abs(widthAxis(pose).dot(bodyAxis(pose)))
     assert.ok(dot < 1e-6, `${pose.id} で肩幅軸と体幹軸の内積が ${dot}`)
   }
 })
 
-check('頭頂の向きが頸→頭の向きと揃っている', () => {
+await check('頭頂の向きが頸→頭の向きと揃っている', () => {
   for (const pose of allPoses()) {
     const dot = pose.headUp.dot(neckToHead(pose))
     assert.ok(dot > 0.9, `${pose.id} で headUp・neckToHead = ${dot.toFixed(2)}（頭部が反転している）`)
   }
 })
 
-check('側臥位で下になる肩が転倒方向と一致する', () => {
+await check('側臥位で下になる肩が転倒方向と一致する', () => {
   for (const pose of allPoses()) {
     if (!pose.fallSide) continue
     const lower = pose.joints.shoulderLeft.y < pose.joints.shoulderRight.y ? 'left' : 'right'
@@ -62,7 +62,7 @@ check('側臥位で下になる肩が転倒方向と一致する', () => {
   }
 })
 
-check('ミラーは X 反転で、2回かけると元に戻る', () => {
+await check('ミラーは X 反転で、2回かけると元に戻る', () => {
   for (const pose of allPoses()) {
     const mirrored = mirrorPose(pose)
     assert.ok(
@@ -83,7 +83,7 @@ check('ミラーは X 反転で、2回かけると元に戻る', () => {
   }
 })
 
-check('視点方向が患者相対で定義されている', () => {
+await check('視点方向が患者相対で定義されている', () => {
   const dix = MANEUVERS['dix-hallpike'].poses[0]
   const front = viewDirection(dix, 'front')
   assert.ok(front.dot(dix.faceDirection) < -0.99, `front の視線が顔の逆を向いていない: ${front.dot(dix.faceDirection)}`)
@@ -93,7 +93,7 @@ check('視点方向が患者相対で定義されている', () => {
   assert.ok(cranial.dot(bodyAxis(dix)) < -0.99, 'cranial の視線が頭側からでない')
 })
 
-check('head フレーミングは頭と肩だけを対象にする', () => {
+await check('head フレーミングは頭と肩だけを対象にする', () => {
   const pose = MANEUVERS.epley.poses[2]
   const full = framingPoints(pose, 'full')
   const head = framingPoints(pose, 'head')
@@ -106,7 +106,7 @@ check('head フレーミングは頭と肩だけを対象にする', () => {
   }
 })
 
-check('カタログが要求する単体ポーズが存在する', () => {
+await check('カタログが要求する単体ポーズが存在する', () => {
   const required = {
     'supine-roll': ['roll-neutral', 'roll-right-45', 'roll-right', 'roll-left-45', 'roll-left'],
     'basic-positions': ['sitting-front', 'supine-full', 'prone', 'sit-up'],
@@ -120,12 +120,12 @@ check('カタログが要求する単体ポーズが存在する', () => {
   }
 })
 
-check('腹臥位は鼻が床を向く', () => {
+await check('腹臥位は鼻が床を向く', () => {
   const prone = MANEUVERS['basic-positions'].poses.find((pose) => pose.id === 'prone')
   assert.ok(prone.faceDirection.y < -0.8, `腹臥位の鼻が下を向いていない: y=${prone.faceDirection.y}`)
 })
 
-check('45度頭位が正中と90度頭位の中間にある', () => {
+await check('45度頭位が正中と90度頭位の中間にある', () => {
   const poses = MANEUVERS['supine-roll'].poses
   const faceOf = (id) => poses.find((pose) => pose.id === id).faceDirection
   const neutral = faceOf('roll-neutral')
@@ -143,7 +143,7 @@ check('45度頭位が正中と90度頭位の中間にある', () => {
   }
 })
 
-check('Lempert は仰臥位から健側方向へ90度ずつ一周する', () => {
+await check('Lempert は仰臥位から健側方向へ90度ずつ一周する', () => {
   const poses = MANEUVERS.lempert.poses
   assert.deepEqual(
     poses.map((pose) => pose.id),
@@ -162,7 +162,7 @@ check('Lempert は仰臥位から健側方向へ90度ずつ一周する', () => 
   )
 })
 
-check('Lempert は健側（患者左）から先に下になる', () => {
+await check('Lempert は健側（患者左）から先に下になる', () => {
   const poses = MANEUVERS.lempert.poses
   const faceDown = (id) => widthAxis(poses.find((pose) => pose.id === id))
   // widthAxis は患者左を指すので、左が下になれば y < 0。
@@ -172,6 +172,28 @@ check('Lempert は健側（患者左）から先に下になる', () => {
   const far = faceDown('lempert-side-far')
   assert.ok(near.y < -0.9, `2番目の側臥位で患者左が下になっていない: widthAxis.y = ${near.y.toFixed(3)}`)
   assert.ok(far.y > 0.9, `4番目の側臥位で患者右が下になっていない: widthAxis.y = ${far.y.toFixed(3)}`)
+})
+
+await check('カタログが全ポーズIDを網羅し、参照先が実在する', async () => {
+  const { POSE_CATALOG, POSE_IDS, resolvePanels, resolvePose } = await import('../src/rig/catalog.ts')
+  assert.equal(POSE_IDS.length, 27, `ID数が 27 でない: ${POSE_IDS.length}`)
+  for (const id of POSE_IDS) {
+    assert.ok(POSE_CATALOG[id], `${id} のカタログ項目が無い`)
+    const panels = resolvePanels(id)
+    assert.ok(panels.length >= 1, `${id} のパネルが空`)
+    for (const panel of panels) {
+      const pose = resolvePose(panel)
+      assert.ok(pose, `${id} の参照先 ${panel.maneuver}/${panel.pose} が解決できない`)
+    }
+  }
+})
+
+await check('帯状合成は lempert_full と lempert_half のみ', async () => {
+  const { POSE_CATALOG, POSE_IDS, resolvePanels } = await import('../src/rig/catalog.ts')
+  const strips = POSE_IDS.filter((id) => 'panels' in POSE_CATALOG[id])
+  assert.deepEqual(strips.sort(), ['lempert_full', 'lempert_half'])
+  assert.equal(resolvePanels('lempert_full').length, 5)
+  assert.equal(resolvePanels('lempert_half').length, 3)
 })
 
 if (failures.length > 0) {
