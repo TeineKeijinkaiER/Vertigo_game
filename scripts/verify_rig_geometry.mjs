@@ -143,6 +143,25 @@ check('45度頭位が正中と90度頭位の中間にある', () => {
   }
 })
 
+check('Lempert は仰臥位から健側方向へ90度ずつ一周する', () => {
+  const poses = MANEUVERS.lempert.poses
+  assert.deepEqual(
+    poses.map((pose) => pose.id),
+    ['lempert-supine', 'lempert-side', 'lempert-prone', 'lempert-side-far', 'lempert-sit'],
+  )
+  // 鼻の向きが 天井 → 側方 → 床 → 反対側方 と単調に回る
+  const noseY = poses.slice(0, 4).map((pose) => pose.faceDirection.y)
+  assert.ok(noseY[0] > 0.8, `開始が仰臥位でない: ${noseY[0]}`)
+  assert.ok(Math.abs(noseY[1]) < 0.35, `2番目が側臥位でない: ${noseY[1]}`)
+  assert.ok(noseY[2] < -0.8, `3番目が腹臥位でない: ${noseY[2]}`)
+  assert.ok(Math.abs(noseY[3]) < 0.35, `4番目が側臥位でない: ${noseY[3]}`)
+  // 側臥位2つは反対側を向く
+  assert.ok(
+    poses[1].faceDirection.x * poses[3].faceDirection.x < 0,
+    '2つの側臥位が同じ側を向いている',
+  )
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)

@@ -7,6 +7,7 @@ export type ManeuverId =
   | 'gufoni-apogeotropic'
   | 'supine-roll'
   | 'basic-positions'
+  | 'lempert'
 
 export type RigPose = {
   id: string
@@ -168,6 +169,25 @@ const RIGHT = V(-Math.SQRT1_2, 0, Math.SQRT1_2)
 const HANG_RIGHT = V(-0.64, 0.54, -0.54)
 const HANG_LEFT = V(0.64, 0.54, -0.54)
 
+/**
+ * 仰臥位の体軸を保ったまま、体軸まわりに quarter × 90° ロールした体位を作る。
+ * quarter: 0=仰臥位 1=左下側臥位 2=腹臥位 3=右下側臥位
+ */
+function lempertStep(id: string, label: string, note: string, quarter: 0 | 1 | 2 | 3): RigPose {
+  const bodyDirection = V(0, 0.12, -0.993)
+  const angle = (Math.PI / 2) * quarter
+  const rotate = (vector: THREE.Vector3) =>
+    vector.clone().applyAxisAngle(unit(bodyDirection), angle)
+  return makePose({
+    id, label, note, holdMs: 1500,
+    pelvis: V(0, 1.00, 0.38), body: bodyDirection, width: rotate(V(1, 0, 0)),
+    head: bodyDirection, face: rotate(V(0, 1, 0.08)), headUp: bodyDirection,
+    legs: V(0, 0.02, 1),
+    arms: rotate(V(0.10, -0.02, 0.10)).add(V(0, 0, 0.99)),
+    forearms: rotate(V(-0.06, 0.02, 0.06)).add(V(0, 0, 0.99)),
+  })
+}
+
 export const MANEUVERS: Record<ManeuverId, Maneuver> = {
   'dix-hallpike': {
     id: 'dix-hallpike', shortLabel: 'Dix–Hallpike', title: 'Dix–Hallpike（右）',
@@ -256,6 +276,24 @@ export const MANEUVERS: Record<ManeuverId, Maneuver> = {
       // 介助起坐。側臥位から支えて起こす途中
       makePose({
         id: 'sit-up', label: 'ゆっくり起坐させる', note: '側臥位から支えてゆっくり坐位へ戻す',
+        holdMs: 1500, pelvis: V(0, 1.00, 0.72), body: V(0, 0.82, 0.57),
+        head: V(0, 0.94, 0.34), face: V(0, 0.10, 0.995), headUp: V(0, 0.94, 0.34),
+        thighs: V(0, -0.42, 0.91), shins: V(0, -0.98, 0.20),
+        arms: V(0, -0.72, 0.69), forearms: V(0, -0.55, 0.84),
+      }),
+    ],
+  },
+  lempert: {
+    id: 'lempert', shortLabel: 'Lempert', title: 'Lempert法（右・向地性）',
+    subtitle: '仰臥位から健側（左）方向へ90°ずつ、360°まで回す', camera: 'posterior',
+    bedAxis: 'longitudinal', pillow: 'none',
+    poses: [
+      lempertStep('lempert-supine', '1. 仰臥位', '仰臥位から開始する', 0),
+      lempertStep('lempert-side', '2. 健側へ90°', '患側上・健側下の側臥位。各頭位を30〜60秒維持', 1),
+      lempertStep('lempert-prone', '3. さらに90°で腹臥位', '体ごと回して腹臥位にする', 2),
+      lempertStep('lempert-side-far', '4. さらに90°で患側下', '反対の側臥位へ', 3),
+      makePose({
+        id: 'lempert-sit', label: '5. 坐位へ戻す', note: '270〜360°まで回してから起坐させる',
         holdMs: 1500, pelvis: V(0, 1.00, 0.72), body: V(0, 0.82, 0.57),
         head: V(0, 0.94, 0.34), face: V(0, 0.10, 0.995), headUp: V(0, 0.94, 0.34),
         thighs: V(0, -0.42, 0.91), shins: V(0, -0.98, 0.20),
