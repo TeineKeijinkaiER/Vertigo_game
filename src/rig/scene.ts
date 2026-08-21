@@ -168,16 +168,25 @@ export function viewDirection(pose: RigPose, view: View): THREE.Vector3 {
   return bodyAxis(pose).negate()
 }
 
+/**
+ * 頭関節のまわりに6方向の点を置き、頭部メッシュの体積を画角計算に含める。
+ *
+ * 関節座標だけを囲むと、頭の球（半径 HEAD_RADIUS、身長のおよそ15%）が
+ * はみ出して頭頂が切れる。四肢や体幹の太さは margin で吸収できるが、
+ * 頭の半径は吸収できない。全身・頭部寄りのどちらの画角でも必要。
+ */
+const headVolumePoints = (pose: RigPose): THREE.Vector3[] =>
+  [V(1, 0, 0), V(-1, 0, 0), V(0, 1, 0), V(0, -1, 0), V(0, 0, 1), V(0, 0, -1)].map((axis) =>
+    pose.joints.head.clone().addScaledVector(axis, HEAD_RADIUS * 1.15),
+  )
+
 /** head は頭と肩に絞る。「体は動かさず頭だけ回す」ポーズで体幹の静止が見えるよう肩を含める */
 export function framingPoints(pose: RigPose, framing: Framing): THREE.Vector3[] {
-  if (framing === 'full') return Object.values(pose.joints).map((point) => point.clone())
-  const core = ['head', 'neck', 'shoulderCenter', 'shoulderLeft', 'shoulderRight']
-  const points = core.map((name) => pose.joints[name].clone())
-  // 頭部の体積を含めるため、頭関節まわりに軸方向の6点を足す
-  for (const axis of [V(1, 0, 0), V(-1, 0, 0), V(0, 1, 0), V(0, -1, 0), V(0, 0, 1), V(0, 0, -1)]) {
-    points.push(pose.joints.head.clone().add(axis.multiplyScalar(HEAD_RADIUS * 1.15)))
+  if (framing === 'full') {
+    return [...Object.values(pose.joints).map((point) => point.clone()), ...headVolumePoints(pose)]
   }
-  return points
+  const core = ['head', 'neck', 'shoulderCenter', 'shoulderLeft', 'shoulderRight']
+  return [...core.map((name) => pose.joints[name].clone()), ...headVolumePoints(pose)]
 }
 
 /**

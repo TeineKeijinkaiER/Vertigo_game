@@ -7,7 +7,7 @@ import { register } from 'node:module'
 // module in. See scripts/rig-ts-loader.mjs.
 register('./rig-ts-loader.mjs', import.meta.url)
 
-const { MANEUVERS, TREE, bodyAxis, widthAxis, neckToHead, mirrorPose } = await import('../src/rig/poses.ts')
+const { MANEUVERS, TREE, HEAD_RADIUS, V, bodyAxis, widthAxis, neckToHead, mirrorPose } = await import('../src/rig/poses.ts')
 const { framingPoints, viewDirection } = await import('../src/rig/scene.ts')
 
 const allPoses = () => Object.values(MANEUVERS).flatMap((maneuver) => maneuver.poses)
@@ -103,6 +103,32 @@ await check('head フレーミングは頭と肩だけを対象にする', () =>
       point.distanceTo(pose.joints.head) < 1.2,
       `head の対象点が頭から離れすぎている: ${point.distanceTo(pose.joints.head)}`,
     )
+  }
+})
+
+await check('画角の対象点が頭部の体積（半径 HEAD_RADIUS）を包含する', async () => {
+  // framingPoints は関節「点」を囲むだけだと頭の球がはみ出す。full/head どちらの
+  // フレーミングでも、頭関節を中心に6方向すべてで半径分の余裕があることを検証する。
+  // カタログの各パネルが実際に使う framing を総当たりするので、
+  // 特定ポーズだけを個別に見るより取りこぼしがない
+  const { POSE_IDS, resolvePanels, resolvePose } = await import('../src/rig/catalog.ts')
+  const axes = [
+    ['+x', V(1, 0, 0)], ['-x', V(-1, 0, 0)],
+    ['+y', V(0, 1, 0)], ['-y', V(0, -1, 0)],
+    ['+z', V(0, 0, 1)], ['-z', V(0, 0, -1)],
+  ]
+  for (const id of POSE_IDS) {
+    for (const spec of resolvePanels(id)) {
+      const pose = resolvePose(spec)
+      const points = framingPoints(pose, spec.framing)
+      for (const [axisName, axis] of axes) {
+        const covered = points.some((point) => point.clone().sub(pose.joints.head).dot(axis) >= HEAD_RADIUS)
+        assert.ok(
+          covered,
+          `${id} (${spec.maneuver}/${spec.pose}, framing=${spec.framing}) の画角対象点が頭部の ${axisName} 方向を覆っていない`,
+        )
+      }
+    }
   }
 })
 
