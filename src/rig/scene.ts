@@ -224,7 +224,7 @@ export function fitCamera(
   const halfFov = THREE.MathUtils.degToRad(camera.fov) / 2
   const distanceForHeight = halfHeight / Math.tan(halfFov)
   const distanceForWidth = halfWidth / (Math.tan(halfFov) * camera.aspect)
-  const distance = Math.max(distanceForHeight, distanceForWidth) + (maxRight - minRight)
+  const distance = Math.max(distanceForHeight, distanceForWidth)
 
   camera.up.copy(up)
   camera.position.copy(target).addScaledVector(direction, -distance)
