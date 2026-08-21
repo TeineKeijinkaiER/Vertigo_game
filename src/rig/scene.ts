@@ -13,6 +13,7 @@ const TROUSERS = 0x32475f
 const SHOES = 0xf2f4f5
 const BONE = 0xffd348
 const HEAD_SCALE = HEAD_RADIUS / 0.23
+const LOWER_LIMB = /^(hip|knee|ankle|toe)/
 
 const mat = (color: number) => new THREE.MeshToonMaterial({ color })
 function segment(start: THREE.Vector3, end: THREE.Vector3, radius: number, color: number) {
@@ -46,7 +47,7 @@ function makeHead(pose: RigPose) {
   jaw.scale.set(0.86, 0.60, 0.80)
   jaw.position.set(0, -0.12 * HEAD_SCALE, 0.025 * HEAD_SCALE)
   group.add(jaw)
-  const hair = new THREE.Mesh(new THREE.SphereGeometry(HEAD_RADIUS * 1.025, 32, 18, 0, Math.PI * 2, 0, Math.PI * 0.46), mat(HAIR))
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(HEAD_RADIUS * 1.025, 32, 18, 0, Math.PI * 2, 0, Math.PI * 0.33), mat(HAIR))
   hair.position.y = 0.018 * HEAD_SCALE
   group.add(hair)
   const features = new THREE.Group()
@@ -107,11 +108,11 @@ export function makePatient(
   if (skeleton) {
     const lineMaterial = new THREE.LineBasicMaterial({ color: BONE, depthTest: false })
     for (const [start, end] of TREE) {
-      if (pose.upperBodyOnly && /^(hip|knee|ankle|toe)/.test(end)) continue
+      if (pose.upperBodyOnly && LOWER_LIMB.test(end)) continue
       const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([j[start], j[end]]), lineMaterial); line.renderOrder = 10; group.add(line)
     }
     const skeletonPoints = pose.upperBodyOnly
-      ? Object.entries(j).filter(([name]) => !/^(hip|knee|ankle|toe)/.test(name)).map(([, point]) => point)
+      ? Object.entries(j).filter(([name]) => !LOWER_LIMB.test(name)).map(([, point]) => point)
       : Object.values(j)
     for (const point of skeletonPoints) {
       const marker = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 6), mat(BONE)); marker.position.copy(point); marker.renderOrder = 11; group.add(marker)
@@ -159,7 +160,7 @@ export function positionCamera(camera: THREE.PerspectiveCamera, maneuver: Maneuv
 }
 
 export type View = 'front' | 'lateral' | 'cranial'
-export type Framing = 'full' | 'head'
+export type Framing = 'full' | 'upper' | 'head'
 
 /** カメラが向く方向。カメラ位置は注視点からこの逆向きに離れた場所になる */
 export function viewDirection(pose: RigPose, view: View): THREE.Vector3 {
@@ -202,6 +203,14 @@ const headVolumePoints = (pose: RigPose): THREE.Vector3[] =>
 export function framingPoints(pose: RigPose, framing: Framing): THREE.Vector3[] {
   if (framing === 'full') {
     return [...Object.values(pose.joints).map((point) => point.clone()), ...headVolumePoints(pose)]
+  }
+  if (framing === 'upper') {
+    // 真上から寝ている人を見ると全身が細い棒になり、正方形フレームで人物が
+    // 小さくなりすぎる。臥位の向きも顔の向きも上半身に出るので下肢を落とす
+    const upper = Object.entries(pose.joints)
+      .filter(([name]) => !LOWER_LIMB.test(name))
+      .map(([, point]) => point.clone())
+    return [...upper, ...headVolumePoints(pose)]
   }
   const core = ['head', 'neck', 'shoulderCenter', 'shoulderLeft', 'shoulderRight']
   return [...core.map((name) => pose.joints[name].clone()), ...headVolumePoints(pose)]

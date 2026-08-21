@@ -32,8 +32,8 @@ export const POSE_CATALOG = {
   headroll_l90: panel('supine-roll', 'roll-left', 'cranial', 'head'),
 
   sitting_front: panel('basic-positions', 'sitting-front', 'front', 'full'),
-  supine: panel('basic-positions', 'supine-full', 'cranial', 'full'),
-  prone: panel('basic-positions', 'prone', 'cranial', 'full'),
+  supine: panel('basic-positions', 'supine-full', 'cranial', 'upper'),
+  prone: panel('basic-positions', 'prone', 'cranial', 'upper'),
   sit_up: panel('basic-positions', 'sit-up', 'lateral', 'full'),
 
   dh_sit_r: panel('dix-hallpike', 'dix-yaw', 'lateral', 'full'),
@@ -44,8 +44,8 @@ export const POSE_CATALOG = {
   ep_cross_r: panel('epley', 'epley-hang-left', 'lateral', 'head'),
   ep_cross_l: panel('epley', 'epley-hang-left', 'lateral', 'head', { mirror: true }),
 
-  side_r: panel('gufoni-apogeotropic', 'gufoni-a-fall', 'cranial', 'full'),
-  side_l: panel('gufoni-apogeotropic', 'gufoni-a-fall', 'cranial', 'full', { mirror: true }),
+  side_r: panel('gufoni-apogeotropic', 'gufoni-a-fall', 'cranial', 'upper'),
+  side_l: panel('gufoni-apogeotropic', 'gufoni-a-fall', 'cranial', 'upper', { mirror: true }),
   side_r_facedown: panel('gufoni-geotropic', 'gufoni-g-down', 'cranial', 'head', { mirror: true }),
   side_l_facedown: panel('gufoni-geotropic', 'gufoni-g-down', 'cranial', 'head'),
   side_r_faceup: panel('gufoni-apogeotropic', 'gufoni-a-up', 'cranial', 'head'),
@@ -58,23 +58,23 @@ export const POSE_CATALOG = {
   gufoni_fall_r: panel('gufoni-apogeotropic', 'gufoni-a-start', 'front', 'full', { arrow: 'fall-right' }),
   gufoni_fall_l: panel('gufoni-geotropic', 'gufoni-g-start', 'front', 'full', { arrow: 'fall-left' }),
 
-  lempert_roll_r: panel('lempert', 'lempert-side', 'cranial', 'full', { mirror: true, arrow: 'roll-right' }),
-  lempert_roll_l: panel('lempert', 'lempert-side', 'cranial', 'full', { arrow: 'roll-left' }),
+  lempert_roll_r: panel('lempert', 'lempert-side', 'cranial', 'upper', { mirror: true, arrow: 'roll-right' }),
+  lempert_roll_l: panel('lempert', 'lempert-side', 'cranial', 'upper', { arrow: 'roll-left' }),
 
   lempert_full: {
     panels: [
-      panel('lempert', 'lempert-supine', 'cranial', 'full'),
-      panel('lempert', 'lempert-side', 'cranial', 'full'),
-      panel('lempert', 'lempert-prone', 'cranial', 'full'),
-      panel('lempert', 'lempert-side-far', 'cranial', 'full'),
+      panel('lempert', 'lempert-supine', 'cranial', 'upper'),
+      panel('lempert', 'lempert-side', 'cranial', 'upper'),
+      panel('lempert', 'lempert-prone', 'cranial', 'upper'),
+      panel('lempert', 'lempert-side-far', 'cranial', 'upper'),
       panel('lempert', 'lempert-sit', 'lateral', 'full'),
     ],
   },
   lempert_half: {
     panels: [
-      panel('lempert', 'lempert-supine', 'cranial', 'full'),
-      panel('lempert', 'lempert-side', 'cranial', 'full'),
-      panel('lempert', 'lempert-prone', 'cranial', 'full'),
+      panel('lempert', 'lempert-supine', 'cranial', 'upper'),
+      panel('lempert', 'lempert-side', 'cranial', 'upper'),
+      panel('lempert', 'lempert-prone', 'cranial', 'upper'),
     ],
   },
 } satisfies Record<PoseImageId, CaptureSpec>

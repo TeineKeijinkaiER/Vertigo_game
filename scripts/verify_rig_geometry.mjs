@@ -315,6 +315,48 @@ await check('頭側視点は真上からの俯瞰で、画面上方向が体軸�
   }
 })
 
+await check('upper フレーミングは下肢を含まない', async () => {
+  const { POSE_IDS, resolvePanels, resolvePose } = await import('../src/rig/catalog.ts')
+  let seen = 0
+  for (const id of POSE_IDS) {
+    for (const spec of resolvePanels(id)) {
+      if (spec.framing !== 'upper') continue
+      seen += 1
+      const pose = resolvePose(spec)
+      const points = framingPoints(pose, 'upper')
+      for (const name of ['hipLeft', 'hipRight', 'kneeLeft', 'kneeRight', 'ankleLeft', 'ankleRight', 'toeLeft', 'toeRight']) {
+        const joint = pose.joints[name]
+        assert.ok(
+          !points.some((point) => point.distanceTo(joint) < 1e-9),
+          `${id} の upper フレーミングに下肢 ${name} が含まれている`,
+        )
+      }
+      // 上半身だけでも頭の体積は必要
+      const reach = Math.max(...points.map((point) => point.distanceTo(pose.joints.head)))
+      assert.ok(reach >= HEAD_RADIUS, `${id} の upper フレーミングが頭部体積を含まない`)
+    }
+  }
+  assert.ok(seen >= 6, `upper フレーミングの ID が少なすぎる: ${seen}`)
+})
+
+await check('俯瞰の臥位は upper フレーミングを使う', async () => {
+  const { POSE_CATALOG, POSE_IDS, resolvePanels } = await import('../src/rig/catalog.ts')
+  for (const id of ['supine', 'prone', 'side_r', 'side_l', 'lempert_roll_r', 'lempert_roll_l']) {
+    assert.ok(POSE_IDS.includes(id), `${id} が無い`)
+    const spec = resolvePanels(id)[0]
+    assert.equal(spec.view, 'cranial', `${id} の view が cranial でない`)
+    assert.equal(spec.framing, 'upper', `${id} の framing が upper でない`)
+  }
+  // 帯の cranial パネルも上半身に寄せる
+  for (const id of ['lempert_full', 'lempert_half']) {
+    for (const spec of resolvePanels(id)) {
+      if (spec.view !== 'cranial') continue
+      assert.equal(spec.framing, 'upper', `${id} の cranial パネルが upper でない`)
+    }
+  }
+  void POSE_CATALOG
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)
