@@ -17,6 +17,7 @@
 - `src/data/poseImages.ts`・`src/components/PoseImage.tsx`・`src/data/maneuvers.ts` は変更しない
 - ゲームの画面・データ・表示コンポーネントへの変更は `src/styles/global.css` の `.posefilm-stage { aspect-ratio }` 1行のみ。`src/App.tsx` はプロトタイプルートの追加（Task 8）に限り変更してよく、ゲーム側の分岐には触れない
 - `tsconfig.json` は `allowImportingTsExtensions: false`・`include: ["src"]`。**アプリコードの相対 import は拡張子なし**（`./poses`）。`scripts/` 配下の Node スクリプトのみ `.ts` 拡張子付きで import する（`scripts/` は tsc の対象外）
+- **Node から `src/` のモジュールを読むには `scripts/rig-ts-loader.mjs` の登録が必要**（Task 4 で追加）。Node の ESM 解決は拡張子なしの相対指定を解決できず、`src/` 内のモジュールが互いを拡張子なしで import しているため、`ERR_MODULE_NOT_FOUND` になる。検証スクリプトは先頭で `register('./rig-ts-loader.mjs', import.meta.url)` してから `await import('../src/rig/<module>.ts')` する。leaf モジュール（`poses.ts`）だけは静的 import でも動くが、`scene.ts` と `catalog.ts` は動かない
 - `strict: true`・`noUnusedLocals: true`・`noUnusedParameters: true`。抽出時に未使用 import を残さない
 - テストランナーは導入しない。検証は `node scripts/verify_*.mjs` と `python scripts/verify_*.py` が非ゼロ終了する形で書く
 - 骨長の許容誤差は既存 `validateRig` と同じ `1e-8`
@@ -692,14 +693,22 @@ check('腹臥位は鼻が床を向く', () => {
   assert.ok(prone.faceDirection.y < -0.8, `腹臥位の鼻が下を向いていない: y=${prone.faceDirection.y}`)
 })
 
-check('45度頭位は90度頭位の中間にある', () => {
+check('45度頭位が正中と90度頭位の中間にある', () => {
   const poses = MANEUVERS['supine-roll'].poses
-  const at = (id) => poses.find((pose) => pose.id === id)
-  const half = at('roll-right-45').faceDirection
-  const full = at('roll-right').faceDirection
-  const neutral = at('roll-neutral').faceDirection
-  assert.ok(half.dot(full) > half.dot(neutral) - 0.35, '45度が90度側に寄りすぎている')
-  assert.ok(half.dot(neutral) > 0.3, '45度が正中から離れすぎている')
+  const faceOf = (id) => poses.find((pose) => pose.id === id).faceDirection
+  const neutral = faceOf('roll-neutral')
+  // 正中と90度は直交するので、45度の定義は「両端との内積が等しい」こと。
+  // 内積の不等式で挟むだけだと 31〜72度が通ってしまい、検査にならない
+  for (const [halfId, fullId] of [['roll-right-45', 'roll-right'], ['roll-left-45', 'roll-left']]) {
+    const half = faceOf(halfId)
+    const toNeutral = half.dot(neutral)
+    const toFull = half.dot(faceOf(fullId))
+    assert.ok(
+      Math.abs(toNeutral - toFull) < 0.05,
+      `${halfId} が中間でない: 正中との内積 ${toNeutral.toFixed(3)}、90度との内積 ${toFull.toFixed(3)}`,
+    )
+    assert.ok(toNeutral > 0.5, `${halfId} が正中から離れすぎている: ${toNeutral.toFixed(3)}`)
+  }
 })
 ```
 
@@ -820,6 +829,18 @@ check('Lempert は仰臥位から健側方向へ90度ずつ一周する', () => 
     poses[1].faceDirection.x * poses[3].faceDirection.x < 0,
     '2つの側臥位が同じ側を向いている',
   )
+})
+
+check('Lempert は健側（患者左）から先に下になる', () => {
+  const poses = MANEUVERS.lempert.poses
+  const faceDown = (id) => widthAxis(poses.find((pose) => pose.id === id))
+  // widthAxis は患者左を指すので、左が下になれば y < 0。
+  // 鼻の向きだけを見る検査では、回転を逆にした（患側から先に倒す）実装を
+  // 素通ししてしまう。絶対的な左右を明示的に固定する
+  const near = faceDown('lempert-side')
+  const far = faceDown('lempert-side-far')
+  assert.ok(near.y < -0.9, `2番目の側臥位で患者左が下になっていない: widthAxis.y = ${near.y.toFixed(3)}`)
+  assert.ok(far.y > 0.9, `4番目の側臥位で患者右が下になっていない: widthAxis.y = ${far.y.toFixed(3)}`)
 })
 ```
 
@@ -1254,6 +1275,16 @@ git commit -m "feat: add transparent pose export route driven by the catalog"
 **Interfaces:**
 - Consumes: Task 8 のルート
 - Produces: `public/poses/_raw/<id>-<panel>.png`（1024×1024 透過 PNG）
+
+- [ ] **Step 0: playwright を devDependency に追加する**
+
+`playwright` はインストールされていない。既存の `scripts/capture_maneuver_rig_frames.mjs` も動かない状態になっている。
+
+```bash
+npm install --save-dev playwright
+```
+
+`channel: 'msedge'` でシステムの Edge を使うため、`npx playwright install` によるブラウザ本体のダウンロードは不要。`package.json` と `package-lock.json` の変更をコミットに含める。
 
 - [ ] **Step 1: `scripts/capture_pose_images.mjs` を作る**
 
