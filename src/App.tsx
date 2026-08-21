@@ -6,15 +6,15 @@ import { ExamScreen } from './screens/Exam'
 import { DiagnosisScreen, DispositionScreen } from './screens/Decision'
 import { ResultScreen } from './screens/Result'
 
-const DixHallpikeRigPrototype = lazy(() =>
-  import('./prototypes/DixHallpikeRigPrototype').then((module) => ({ default: module.DixHallpikeRigPrototype })),
+const ManeuverRigPrototype = lazy(() =>
+  import('./prototypes/ManeuverRigPrototype').then((module) => ({ default: module.ManeuverRigPrototype })),
 )
 
 export default function App() {
-  if (new URLSearchParams(window.location.search).get('prototype') === 'dix-rig') {
+  if (['dix-rig', 'maneuver-rig'].includes(new URLSearchParams(window.location.search).get('prototype') ?? '')) {
     return (
       <Suspense fallback={<div className="rig-loading">3Dモデルを読み込み中...</div>}>
-        <DixHallpikeRigPrototype />
+        <ManeuverRigPrototype />
       </Suspense>
     )
   }

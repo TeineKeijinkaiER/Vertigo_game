@@ -1,0 +1,75 @@
+{
+  "maneuver": "dix-hallpike",
+  "canvas": [
+    768,
+    512
+  ],
+  "frames": [
+    {
+      "file": "frames/frame-001.png",
+      "duration_ms": 1100,
+      "pose": 0,
+      "key_pose": true
+    },
+    {
+      "file": "frames/frame-002.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-003.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-004.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-005.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-006.png",
+      "duration_ms": 1500,
+      "pose": 1,
+      "key_pose": true
+    },
+    {
+      "file": "frames/frame-007.png",
+      "duration_ms": 140,
+      "pose": "1->0",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-008.png",
+      "duration_ms": 140,
+      "pose": "1->0",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-009.png",
+      "duration_ms": 140,
+      "pose": "1->0",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-010.png",
+      "duration_ms": 140,
+      "pose": "1->0",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-011.png",
+      "duration_ms": 900,
+      "pose": 0,
+      "key_pose": true
+    }
+  ]
+}
