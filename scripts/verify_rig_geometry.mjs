@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { MANEUVERS, TREE, bodyAxis, widthAxis } from '../src/rig/poses.ts'
+import { MANEUVERS, TREE, bodyAxis, widthAxis, neckToHead } from '../src/rig/poses.ts'
 
 const allPoses = () => Object.values(MANEUVERS).flatMap((maneuver) => maneuver.poses)
 const failures = []
@@ -32,6 +32,24 @@ check('肩幅軸と体幹軸が直交する', () => {
   for (const pose of allPoses()) {
     const dot = Math.abs(widthAxis(pose).dot(bodyAxis(pose)))
     assert.ok(dot < 1e-6, `${pose.id} で肩幅軸と体幹軸の内積が ${dot}`)
+  }
+})
+
+check('頭頂の向きが頸→頭の向きと揃っている', () => {
+  for (const pose of allPoses()) {
+    const dot = pose.headUp.dot(neckToHead(pose))
+    assert.ok(dot > 0.9, `${pose.id} で headUp・neckToHead = ${dot.toFixed(2)}（頭部が反転している）`)
+  }
+})
+
+check('側臥位で下になる肩が転倒方向と一致する', () => {
+  for (const pose of allPoses()) {
+    if (!pose.fallSide) continue
+    const lower = pose.joints.shoulderLeft.y < pose.joints.shoulderRight.y ? 'left' : 'right'
+    assert.equal(
+      lower, pose.fallSide,
+      `${pose.id} は ${pose.fallSide} へ倒れたのに ${lower} 肩が下になっていない`,
+    )
   }
 })
 

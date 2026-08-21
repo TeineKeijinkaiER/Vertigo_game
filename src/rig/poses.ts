@@ -138,11 +138,13 @@ const epleySideSit = () => makePose({
 
 function sideLying(id: string, label: string, note: string, direction: 1 | -1, nose: 'down' | 'up' | 'front') {
   const body = V(direction, 0, 0)
-  const width = V(0, 1, 0)
+  // 転倒方向の肩が下になる。患者左が +X なので、左へ倒す(direction=+1)と左肩が -Y へ回る
+  const width = V(0, -direction, 0)
   const face = nose === 'front' ? V(0, 0, 1) : nose === 'down' ? V(0, -1, 0.08) : V(0, 1, 0.08)
   const pose = makePose({
     id, label, note, holdMs: 1500, pelvis: V(0, 1.00, 0.88), body, width, head: body, face,
-    headUp: nose === 'down' ? V(-direction, 0, 0) : V(direction, 0, 0),
+    // 鼻を床/天井へ向けるのは体軸まわりのロールであり、頭頂の向きは変わらない
+    headUp: V(direction, 0, 0),
     thighs: V(-direction, 0, -0.05), shins: V(-direction, 0, -0.05),
     arms: V(-direction, 0.05, 0.15), forearms: V(-direction, 0.05, 0.12),
   })
