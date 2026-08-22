@@ -30,6 +30,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,webp,gif,woff2}'],
         globIgnores: [
+          // v1 のマスター画像。src/ からの参照は無いのに 9.5MB を precache していた
+          '**/vertigo-maneuvers/**',
           '**/vertigo-maneuvers-v2/**',
           '**/vertigo-maneuvers-v3/**',
           '**/vertigo-maneuvers-v3/sources/**',
@@ -39,7 +41,10 @@ export default defineConfig({
           '**/vertigo-maneuvers-v4/**',
           '**/vertigo-maneuvers-v5/**',
           '**/vertigo-maneuvers-v6-prototype/**',
+          '**/vertigo-maneuvers-v7-rig/**',
           '**/DixHallpikeRigPrototype-*.*',
+          '**/ManeuverRigPrototype-*.*',
+          '**/PoseExportRoute-*.*',
         ],
       },
     }),

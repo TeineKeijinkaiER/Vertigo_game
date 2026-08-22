@@ -455,8 +455,8 @@ button {
   width: 100%;
   max-width: 300px;
   margin: 0 auto;
-  /* 画像の縦横比に合わせて場所を確保し、切り替えで高さが動かないようにする */
-  aspect-ratio: 480 / 470;
+  /* 画像は正方形。切り替えで高さが動かないよう場所を確保する */
+  aspect-ratio: 1 / 1;
 }
 
 .posefilm-stage img {

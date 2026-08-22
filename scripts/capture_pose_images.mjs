@@ -6,7 +6,9 @@ const require = createRequire(import.meta.url)
 const { chromium } = require('playwright')
 
 const baseUrl = process.env.POSE_EXPORT_URL ?? 'http://127.0.0.1:5173/'
-const rawRoot = path.resolve('public/poses/_raw')
+// 中間成果物。public/ の下に置くと Vite が dist へ丸ごとコピーし、
+// PWA の precache にも入ってしまうので外に出す
+const rawRoot = path.resolve('.pose-raw')
 const filmsRoot = path.join(rawRoot, 'films')
 const SIZE = 1024
 

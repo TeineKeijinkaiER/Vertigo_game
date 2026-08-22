@@ -7,4 +7,4 @@ tsconfig.tsbuildinfo
 .playwright-mcp/
 *.png.tmp
 gallery*.png
-public/poses/_raw/
+.pose-raw/

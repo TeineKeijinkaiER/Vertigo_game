@@ -7,7 +7,8 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW_ROOT = ROOT / "public" / "poses" / "_raw"
+# 中間成果物。public/ の下に置くと Vite が dist へコピーし precache に入る
+RAW_ROOT = ROOT / ".pose-raw"
 OUT_ROOT = ROOT / "public" / "poses"
 SIZE = 512
 QUALITY = 88
