@@ -431,8 +431,7 @@ button {
 
 
 /* ── 体位イラスト（画像） ───────────────── */
-.poseimg,
-.posefilm {
+.poseimg {
   margin: 0 0 10px;
   padding: 6px;
   background: #0d1440;
@@ -450,7 +449,23 @@ button {
   border-radius: 3px;
 }
 
-.posefilm-stage {
+.poseimg figcaption {
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+/* ── 手技アニメーション（連続コマ） ───────────────── */
+.maneuverfilm {
+  margin: 0 0 10px;
+  padding: 6px;
+  background: #0d1440;
+  border: 1px solid #2c3468;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.maneuverfilm-stage {
   position: relative;
   width: 100%;
   max-width: 300px;
@@ -459,7 +474,7 @@ button {
   aspect-ratio: 1 / 1;
 }
 
-.posefilm-stage img {
+.maneuverfilm-stage img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -468,8 +483,7 @@ button {
   transition: opacity 0.14s linear;
 }
 
-.poseimg figcaption,
-.posefilm figcaption {
+.maneuverfilm figcaption {
   font-size: 11px;
   line-height: 1.6;
   margin-top: 4px;
@@ -512,8 +526,7 @@ button {
   padding: 3px;
 }
 
-.poseimg--compact img,
-.poseimg--compact .posefilm-stage {
+.poseimg--compact img {
   max-width: 140px;
 }
 

@@ -154,36 +154,3 @@ export const POSE_IMAGES = {
 } as const satisfies Record<string, PoseImage>
 
 export type PoseImageId = keyof typeof POSE_IMAGES
-
-/**
- * 連続コマとして再生する動き。
- * 静止画を並べてコマ送りするので、GIFを作らなくても動いて見える。
- */
-export interface FilmFrame {
-  id: PoseImageId
-  /** このコマを見せる時間(ms) */
-  ms: number
-}
-
-export const FILMS = {
-  headroll_r: {
-    caption: '仰臥位のまま、頭だけを右へ90°向ける（右耳が下）。体は動かさない',
-    frames: [
-      { id: 'headroll_c', ms: 800 },
-      { id: 'headroll_r45', ms: 280 },
-      { id: 'headroll_r90', ms: 1600 },
-      { id: 'headroll_r45', ms: 280 },
-    ],
-  },
-  headroll_l: {
-    caption: '仰臥位のまま、頭だけを左へ90°向ける（左耳が下）。体は動かさない',
-    frames: [
-      { id: 'headroll_c', ms: 800 },
-      { id: 'headroll_l45', ms: 280 },
-      { id: 'headroll_l90', ms: 1600 },
-      { id: 'headroll_l45', ms: 280 },
-    ],
-  },
-} as const satisfies Record<string, { caption: string; frames: FilmFrame[] }>
-
-export type FilmId = keyof typeof FILMS

@@ -11,6 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW_ROOT = ROOT / ".pose-raw"
 FILMS_RAW_ROOT = RAW_ROOT / "films"
 OUT_ROOT = ROOT / "public" / "poses" / "films"
+# アプリからは public/ を import できないので、同じ内容をゲーム側の
+# src/ にも書き出す。tsconfig の resolveJsonModule でそのまま import できる
+SRC_JSON = ROOT / "src" / "data" / "poseFilms.json"
 SIZE = 320
 QUALITY = 82
 FILM_COUNT = 11
@@ -84,15 +87,18 @@ def main() -> None:
             square = crop_to_square(image, box)
             out_name = f"frame-{index:03d}.webp"
             square.save(destination_dir / out_name, "WEBP", quality=QUALITY, method=6)
-            frame_entries.append({"file": out_name, "durationMs": frame["duration_ms"]})
+            # file は public/poses/films/ からの相対パス（film_id を含む）。
+            # ManeuverFilm.tsx がこの値だけで画像URLを組み立てられるようにする
+            frame_entries.append({"file": f"{film_id}/{out_name}", "durationMs": frame["duration_ms"]})
             total_frames += 1
 
         manifest.append({"id": film_id, "caption": film.get("caption", ""), "frames": frame_entries})
         print(f"wrote {film_id} ({len(frame_entries)} frames)")
 
-    (OUT_ROOT / "manifest.json").write_text(
-        f"{json.dumps(manifest, ensure_ascii=False, indent=2)}\n", encoding="utf-8"
-    )
+    manifest_text = f"{json.dumps(manifest, ensure_ascii=False, indent=2)}\n"
+    (OUT_ROOT / "manifest.json").write_text(manifest_text, encoding="utf-8")
+    SRC_JSON.parent.mkdir(parents=True, exist_ok=True)
+    SRC_JSON.write_text(manifest_text, encoding="utf-8")
 
     if len(manifest) != FILM_COUNT:
         raise SystemExit(f"書き出したフィルム数が {FILM_COUNT} でない: {len(manifest)}")

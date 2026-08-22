@@ -12,8 +12,25 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 FILMS_ROOT = ROOT / "public" / "poses" / "films"
+SRC_JSON = ROOT / "src" / "data" / "poseFilms.json"
 SIZE = 320
 FILM_COUNT = 11
+
+# film id が game 側で必要とする 11 本すべて含まれているかのチェック用。
+# ハードコードでよい (brief 参照)
+REQUIRED_GAME_FILM_IDS = [
+    "epley_r",
+    "epley_l",
+    "lempert_r",
+    "lempert_l",
+    "gufoni_geo_r",
+    "gufoni_geo_l",
+    "gufoni_apo_r",
+    "gufoni_apo_l",
+    "dix_hallpike_r",
+    "dix_hallpike_l",
+    "headroll",
+]
 # Max allowed bbox-center shift between ADJACENT frames, as a fraction of the
 # canvas width. This is the camera-fixed check: a compose bug that re-crops
 # each frame to its own bbox (instead of one shared bbox per film) makes the
@@ -35,8 +52,8 @@ PAIRS = [
 
 
 def load_frames(film_id: str, entry: dict) -> list[Image.Image]:
-    directory = FILMS_ROOT / film_id
-    return [Image.open(directory / frame["file"]).convert("RGBA") for frame in entry["frames"]]
+    # frame["file"] は FILMS_ROOT からの相対パス (film_id を含む)
+    return [Image.open(FILMS_ROOT / frame["file"]).convert("RGBA") for frame in entry["frames"]]
 
 
 def main() -> None:
@@ -50,6 +67,25 @@ def main() -> None:
     if len(manifest) != FILM_COUNT:
         failures.append(f"film count is {len(manifest)}, expected {FILM_COUNT}")
 
+    # ── ゲーム側との整合チェック ──────────────────────────
+    # src/data/poseFilms.json は public/poses/films/manifest.json のコピー。
+    # public/ はアプリから import できないので、同じ内容を src/ 側にも置く
+    if not SRC_JSON.exists():
+        failures.append(f"missing {SRC_JSON}")
+    else:
+        pose_films = json.loads(SRC_JSON.read_text(encoding="utf-8"))
+        if pose_films != manifest:
+            failures.append(f"{SRC_JSON} does not match {manifest_path}")
+        for entry in pose_films:
+            film_id = entry.get("id", "?")
+            for frame in entry.get("frames", []):
+                if not (FILMS_ROOT / frame["file"]).exists():
+                    failures.append(f"{SRC_JSON}: {film_id}: file missing: {frame['file']}")
+
+    missing_ids = [fid for fid in REQUIRED_GAME_FILM_IDS if fid not in by_id]
+    if missing_ids:
+        failures.append(f"missing required game film ids: {missing_ids}")
+
     frames_cache: dict[str, list[Image.Image]] = {}
 
     for entry in manifest:
@@ -59,13 +95,22 @@ def main() -> None:
             failures.append(f"{film_id}: folder missing")
             continue
 
-        expected_files = [frame["file"] for frame in entry["frames"]]
+        expected_files = [Path(frame["file"]).name for frame in entry["frames"]]
         files_on_disk = sorted(path.name for path in directory.glob("frame-*.webp"))
         if files_on_disk != sorted(expected_files):
             failures.append(
                 f"{film_id}: frame count does not match manifest "
                 f"(disk={len(files_on_disk)} manifest={len(expected_files)})"
             )
+            continue
+
+        # frame["file"] should be a FILMS_ROOT-relative path (manifest format).
+        # A stale/mismatched manifest (e.g. old bare-filename format) would
+        # otherwise crash Image.open with an unhandled FileNotFoundError; report
+        # it as a normal failure instead so the whole check list still prints.
+        missing_frame_files = [f["file"] for f in entry["frames"] if not (FILMS_ROOT / f["file"]).exists()]
+        if missing_frame_files:
+            failures.append(f"{film_id}: frame path(s) not resolvable under {FILMS_ROOT}: {missing_frame_files}")
             continue
 
         images = load_frames(film_id, entry)
@@ -127,8 +172,11 @@ def main() -> None:
                 f"({len(left['frames'])} != {len(right['frames'])})"
             )
             continue
-        right_images = frames_cache.get(right_id) or load_frames(right_id, right)
-        left_images = frames_cache.get(left_id) or load_frames(left_id, left)
+        if right_id not in frames_cache or left_id not in frames_cache:
+            # already reported above (missing folder / bad frame paths / count mismatch)
+            continue
+        right_images = frames_cache[right_id]
+        left_images = frames_cache[left_id]
         for index, (right_image, left_image) in enumerate(zip(right_images, left_images)):
             if right_image.tobytes() == left_image.tobytes():
                 failures.append(f"{left_id}[{index}]: identical to {right_id} (mirroring not applied)")
