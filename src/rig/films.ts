@@ -1,4 +1,4 @@
-import { MANEUVERS, interpolatePose, mirrorPose, type ManeuverId, type RigPose } from './poses'
+import { MANEUVERS, interpolatePose, lempertPoseAt, mirrorPose, type ManeuverId, type RigPose } from './poses'
 import { fitCameraToPoses, type Framing, type View } from './scene'
 import * as THREE from 'three'
 
@@ -81,17 +81,35 @@ export const FILMS_SPEC = {
     ],
   },
   lempert_r: {
-    caption: 'Lempert法。仰臥位から健側方向へ90°ずつ、坐位まで回す',
+    caption: 'Lempert法（右患側）。患側（右）を下にして始め、頭と体を一体で90°ずつ360°回して起坐する',
     view: 'cranial', framing: 'upper', tweens: 4, tweenMs: 110,
     steps: [
-      step('lempert', 'lempert-supine', 1200),
-      step('lempert', 'lempert-side', 1400),
-      step('lempert', 'lempert-prone', 1400),
-      step('lempert', 'lempert-side-far', 1400),
-      step('lempert', 'lempert-sit', 1500),
+      step('lempert', 'lempert-0-supine', 1500),
+      step('lempert', 'lempert-1-affected', 1500),
+      step('lempert', 'lempert-2-supine', 1500),
+      step('lempert', 'lempert-3-healthy', 1500),
+      step('lempert', 'lempert-4-prone', 1500),
+      step('lempert', 'lempert-5-affected', 1500),
+      step('lempert', 'lempert-6-sit', 1500),
+    ],
+  },
+  lempert_l: {
+    caption: 'Lempert法（左患側）。患側（左）を下にして始め、頭と体を一体で90°ずつ360°回して起坐する',
+    view: 'cranial', framing: 'upper', tweens: 4, tweenMs: 110,
+    steps: [
+      step('lempert', 'lempert-0-supine', 1500, true),
+      step('lempert', 'lempert-1-affected', 1500, true),
+      step('lempert', 'lempert-2-supine', 1500, true),
+      step('lempert', 'lempert-3-healthy', 1500, true),
+      step('lempert', 'lempert-4-prone', 1500, true),
+      step('lempert', 'lempert-5-affected', 1500, true),
+      step('lempert', 'lempert-6-sit', 1500, true),
     ],
   },
 } as const satisfies Record<string, FilmSpec>
+
+/** Lempert法の体軸まわりの回転角。①と⑤は同じ向きだが値が違い、補間の向きを決める */
+export const LEMPERT_ANGLES = [0, -90, 0, 90, 180, 270] as const
 
 export type FilmId = keyof typeof FILMS_SPEC
 export const FILM_IDS = Object.keys(FILMS_SPEC) as FilmId[]
@@ -106,8 +124,46 @@ export function filmKeyPoses(id: FilmId): RigPose[] {
   return (FILMS_SPEC[id] as FilmSpec).steps.map(poseOf)
 }
 
+const ease = (raw: number) => raw * raw * (3 - 2 * raw)
+
+/**
+ * Lempert法（右患側）の全フレーム。
+ *
+ * ①〜⑤の区間は、体軸まわりの回転角を ease-in-out で補間し、そのつど
+ * lempertPoseAt を呼んで作る。関節ごとに向きベクトルを個別補間する
+ * interpolatePose では、頭と体が一体で回る「一つの回転」であることが
+ * 保証できない。最後の⑤→坐位だけは回転角で表せない体位なので、
+ * 既存の interpolatePose を使う。
+ */
+function lempertRFrames(): RigPose[] {
+  const spec = FILMS_SPEC.lempert_r
+  const keys = filmKeyPoses('lempert_r')
+  const frames: RigPose[] = []
+  for (let index = 0; index < keys.length; index += 1) {
+    frames.push(keys[index])
+    if (index === keys.length - 1) break
+    for (let tween = 1; tween <= spec.tweens; tween += 1) {
+      const eased = ease(tween / (spec.tweens + 1))
+      if (index < LEMPERT_ANGLES.length - 1) {
+        const from = LEMPERT_ANGLES[index]
+        const to = LEMPERT_ANGLES[index + 1]
+        const target = keys[index + 1]
+        frames.push(lempertPoseAt(target.id, target.label, target.note, from + (to - from) * eased, spec.tweenMs))
+      } else {
+        frames.push(interpolatePose(keys[index], keys[index + 1], eased))
+      }
+    }
+  }
+  return frames
+}
+
 /** キーポーズと中間フレームを並べた全フレーム */
 export function filmFrames(id: FilmId): RigPose[] {
+  if (id === 'lempert_r') return lempertRFrames()
+  // lempert_l は lempert_r の各フレームをそのまま鏡像にして作る。
+  // キーポーズだけでなく補間の途中フレームも鏡像にすることで、
+  // 手技の左右反転が自動的に成り立つ
+  if (id === 'lempert_l') return lempertRFrames().map(mirrorPose)
   const spec = FILMS_SPEC[id] as FilmSpec
   const keys = filmKeyPoses(id)
   const frames: RigPose[] = []

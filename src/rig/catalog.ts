@@ -60,23 +60,23 @@ export const POSE_CATALOG = {
 
   // 矢印は「回す前」の仰臥位に付ける。90°ロール後は widthAxis が垂直に
   // 回っており、矢印が画面に対して真横を向いて潰れる。gufoni_fall_* と同じ
-  lempert_roll_r: panel('lempert', 'lempert-supine', 'cranial', 'upper', { arrow: 'roll-right' }),
-  lempert_roll_l: panel('lempert', 'lempert-supine', 'cranial', 'upper', { arrow: 'roll-left' }),
+  lempert_roll_r: panel('lempert', 'lempert-0-supine', 'cranial', 'upper', { arrow: 'roll-right' }),
+  lempert_roll_l: panel('lempert', 'lempert-0-supine', 'cranial', 'upper', { arrow: 'roll-left' }),
 
   lempert_full: {
     panels: [
-      panel('lempert', 'lempert-supine', 'cranial', 'upper'),
-      panel('lempert', 'lempert-side', 'cranial', 'upper'),
-      panel('lempert', 'lempert-prone', 'cranial', 'upper'),
-      panel('lempert', 'lempert-side-far', 'cranial', 'upper'),
-      panel('lempert', 'lempert-sit', 'lateral', 'full'),
+      panel('lempert', 'lempert-0-supine', 'cranial', 'upper'),
+      panel('lempert', 'lempert-3-healthy', 'cranial', 'upper'),
+      panel('lempert', 'lempert-4-prone', 'cranial', 'upper'),
+      panel('lempert', 'lempert-5-affected', 'cranial', 'upper'),
+      panel('lempert', 'lempert-6-sit', 'lateral', 'full'),
     ],
   },
   lempert_half: {
     panels: [
-      panel('lempert', 'lempert-supine', 'cranial', 'upper'),
-      panel('lempert', 'lempert-side', 'cranial', 'upper'),
-      panel('lempert', 'lempert-prone', 'cranial', 'upper'),
+      panel('lempert', 'lempert-0-supine', 'cranial', 'upper'),
+      panel('lempert', 'lempert-3-healthy', 'cranial', 'upper'),
+      panel('lempert', 'lempert-4-prone', 'cranial', 'upper'),
     ],
   },
 } satisfies Record<PoseImageId, CaptureSpec>

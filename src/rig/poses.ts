@@ -179,22 +179,29 @@ const RIGHT = V(-Math.SQRT1_2, 0, Math.SQRT1_2)
 const HANG_RIGHT = V(-0.64, 0.54, -0.54)
 const HANG_LEFT = V(0.64, 0.54, -0.54)
 
+/** 体軸まわりの回転。患者左(+X)が下(-Y)へ向かう向きを正とする */
+const rollAboutBody = (vector: THREE.Vector3, degrees: number) =>
+  vector.clone().applyAxisAngle(V(0, 0, -1), (degrees * Math.PI) / 180)
+
 /**
- * 仰臥位の体軸を保ったまま、体軸まわりに quarter × 90° ロールした体位を作る。
- * quarter: 0=仰臥位 1=左下側臥位 2=腹臥位 3=右下側臥位
+ * Lempert法の任意の途中姿勢。
+ *
+ * 頭と体は一体で回るので、姿勢は体軸まわりの回転角ひとつで決まる。
+ * 顔の向きを独立に持たせると「頭だけ回す」誤った手技を表現できてしまう。
+ * films から角度を ease-in-out で補間した中間フレーム生成にも使うので export する。
  */
-function lempertStep(id: string, label: string, note: string, quarter: 0 | 1 | 2 | 3): RigPose {
-  const bodyDirection = V(0, 0.12, -0.993)
-  const angle = (Math.PI / 2) * quarter
-  const rotate = (vector: THREE.Vector3) =>
-    vector.clone().applyAxisAngle(unit(bodyDirection), angle)
+export function lempertPoseAt(
+  id: string, label: string, note: string, degrees: number, holdMs = 1500,
+): RigPose {
   return makePose({
-    id, label, note, holdMs: 1500,
-    pelvis: V(0, 1.23, 0.38), body: bodyDirection, width: rotate(V(1, 0, 0)),
-    head: bodyDirection, face: rotate(V(0, 1, 0.08)), headUp: bodyDirection,
-    legs: V(0, 0.02, 1),
-    arms: rotate(V(0.10, -0.02, 0.10)).add(V(0, 0, 0.99)),
-    forearms: rotate(V(-0.06, 0.02, 0.06)).add(V(0, 0, 0.99)),
+    id, label, note, holdMs,
+    pelvis: V(0, 1.31, 0.38),
+    body: V(0, 0, -1), head: V(0, 0, -1), headUp: V(0, 0, -1),
+    width: rollAboutBody(V(1, 0, 0), degrees),
+    face: rollAboutBody(V(0, 1, 0), degrees),
+    legs: V(0, 0, 1),
+    arms: rollAboutBody(V(0.10, -0.02, 0), degrees).add(V(0, 0, 0.99)),
+    forearms: rollAboutBody(V(-0.06, 0.02, 0), degrees).add(V(0, 0, 0.99)),
   })
 }
 
@@ -305,15 +312,17 @@ export const MANEUVERS: Record<ManeuverId, Maneuver> = {
     ],
   },
   lempert: {
-    id: 'lempert', shortLabel: 'Lempert', title: 'Lempert法（右・向地性）',
-    subtitle: '仰臥位から健側（左）方向へ90°ずつ、360°まで回す', camera: 'posterior',
-    bedAxis: 'longitudinal', pillow: 'none',
+    id: 'lempert', shortLabel: 'Lempert', title: 'Lempert法（右水平半規管・向地性）',
+    subtitle: '患側（右）を下にして始め、頭と体を一体で90°ずつ360°回して起坐する',
+    camera: 'posterior', bedAxis: 'longitudinal', pillow: 'none',
     poses: [
-      lempertStep('lempert-supine', '1. 仰臥位', '仰臥位から開始する', 0),
-      lempertStep('lempert-side', '2. 健側へ90°', '患側上・健側下の側臥位。各頭位を30〜60秒維持', 1),
-      lempertStep('lempert-prone', '3. さらに90°で腹臥位', '体ごと回して腹臥位にする', 2),
-      lempertStep('lempert-side-far', '4. さらに90°で患側下', '反対の側臥位へ', 3),
-      assistedSitting('lempert-sit', '5. 坐位へ戻す', '270〜360°まで回してから起坐させる'),
+      lempertPoseAt('lempert-0-supine', '開始. 仰臥位・顔は天井', '頭を正中線に置き、眼振を観察する', 0),
+      lempertPoseAt('lempert-1-affected', '①. 右側臥位・顔は右', '患側の右耳を最下位にする。ここから始めるのが原則', -90),
+      lempertPoseAt('lempert-2-supine', '②. 仰臥位へ戻る・顔は天井', '両耳が水平に戻る', 0),
+      lempertPoseAt('lempert-3-healthy', '③. 左側臥位・顔は左', '健側の左耳が最下位', 90),
+      lempertPoseAt('lempert-4-prone', '④. 腹臥位・顔は床', '鼻を床へ向ける。前庭が下になる', 180),
+      lempertPoseAt('lempert-5-affected', '⑤. 右側臥位・顔は右', '再び患側の右耳を最下位にする。合計360°', 270),
+      assistedSitting('lempert-6-sit', '終了. 坐位・顔は前', '頭部を下げたままゆっくり起坐し、60秒保持する'),
     ],
   },
 }

@@ -169,35 +169,96 @@ await check('45度頭位が正中と90度頭位の中間にある', () => {
   }
 })
 
-await check('Lempert は仰臥位から健側方向へ90度ずつ一周する', () => {
+await check('Lempert は仰臥位から患側方向へ90度ずつ一周する', () => {
   const poses = MANEUVERS.lempert.poses
   assert.deepEqual(
     poses.map((pose) => pose.id),
-    ['lempert-supine', 'lempert-side', 'lempert-prone', 'lempert-side-far', 'lempert-sit'],
+    ['lempert-0-supine', 'lempert-1-affected', 'lempert-2-supine', 'lempert-3-healthy',
+     'lempert-4-prone', 'lempert-5-affected', 'lempert-6-sit'],
   )
-  // 鼻の向きが 天井 → 側方 → 床 → 反対側方 と単調に回る
-  const noseY = poses.slice(0, 4).map((pose) => pose.faceDirection.y)
+  // 鼻の向きが 天井 → 側方(右) → 天井 → 側方(左) → 床 → 側方(右) と回る
+  const noseY = poses.slice(0, 6).map((pose) => pose.faceDirection.y)
   assert.ok(noseY[0] > 0.8, `開始が仰臥位でない: ${noseY[0]}`)
-  assert.ok(Math.abs(noseY[1]) < 0.35, `2番目が側臥位でない: ${noseY[1]}`)
-  assert.ok(noseY[2] < -0.8, `3番目が腹臥位でない: ${noseY[2]}`)
-  assert.ok(Math.abs(noseY[3]) < 0.35, `4番目が側臥位でない: ${noseY[3]}`)
-  // 側臥位2つは反対側を向く
-  assert.ok(
-    poses[1].faceDirection.x * poses[3].faceDirection.x < 0,
-    '2つの側臥位が同じ側を向いている',
-  )
+  assert.ok(Math.abs(noseY[1]) < 0.35, `①が側臥位でない: ${noseY[1]}`)
+  assert.ok(noseY[2] > 0.8, `②が仰臥位に戻っていない: ${noseY[2]}`)
+  assert.ok(Math.abs(noseY[3]) < 0.35, `③が側臥位でない: ${noseY[3]}`)
+  assert.ok(noseY[4] < -0.8, `④が腹臥位でない: ${noseY[4]}`)
+  assert.ok(Math.abs(noseY[5]) < 0.35, `⑤が側臥位でない: ${noseY[5]}`)
+  // ①と⑤は同じ側（患側=右）、③はその反対（健側=左）
+  assert.ok(poses[1].faceDirection.x * poses[5].faceDirection.x > 0, '①と⑤が同じ側を向いていない')
+  assert.ok(poses[1].faceDirection.x * poses[3].faceDirection.x < 0, '①と③が同じ側を向いている')
 })
 
-await check('Lempert は健側（患者左）から先に下になる', () => {
+await check('Lempert は患側（右）から先に下になる', () => {
   const poses = MANEUVERS.lempert.poses
-  const faceDown = (id) => widthAxis(poses.find((pose) => pose.id === id))
-  // widthAxis は患者左を指すので、左が下になれば y < 0。
-  // 鼻の向きだけを見る検査では、回転を逆にした（患側から先に倒す）実装を
+  const widthOf = (id) => widthAxis(poses.find((pose) => pose.id === id))
+  // widthAxis は患者左を指すので、患側（右）が下になれば y > 0。
+  // 鼻の向きだけを見る検査では、回転を逆にした（健側から先に倒す）実装を
   // 素通ししてしまう。絶対的な左右を明示的に固定する
-  const near = faceDown('lempert-side')
-  const far = faceDown('lempert-side-far')
-  assert.ok(near.y < -0.9, `2番目の側臥位で患者左が下になっていない: widthAxis.y = ${near.y.toFixed(3)}`)
-  assert.ok(far.y > 0.9, `4番目の側臥位で患者右が下になっていない: widthAxis.y = ${far.y.toFixed(3)}`)
+  const first = widthOf('lempert-1-affected')
+  const third = widthOf('lempert-3-healthy')
+  const fifth = widthOf('lempert-5-affected')
+  assert.ok(first.y > 0.9, `①で患側（右）が下になっていない: widthAxis.y = ${first.y.toFixed(3)}`)
+  assert.ok(third.y < -0.9, `③で健側（左）が下になっていない: widthAxis.y = ${third.y.toFixed(3)}`)
+  assert.ok(fifth.y > 0.9, `⑤で患側（右）が下になっていない: widthAxis.y = ${fifth.y.toFixed(3)}`)
+})
+
+await check('Lempert は正式手順の7肢勢で、頭と体が常に一体', () => {
+  const poses = MANEUVERS.lempert.poses
+  assert.deepEqual(
+    poses.map((pose) => pose.id),
+    ['lempert-0-supine', 'lempert-1-affected', 'lempert-2-supine', 'lempert-3-healthy',
+     'lempert-4-prone', 'lempert-5-affected', 'lempert-6-sit'],
+  )
+  const at = (id) => poses.find((pose) => pose.id === id)
+  const near = (vector, x, y, label) => assert.ok(
+    Math.abs(vector.x - x) < 0.02 && Math.abs(vector.y - y) < 0.02,
+    `${label}: 実測 (${vector.x.toFixed(2)}, ${vector.y.toFixed(2)}, ${vector.z.toFixed(2)})`,
+  )
+  // 顔の向き
+  near(at('lempert-0-supine').faceDirection, 0, 1, '開始の顔が天井を向いていない')
+  near(at('lempert-1-affected').faceDirection, -1, 0, '①の顔が患者右を向いていない')
+  near(at('lempert-2-supine').faceDirection, 0, 1, '②の顔が天井を向いていない')
+  near(at('lempert-3-healthy').faceDirection, 1, 0, '③の顔が患者左を向いていない')
+  near(at('lempert-4-prone').faceDirection, 0, -1, '④の顔が床を向いていない')
+  near(at('lempert-5-affected').faceDirection, -1, 0, '⑤の顔が患者右を向いていない')
+  // 体位。widthAxis は患者左を指す
+  for (const id of ['lempert-0-supine', 'lempert-2-supine']) {
+    assert.ok(Math.abs(widthAxis(at(id)).y) < 0.02, `${id} が仰臥位でない`)
+  }
+  assert.ok(widthAxis(at('lempert-1-affected')).y > 0.98, '①が右側臥位でない')
+  assert.ok(widthAxis(at('lempert-3-healthy')).y < -0.98, '③が左側臥位でない')
+  assert.ok(Math.abs(widthAxis(at('lempert-4-prone')).y) < 0.02, '④が腹臥位でない')
+  assert.ok(widthAxis(at('lempert-5-affected')).y > 0.98, '⑤が右側臥位でない')
+  assert.ok(
+    widthAxis(at('lempert-4-prone')).x * widthAxis(at('lempert-0-supine')).x < 0,
+    '④が仰臥位と同じ体幹の向きのまま',
+  )
+  // 頭と体が一体。臥位のあいだ、顔は体幹の回転から導かれた向きと一致する
+  for (const pose of poses.slice(0, 6)) {
+    const expected = widthAxis(pose).clone().applyAxisAngle(bodyAxis(pose), Math.PI / 2)
+    assert.ok(
+      Math.abs(pose.faceDirection.dot(expected)) > 0.98,
+      `${pose.id} で頭が体幹と一体になっていない`,
+    )
+  }
+})
+
+await check('Lempert のフィルムは患側から始めて患側で終わり、逆回転しない', async () => {
+  const { filmFrames, LEMPERT_ANGLES } = await import('../src/rig/films.ts')
+  assert.deepEqual(LEMPERT_ANGLES, [0, -90, 0, 90, 180, 270], '角度列が手順表と違う')
+  for (const id of ['lempert_r', 'lempert_l']) {
+    for (const frame of filmFrames(id)) {
+      assert.ok(
+        Math.abs(frame.faceDirection.length() - 1) < 1e-6,
+        `${id} で顔ベクトルが単位長でない`,
+      )
+      assert.ok(frame.headUp.dot(neckToHead(frame)) > 0.9, `${id} で頭頂が反転した`)
+    }
+  }
+  // 左患側は右患側の鏡像。①で顔が患者左を向く
+  const left = filmFrames('lempert_l')
+  assert.ok(left.length > 6, 'lempert_l のフレームが少なすぎる')
 })
 
 await check('カタログが全ポーズIDを網羅し、参照先が実在する', async () => {
@@ -250,7 +311,7 @@ await check('矢印が水平で、左右の名前どおりの向きを指す', a
 })
 
 await check('坐位は体幹が起き、肘が曲がり、真横からでも左右の脚が分かれる', () => {
-  for (const [maneuverId, poseId] of [['basic-positions', 'sit-up'], ['lempert', 'lempert-sit']]) {
+  for (const [maneuverId, poseId] of [['basic-positions', 'sit-up'], ['lempert', 'lempert-6-sit']]) {
     const pose = MANEUVERS[maneuverId].poses.find((item) => item.id === poseId)
     assert.ok(pose, `${maneuverId}/${poseId} が無い`)
 
@@ -385,7 +446,7 @@ await check('患者がマットレスに埋まらない', async () => {
   const OVERHANG = new Set([
     'dix-hang', 'epley-hang-right', 'epley-hang-left', 'epley-rise',
     'gufoni-g-start', 'gufoni-g-return', 'gufoni-a-start', 'gufoni-a-return',
-    'sitting-front', 'sit-up', 'lempert-sit',
+    'sitting-front', 'sit-up', 'lempert-6-sit',
   ])
   for (const maneuver of Object.values(MANEUVERS)) {
     for (const pose of maneuver.poses) {
