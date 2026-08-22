@@ -49,6 +49,15 @@ export const FILMS_SPEC = {
       step('dix-hallpike', 'dix-yaw', 900),
     ],
   },
+  dix_hallpike_l: {
+    caption: '頭を患者左へ45°回したまま、素早く仰臥位にして頭を台の端から下げる',
+    view: 'lateral', framing: 'full', tweens: 4, tweenMs: 110,
+    steps: [
+      step('dix-hallpike', 'dix-yaw', 1100, true),
+      step('dix-hallpike', 'dix-hang', 1800, true),
+      step('dix-hallpike', 'dix-yaw', 900, true),
+    ],
+  },
   epley_r: {
     caption: '右後半規管のEpley法。頭部の回旋と体幹のログロールを分けて行う',
     view: 'lateral', framing: 'full', tweens: 4, tweenMs: 110,
@@ -58,6 +67,17 @@ export const FILMS_SPEC = {
       step('epley', 'epley-hang-left', 1500),
       step('epley', 'epley-roll', 1600),
       step('epley', 'epley-rise', 1500),
+    ],
+  },
+  epley_l: {
+    caption: '左後半規管のEpley法。頭部の回旋と体幹のログロールを分けて行う',
+    view: 'lateral', framing: 'full', tweens: 4, tweenMs: 110,
+    steps: [
+      step('epley', 'epley-start', 1000, true),
+      step('epley', 'epley-hang-right', 1500, true),
+      step('epley', 'epley-hang-left', 1500, true),
+      step('epley', 'epley-roll', 1600, true),
+      step('epley', 'epley-rise', 1500, true),
     ],
   },
   gufoni_geo_r: {
@@ -70,6 +90,16 @@ export const FILMS_SPEC = {
       step('gufoni-geotropic', 'gufoni-g-return', 1200),
     ],
   },
+  gufoni_geo_l: {
+    caption: '左向地性のGufoni法。健側（患者右）へ倒し、鼻を床へ45°回す',
+    view: 'front', framing: 'full', tweens: 4, tweenMs: 110,
+    steps: [
+      step('gufoni-geotropic', 'gufoni-g-start', 1000, true),
+      step('gufoni-geotropic', 'gufoni-g-fall', 1500, true),
+      step('gufoni-geotropic', 'gufoni-g-down', 1600, true),
+      step('gufoni-geotropic', 'gufoni-g-return', 1200, true),
+    ],
+  },
   gufoni_apo_r: {
     caption: '右背地性のGufoni–Appiani法。患側（患者右）へ倒し、鼻を天井へ45°回す',
     view: 'front', framing: 'full', tweens: 4, tweenMs: 110,
@@ -78,6 +108,16 @@ export const FILMS_SPEC = {
       step('gufoni-apogeotropic', 'gufoni-a-fall', 1500),
       step('gufoni-apogeotropic', 'gufoni-a-up', 1600),
       step('gufoni-apogeotropic', 'gufoni-a-return', 1200),
+    ],
+  },
+  gufoni_apo_l: {
+    caption: '左背地性のGufoni–Appiani法。患側（患者左）へ倒し、鼻を天井へ45°回す',
+    view: 'front', framing: 'full', tweens: 4, tweenMs: 110,
+    steps: [
+      step('gufoni-apogeotropic', 'gufoni-a-start', 1000, true),
+      step('gufoni-apogeotropic', 'gufoni-a-fall', 1500, true),
+      step('gufoni-apogeotropic', 'gufoni-a-up', 1600, true),
+      step('gufoni-apogeotropic', 'gufoni-a-return', 1200, true),
     ],
   },
   lempert_r: {
@@ -118,6 +158,19 @@ export const LEMPERT_ANGLES = [
 
 export type FilmId = keyof typeof FILMS_SPEC
 export const FILM_IDS = Object.keys(FILMS_SPEC) as FilmId[]
+
+/**
+ * 左患側フィルムは右患側フィルムの全フレームをそのまま鏡像にして作る。
+ * キーポーズだけでなく補間の途中フレームも鏡像にすることで、
+ * 手技の左右反転が自動的に成り立つ（lempert_l で採った方式を共通化したもの）
+ */
+const MIRROR_SOURCE: Partial<Record<FilmId, FilmId>> = {
+  dix_hallpike_l: 'dix_hallpike_r',
+  epley_l: 'epley_r',
+  gufoni_geo_l: 'gufoni_geo_r',
+  gufoni_apo_l: 'gufoni_apo_r',
+  lempert_l: 'lempert_r',
+}
 
 function poseOf(item: FilmStep): RigPose {
   const found = MANEUVERS[item.maneuver].poses.find((pose) => pose.id === item.pose)
@@ -167,10 +220,8 @@ function lempertRFrames(): RigPose[] {
 /** キーポーズと中間フレームを並べた全フレーム */
 export function filmFrames(id: FilmId): RigPose[] {
   if (id === 'lempert_r') return lempertRFrames()
-  // lempert_l は lempert_r の各フレームをそのまま鏡像にして作る。
-  // キーポーズだけでなく補間の途中フレームも鏡像にすることで、
-  // 手技の左右反転が自動的に成り立つ
-  if (id === 'lempert_l') return lempertRFrames().map(mirrorPose)
+  const mirrorSource = MIRROR_SOURCE[id]
+  if (mirrorSource) return filmFrames(mirrorSource).map(mirrorPose)
   const spec = FILMS_SPEC[id] as FilmSpec
   const keys = filmKeyPoses(id)
   const frames: RigPose[] = []
