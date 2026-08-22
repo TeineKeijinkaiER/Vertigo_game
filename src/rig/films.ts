@@ -108,8 +108,13 @@ export const FILMS_SPEC = {
   },
 } as const satisfies Record<string, FilmSpec>
 
-/** Lempert法の体軸まわりの回転角。①と⑤は同じ向きだが値が違い、補間の向きを決める */
-export const LEMPERT_ANGLES = [0, -90, 0, 90, 180, 270] as const
+/**
+ * Lempert法の [bodyDegrees, faceDegrees] のペア。①と⑤は同じ向きだが値が違い、
+ * 補間の向きを決める。①③は体幹が 0 のまま顔だけが動く。
+ */
+export const LEMPERT_ANGLES = [
+  [0, 0], [0, -90], [0, 0], [0, 90], [180, 180], [270, 270],
+] as const
 
 export type FilmId = keyof typeof FILMS_SPEC
 export const FILM_IDS = Object.keys(FILMS_SPEC) as FilmId[]
@@ -145,10 +150,12 @@ function lempertRFrames(): RigPose[] {
     for (let tween = 1; tween <= spec.tweens; tween += 1) {
       const eased = ease(tween / (spec.tweens + 1))
       if (index < LEMPERT_ANGLES.length - 1) {
-        const from = LEMPERT_ANGLES[index]
-        const to = LEMPERT_ANGLES[index + 1]
+        const [fromBody, fromFace] = LEMPERT_ANGLES[index]
+        const [toBody, toFace] = LEMPERT_ANGLES[index + 1]
         const target = keys[index + 1]
-        frames.push(lempertPoseAt(target.id, target.label, target.note, from + (to - from) * eased, spec.tweenMs))
+        const bodyDegrees = fromBody + (toBody - fromBody) * eased
+        const faceDegrees = fromFace + (toFace - fromFace) * eased
+        frames.push(lempertPoseAt(target.id, target.label, target.note, bodyDegrees, faceDegrees, spec.tweenMs))
       } else {
         frames.push(interpolatePose(keys[index], keys[index + 1], eased))
       }

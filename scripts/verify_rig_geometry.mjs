@@ -189,21 +189,21 @@ await check('Lempert は仰臥位から患側方向へ90度ずつ一周する', 
   assert.ok(poses[1].faceDirection.x * poses[3].faceDirection.x < 0, '①と③が同じ側を向いている')
 })
 
-await check('Lempert は患側（右）から先に下になる', () => {
+await check('Lempert は患側（右）から先に下になる（または向く）', () => {
   const poses = MANEUVERS.lempert.poses
-  const widthOf = (id) => widthAxis(poses.find((pose) => pose.id === id))
-  // widthAxis は患者左を指すので、患側（右）が下になれば y > 0。
-  // 鼻の向きだけを見る検査では、回転を逆にした（健側から先に倒す）実装を
-  // 素通ししてしまう。絶対的な左右を明示的に固定する
-  const first = widthOf('lempert-1-affected')
-  const third = widthOf('lempert-3-healthy')
-  const fifth = widthOf('lempert-5-affected')
-  assert.ok(first.y > 0.9, `①で患側（右）が下になっていない: widthAxis.y = ${first.y.toFixed(3)}`)
-  assert.ok(third.y < -0.9, `③で健側（左）が下になっていない: widthAxis.y = ${third.y.toFixed(3)}`)
-  assert.ok(fifth.y > 0.9, `⑤で患側（右）が下になっていない: widthAxis.y = ${fifth.y.toFixed(3)}`)
+  const at = (id) => poses.find((pose) => pose.id === id)
+  // ①③は体幹が仰臥位のまま顔だけが回るので、絶対的な左右は顔の向きで判定する。
+  // faceDirection.x は患者右で負、患者左で正
+  const firstFace = at('lempert-1-affected').faceDirection
+  const thirdFace = at('lempert-3-healthy').faceDirection
+  assert.ok(firstFace.x < -0.9, `①で顔が患側（右）を向いていない: faceDirection.x = ${firstFace.x.toFixed(3)}`)
+  assert.ok(thirdFace.x > 0.9, `③で顔が健側（左）を向いていない: faceDirection.x = ${thirdFace.x.toFixed(3)}`)
+  // ⑤は頭と体が一体で回るので、絶対的な左右は widthAxis（患者左を指す体幹軸）で判定する
+  const fifthWidth = widthAxis(at('lempert-5-affected'))
+  assert.ok(fifthWidth.y > 0.9, `⑤で患側（右）が下になっていない: widthAxis.y = ${fifthWidth.y.toFixed(3)}`)
 })
 
-await check('Lempert は正式手順の7肢勢で、頭と体が常に一体', () => {
+await check('Lempert は①③が仰臥位で顔だけ回り、④以降は頭と体が一体', () => {
   const poses = MANEUVERS.lempert.poses
   assert.deepEqual(
     poses.map((pose) => pose.id),
@@ -222,31 +222,39 @@ await check('Lempert は正式手順の7肢勢で、頭と体が常に一体', (
   near(at('lempert-3-healthy').faceDirection, 1, 0, '③の顔が患者左を向いていない')
   near(at('lempert-4-prone').faceDirection, 0, -1, '④の顔が床を向いていない')
   near(at('lempert-5-affected').faceDirection, -1, 0, '⑤の顔が患者右を向いていない')
-  // 体位。widthAxis は患者左を指す
-  for (const id of ['lempert-0-supine', 'lempert-2-supine']) {
-    assert.ok(Math.abs(widthAxis(at(id)).y) < 0.02, `${id} が仰臥位でない`)
+
+  // 体位。widthAxis は患者左を指す。開始から③までは仰臥位のまま
+  for (const id of ['lempert-0-supine', 'lempert-1-affected', 'lempert-2-supine', 'lempert-3-healthy']) {
+    assert.ok(
+      Math.abs(widthAxis(at(id)).y) < 0.02,
+      `${id} の体幹が仰臥位でない: widthAxis.y = ${widthAxis(at(id)).y.toFixed(2)}`,
+    )
   }
-  assert.ok(widthAxis(at('lempert-1-affected')).y > 0.98, '①が右側臥位でない')
-  assert.ok(widthAxis(at('lempert-3-healthy')).y < -0.98, '③が左側臥位でない')
   assert.ok(Math.abs(widthAxis(at('lempert-4-prone')).y) < 0.02, '④が腹臥位でない')
-  assert.ok(widthAxis(at('lempert-5-affected')).y > 0.98, '⑤が右側臥位でない')
   assert.ok(
     widthAxis(at('lempert-4-prone')).x * widthAxis(at('lempert-0-supine')).x < 0,
-    '④が仰臥位と同じ体幹の向きのまま',
+    '④の体幹が仰臥位と同じ向きのまま',
   )
-  // 頭と体が一体。臥位のあいだ、顔は体幹の回転から導かれた向きと一致する
-  for (const pose of poses.slice(0, 6)) {
+  assert.ok(widthAxis(at('lempert-5-affected')).y > 0.98, '⑤が右側臥位でない')
+
+  // ④⑤は頭と体が一体。顔は体幹の回転から導かれた向きと一致する
+  for (const id of ['lempert-4-prone', 'lempert-5-affected']) {
+    const pose = at(id)
     const expected = widthAxis(pose).clone().applyAxisAngle(bodyAxis(pose), Math.PI / 2)
     assert.ok(
       Math.abs(pose.faceDirection.dot(expected)) > 0.98,
-      `${pose.id} で頭が体幹と一体になっていない`,
+      `${id} で頭が体幹と一体になっていない`,
     )
   }
 })
 
 await check('Lempert のフィルムは患側から始めて患側で終わり、逆回転しない', async () => {
   const { filmFrames, LEMPERT_ANGLES } = await import('../src/rig/films.ts')
-  assert.deepEqual(LEMPERT_ANGLES, [0, -90, 0, 90, 180, 270], '角度列が手順表と違う')
+  assert.deepEqual(
+    LEMPERT_ANGLES,
+    [[0, 0], [0, -90], [0, 0], [0, 90], [180, 180], [270, 270]],
+    '角度列が手順表と違う',
+  )
   for (const id of ['lempert_r', 'lempert_l']) {
     for (const frame of filmFrames(id)) {
       assert.ok(
@@ -259,6 +267,21 @@ await check('Lempert のフィルムは患側から始めて患側で終わり�
   // 左患側は右患側の鏡像。①で顔が患者左を向く
   const left = filmFrames('lempert_l')
   assert.ok(left.length > 6, 'lempert_l のフレームが少なすぎる')
+})
+
+await check('Lempert の③→④は左側臥位を通って腹臥位へ進む', async () => {
+  const { FILMS_SPEC, filmFrames } = await import('../src/rig/films.ts')
+  const tweens = FILMS_SPEC.lempert_r.tweens
+  const frames = filmFrames('lempert_r')
+  // キー間隔は 1 + tweens。③は key index 3、④は key index 4
+  const keyOf = (keyIndex) => keyIndex * (tweens + 1)
+  const between = frames.slice(keyOf(3) + 1, keyOf(4))
+  assert.equal(between.length, tweens, `③→④の中間フレーム数が想定と違う: ${between.length}`)
+  // 途中で患者左が下（widthAxis.y < 0）になる＝左側臥位を通る
+  assert.ok(
+    between.some((frame) => widthAxis(frame).y < -0.5),
+    '③→④が左側臥位を通っていない。逆回転している可能性がある',
+  )
 })
 
 await check('カタログが全ポーズIDを網羅し、参照先が実在する', async () => {
