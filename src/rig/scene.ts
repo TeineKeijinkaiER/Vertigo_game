@@ -37,6 +37,26 @@ export function faceQuaternion(forwardInput: THREE.Vector3, upInput: THREE.Vecto
   return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, forward))
 }
 
+/** features グループ座標系での頭部楕円体の半径（x, y, z） */
+export const FACE_RADII: readonly [number, number, number] = [
+  (HEAD_RADIUS * 0.90) / HEAD_SCALE,
+  (HEAD_RADIUS * 1.05) / HEAD_SCALE,
+  (HEAD_RADIUS * 0.94) / HEAD_SCALE,
+]
+
+/**
+ * 顔パーツを頭の表面に貼り付けるための z 座標。
+ *
+ * 頭は scale(0.90, 1.05, 0.94) の楕円体なので、中心の z で揃えると
+ * 目や頬のように外側にあるパーツほど表面から浮いて見える。
+ * sink はパーツを表面から少し埋める量。
+ */
+export function faceSurfaceZ(x: number, y: number, sink = 0.012): number {
+  const [a, b, c] = FACE_RADII
+  const remainder = 1 - (x / a) ** 2 - (y / b) ** 2
+  return c * Math.sqrt(Math.max(0.05, remainder)) - sink
+}
+
 function makeHead(pose: RigPose) {
   const group = new THREE.Group()
   group.position.copy(pose.joints.head)
@@ -52,26 +72,65 @@ function makeHead(pose: RigPose) {
   const hair = new THREE.Mesh(new THREE.SphereGeometry(HEAD_RADIUS * 1.025, 32, 18, 0, Math.PI * 2, 0, Math.PI * 0.33), mat(HAIR))
   hair.position.y = 0.018 * HEAD_SCALE
   group.add(hair)
+  // 後頭部・側頭部。頭頂の帽子だけだと横や後ろから見て地肌が出る。
+  //
+  // three.js の SphereGeometry の phi=0 はこのファイル内の他の場所（スパイク・
+  // 毛束の座標計算）で使っている「(sinθsinφ, cosθ, sinθcosφ)」という自前の
+  // 極座標とは基準がずれている。three.js は x=-cos(φ)sin(θ), z=sin(φ)sin(θ) で、
+  // 実測すると three.js の φ=90° がこのファイルの φ=0°（顔の正面, +Z）にあたる。
+  // つまり three.js の phiStart は「自前の φ + 90°」で指定しないと、
+  // 意図した中心（後頭部）からずれて片側の側頭部だけに寄ってしまう。
+  // 顔のパーツ（頬まで±38度ほど）を避けて自前の φ で ±40〜320度を覆いたいので、
+  // three.js 座標では 130〜410度（=130〜360と0〜50を通しで指定）にする
+  const backHair = new THREE.Mesh(
+    new THREE.SphereGeometry(HEAD_RADIUS * 1.03, 28, 16, Math.PI * (130 / 180), Math.PI * (280 / 180), 0, Math.PI * 0.66),
+    mat(HAIR),
+  )
+  backHair.scale.set(0.90, 1.05, 0.94)
+  backHair.position.y = 0.012 * HEAD_SCALE
+  group.add(backHair)
+  // 生え際を尖らせる。滑らかなドームだと帽子をかぶって見える
+  const spikeCount = 14
+  const spikeTheta = Math.PI * 0.33
+  for (let index = 0; index < spikeCount; index += 1) {
+    const phi = (index / spikeCount) * Math.PI * 2
+    const length = index % 2 === 0 ? 0.085 : 0.055
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.030, length, 6), mat(HAIR))
+    const normal = new THREE.Vector3(
+      Math.sin(spikeTheta) * Math.sin(phi),
+      Math.cos(spikeTheta),
+      Math.sin(spikeTheta) * Math.cos(phi),
+    )
+    const seat = normal.clone().multiply(V(0.90, 1.05, 0.94)).multiplyScalar(HEAD_RADIUS * 1.02)
+    spike.position.copy(seat).addScaledVector(normal, length * 0.25)
+    spike.position.y += 0.012 * HEAD_SCALE
+    spike.quaternion.setFromUnitVectors(V(0, 1, 0), normal)
+    group.add(spike)
+  }
   const features = new THREE.Group()
   features.scale.setScalar(HEAD_SCALE)
   group.add(features)
   for (const x of [-0.082, 0.082]) {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.044, 18, 14), mat(0xffffff))
-    eye.scale.set(0.84, 1.10, 0.32); eye.position.set(x, 0, 0.207); features.add(eye)
+    eye.scale.set(0.84, 1.10, 0.32); eye.position.set(x, 0, faceSurfaceZ(x, 0, 0.022)); features.add(eye)
     const iris = new THREE.Mesh(new THREE.SphereGeometry(0.022, 14, 10), mat(0x392a25))
-    iris.scale.z = 0.42; iris.position.set(x, -0.004, 0.228); features.add(iris)
+    iris.scale.z = 0.42; iris.position.set(x, -0.004, faceSurfaceZ(x, -0.004, 0.006)); features.add(iris)
     const shine = new THREE.Mesh(new THREE.SphereGeometry(0.006, 8, 6), mat(0xffffff))
-    shine.position.set(x - 0.006, 0.004, 0.244); features.add(shine)
+    shine.position.set(x - 0.006, 0.004, faceSurfaceZ(x - 0.006, 0.004, 0.0)); features.add(shine)
     const brow = new THREE.Mesh(new THREE.CapsuleGeometry(0.006, 0.052, 5, 9), mat(HAIR))
-    brow.rotation.z = Math.PI / 2 + (x < 0 ? -0.08 : 0.08); brow.position.set(x, 0.061, 0.205); features.add(brow)
+    brow.rotation.z = Math.PI / 2 + (x < 0 ? -0.08 : 0.08); brow.position.set(x, 0.061, faceSurfaceZ(x, 0.061, 0.014)); features.add(brow)
   }
   const nose = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.068, 16), mat(0xd97d63))
-  nose.position.set(0, -0.02, 0.235); nose.rotation.x = Math.PI / 2; features.add(nose)
-  const smile = new THREE.QuadraticBezierCurve3(V(-0.05, -0.084, 0.216), V(0, -0.116, 0.239), V(0.05, -0.084, 0.216))
+  nose.position.set(0, -0.02, faceSurfaceZ(0, -0.02, 0.006)); nose.rotation.x = Math.PI / 2; features.add(nose)
+  const smile = new THREE.QuadraticBezierCurve3(
+    V(-0.05, -0.084, faceSurfaceZ(-0.05, -0.084, 0.004)),
+    V(0, -0.116, faceSurfaceZ(0, -0.116, -0.004)),
+    V(0.05, -0.084, faceSurfaceZ(0.05, -0.084, 0.004)),
+  )
   features.add(new THREE.Mesh(new THREE.TubeGeometry(smile, 18, 0.007, 8, false), mat(0x8d3842)))
   for (const x of [-0.127, 0.127]) {
     const cheek = new THREE.Mesh(new THREE.SphereGeometry(0.028, 14, 10), mat(0xef8c83))
-    cheek.scale.z = 0.2; cheek.position.set(x, -0.052, 0.202); features.add(cheek)
+    cheek.scale.z = 0.2; cheek.position.set(x, -0.052, faceSurfaceZ(x, -0.052, 0.020)); features.add(cheek)
     const ear = new THREE.Mesh(new THREE.SphereGeometry(0.039 * HEAD_SCALE, 14, 10), mat(SKIN))
     ear.scale.set(0.55, 1, 0.65); ear.position.set((x < 0 ? -0.222 : 0.222) * HEAD_SCALE, 0, 0); group.add(ear)
   }

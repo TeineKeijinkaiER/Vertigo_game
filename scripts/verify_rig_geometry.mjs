@@ -389,7 +389,12 @@ await check('患者がマットレスに埋まらない', async () => {
   ])
   for (const maneuver of Object.values(MANEUVERS)) {
     for (const pose of maneuver.poses) {
-      const box = new THREE.Box3().setFromObject(makePatient(pose, { noseArrow: false }))
+      // setFromObject の既定（precise=false）は各メッシュのローカル境界「箱」の
+      // 8頂点を回転させて包絡するだけなので、回転した球殻セクターでは実際の
+      // 頂点に対応しない“幽霊コーナー”が生じ、本当は沈み込んでいないのに
+      // 沈み込み判定になる。precise=true で実頂点から包絡させ、見た目どおりの
+      // 最下点を見る
+      const box = new THREE.Box3().setFromObject(makePatient(pose, { noseArrow: false }), true)
       if (OVERHANG.has(pose.id)) {
         // 体幹は載っていること。骨盤球の縦半径は 0.27 * 0.72
         assert.ok(
@@ -404,6 +409,21 @@ await check('患者がマットレスに埋まらない', async () => {
       }
     }
   }
+})
+
+await check('顔パーツが頭の楕円体表面に載る', async () => {
+  const { faceSurfaceZ, FACE_RADII } = await import('../src/rig/scene.ts')
+  const [a, b, c] = FACE_RADII
+  for (const [x, y] of [[0, 0], [0.082, 0], [-0.082, 0], [0.127, -0.052], [0, 0.061], [0, -0.084]]) {
+    const z = faceSurfaceZ(x, y, 0)
+    const radius = (x / a) ** 2 + (y / b) ** 2 + (z / c) ** 2
+    assert.ok(
+      Math.abs(radius - 1) < 0.02,
+      `(${x}, ${y}) が楕円体表面に載っていない: 正規化半径 ${radius.toFixed(3)}`,
+    )
+  }
+  // 沈み込みを指定したら表面より内側へ入ること
+  assert.ok(faceSurfaceZ(0, 0, 0.02) < faceSurfaceZ(0, 0, 0), '沈み込み指定が効いていない')
 })
 
 if (failures.length > 0) {
