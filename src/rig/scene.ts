@@ -74,20 +74,15 @@ function makeHead(pose: RigPose) {
   group.add(hair)
   // 後頭部・側頭部。頭頂の帽子だけだと横や後ろから見て地肌が出る。
   //
-  // three.js の SphereGeometry の phi=0 はこのファイル内の他の場所（スパイク・
-  // 毛束の座標計算）で使っている「(sinθsinφ, cosθ, sinθcosφ)」という自前の
-  // 極座標とは基準がずれている。three.js は x=-cos(φ)sin(θ), z=sin(φ)sin(θ) で、
-  // 実測すると three.js の φ=90° がこのファイルの φ=0°（顔の正面, +Z）にあたる。
-  // つまり three.js の phiStart は「自前の φ + 90°」で指定しないと、
-  // 意図した中心（後頭部）からずれて片側の側頭部だけに寄ってしまう。
-  // 顔のパーツ（頬まで±38度ほど）を避けて自前の φ で ±40〜320度を覆いたいので、
-  // three.js 座標では 130〜410度（=130〜360と0〜50を通しで指定）にする
+  // 方位角を切って前面を空けると、その境界が顔を縦に横切る硬いエッジになり、
+  // 顔が肌色の窓に押し込まれたように見える。方位角は全周のまま、椀を後ろへ
+  // ずらして前縁を額の高さに置くことで、継ぎ目のない自然な生え際にする。
   const backHair = new THREE.Mesh(
-    new THREE.SphereGeometry(HEAD_RADIUS * 1.03, 28, 16, Math.PI * (130 / 180), Math.PI * (280 / 180), 0, Math.PI * 0.66),
+    new THREE.SphereGeometry(HEAD_RADIUS * 1.02, 28, 18, 0, Math.PI * 2, 0, Math.PI * 0.66),
     mat(HAIR),
   )
-  backHair.scale.set(0.90, 1.05, 0.94)
-  backHair.position.y = 0.012 * HEAD_SCALE
+  backHair.scale.set(0.92, 1.03, 0.92)
+  backHair.position.set(0, 0, -0.085)
   group.add(backHair)
   // 生え際を尖らせる。滑らかなドームだと帽子をかぶって見える
   const spikeCount = 14
