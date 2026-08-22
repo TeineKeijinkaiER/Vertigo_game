@@ -8,7 +8,7 @@ import { register } from 'node:module'
 register('./rig-ts-loader.mjs', import.meta.url)
 
 const { MANEUVERS, TREE, HEAD_RADIUS, V, bodyAxis, widthAxis, neckToHead, mirrorPose } = await import('../src/rig/poses.ts')
-const { framingPoints, viewDirection, screenUp } = await import('../src/rig/scene.ts')
+const { framingPoints, viewDirection, screenUp, makePatient, BED_TOP } = await import('../src/rig/scene.ts')
 
 const allPoses = () => Object.values(MANEUVERS).flatMap((maneuver) => maneuver.poses)
 const failures = []
@@ -355,6 +355,55 @@ await check('俯瞰の臥位は upper フレーミングを使う', async () => 
     }
   }
   void POSE_CATALOG
+})
+
+await check('仰臥位の頭部回旋は水平で、あごを引かない', () => {
+  const poses = MANEUVERS['supine-roll'].poses
+  for (const pose of poses) {
+    const trunk = bodyAxis(pose)
+    assert.ok(
+      Math.abs(trunk.y) < 0.05,
+      `${pose.id} の体軸が水平でない: bodyAxis.y = ${trunk.y.toFixed(3)}`,
+    )
+    // 頭が体軸から持ち上がっていると、あごを引いた見え方になる
+    const lift = neckToHead(pose).dot(trunk)
+    assert.ok(
+      lift > 0.99,
+      `${pose.id} の頭部が体軸から持ち上がっている: 頸→頭・体軸 = ${lift.toFixed(3)}`,
+    )
+  }
+  const faceOf = (id) => poses.find((item) => item.id === id).faceDirection
+  assert.ok(faceOf('roll-neutral').y > 0.99, '正中で顔が真上を向いていない')
+  assert.ok(faceOf('roll-right').x < -0.99, '右90°で顔が患者右を向いていない')
+  assert.ok(faceOf('roll-left').x > 0.99, '左90°で顔が患者左を向いていない')
+})
+
+await check('患者がマットレスに埋まらない', async () => {
+  const THREE = await import('three')
+  const { makePatient, BED_TOP } = await import('../src/rig/scene.ts')
+  // 頭や脚を意図的にベッド面より下へ出すポーズ
+  const OVERHANG = new Set([
+    'dix-hang', 'epley-hang-right', 'epley-hang-left', 'epley-rise',
+    'gufoni-g-start', 'gufoni-g-return', 'gufoni-a-start', 'gufoni-a-return',
+    'sitting-front', 'sit-up', 'lempert-sit',
+  ])
+  for (const maneuver of Object.values(MANEUVERS)) {
+    for (const pose of maneuver.poses) {
+      const box = new THREE.Box3().setFromObject(makePatient(pose, { noseArrow: false }))
+      if (OVERHANG.has(pose.id)) {
+        // 体幹は載っていること。骨盤球の縦半径は 0.27 * 0.72
+        assert.ok(
+          pose.joints.pelvis.y - 0.27 * 0.72 >= BED_TOP - 1e-6,
+          `${pose.id} の骨盤がマットレスに埋まっている: 下端 ${(pose.joints.pelvis.y - 0.1944).toFixed(3)} < ${BED_TOP}`,
+        )
+      } else {
+        assert.ok(
+          box.min.y >= BED_TOP - 1e-6,
+          `${pose.id} がマットレスに埋まっている: 最下点 ${box.min.y.toFixed(3)} < ${BED_TOP}`,
+        )
+      }
+    }
+  }
 })
 
 if (failures.length > 0) {

@@ -79,7 +79,7 @@ type PoseRecipe = {
 }
 
 export function makePose(recipe: PoseRecipe): RigPose {
-  const pelvis = recipe.pelvis?.clone() ?? V(0, 0.98, 0.42)
+  const pelvis = recipe.pelvis?.clone() ?? V(0, 1.08, 0.42)
   const body = unit(recipe.body)
   const width = unit(recipe.width ?? V(1, 0, 0))
   const chest = step(pelvis, body, LENGTHS.chest)
@@ -139,14 +139,14 @@ const hanging = (id: string, label: string, note: string, face: THREE.Vector3) =
 })
 
 const sideSeated = (id: string, label: string, note: string) => makePose({
-  id, label, note, pelvis: V(0, 1.00, 0.88), body: V(0, 1, 0), head: V(0, 1, 0), face: V(0, 0, 1),
+  id, label, note, pelvis: V(0, 1.10, 0.88), body: V(0, 1, 0), head: V(0, 1, 0), face: V(0, 0, 1),
   thighs: V(0, -0.46, 0.89), shins: V(0, -1, 0), arms: V(0, -0.96, 0.28), forearms: V(0, -0.92, 0.38),
 })
 
 const epleySideSit = () => makePose({
   id: 'epley-rise', label: '5. 左向きのまま側方座位へ',
   note: '左側臥位からベッド側縁へ脚を下ろし、頭は左向きを保つ',
-  pelvis: V(0.86, 1.00, 0.35), body: V(0, 1, 0), width: V(0, 0, -1),
+  pelvis: V(0.86, 1.10, 0.35), body: V(0, 1, 0), width: V(0, 0, -1),
   head: V(0, 1, 0), face: V(1, 0, 0), headUp: V(0, 1, 0),
   thighs: V(0.92, -0.38, 0), shins: V(0, -1, 0),
   arms: V(0.68, -0.72, 0), forearms: V(0.30, -0.95, 0),
@@ -158,7 +158,7 @@ function sideLying(id: string, label: string, note: string, direction: 1 | -1, n
   const width = V(0, -direction, 0)
   const face = nose === 'front' ? V(0, 0, 1) : nose === 'down' ? V(0, -1, 0.08) : V(0, 1, 0.08)
   const pose = makePose({
-    id, label, note, holdMs: 1500, pelvis: V(0, 1.00, 0.88), body, width, head: body, face,
+    id, label, note, holdMs: 1500, pelvis: V(0, 1.31, 0.88), body, width, head: body, face,
     // 鼻を床/天井へ向けるのは体軸まわりのロールであり、頭頂の向きは変わらない
     headUp: V(direction, 0, 0),
     thighs: V(-direction, 0, -0.05), shins: V(-direction, 0, -0.05),
@@ -168,9 +168,10 @@ function sideLying(id: string, label: string, note: string, direction: 1 | -1, n
 }
 
 const supine = (id: string, label: string, note: string, face: THREE.Vector3) => makePose({
-  id, label, note, holdMs: 1300, pelvis: V(0, 1.00, 0.38), body: V(0, 0.12, -0.993),
-  head: V(0, 0.50, -0.866), face, headUp: V(0, 0.50, -0.866),
-  legs: V(0, 0.02, 1), arms: V(0.04, -0.02, 1), forearms: V(-0.04, 0.02, 1),
+  id, label, note, holdMs: 1300, pelvis: V(0, 1.26, 0.38),
+  // 体軸も頭も水平。あごを引かせず、頭だけを左右に回す
+  body: V(0, 0, -1), head: V(0, 0, -1), face, headUp: V(0, 0, -1),
+  legs: V(0, 0, 1), arms: V(0, 0, 1), forearms: V(0, 0, 1),
   upperBodyOnly: true,
 })
 
@@ -189,7 +190,7 @@ function lempertStep(id: string, label: string, note: string, quarter: 0 | 1 | 2
     vector.clone().applyAxisAngle(unit(bodyDirection), angle)
   return makePose({
     id, label, note, holdMs: 1500,
-    pelvis: V(0, 1.00, 0.38), body: bodyDirection, width: rotate(V(1, 0, 0)),
+    pelvis: V(0, 1.23, 0.38), body: bodyDirection, width: rotate(V(1, 0, 0)),
     head: bodyDirection, face: rotate(V(0, 1, 0.08)), headUp: bodyDirection,
     legs: V(0, 0.02, 1),
     arms: rotate(V(0.10, -0.02, 0.10)).add(V(0, 0, 0.99)),
@@ -206,7 +207,7 @@ function lempertStep(id: string, label: string, note: string, quarter: 0 | 1 | 2
  */
 const assistedSitting = (id: string, label: string, note: string) => makePose({
   id, label, note, holdMs: 1500,
-  pelvis: V(0, 1.00, 0.80), body: V(0, 0.985, 0.17),
+  pelvis: V(0, 1.10, 0.80), body: V(0, 0.985, 0.17),
   head: V(0, 0.99, 0.14), face: V(0, 0.05, 0.999), headUp: V(0, 0.99, 0.14),
   thighs: V(0, -0.35, 0.94), shins: V(0, -0.97, 0.24),
   thighsRight: V(0, -0.60, 0.80), shinsRight: V(0, -0.99, 0.14),
@@ -233,7 +234,7 @@ export const MANEUVERS: Record<ManeuverId, Maneuver> = {
       hanging('epley-hang-right', '2. 右Dix–Hallpike位', '回旋を保ったまま肩支持で後屈', HANG_RIGHT),
       hanging('epley-hang-left', '3. 頭部を左へ90°', '肩と骨盤は仰臥位のまま、頭部だけを反対側へ回旋', HANG_LEFT),
       makePose({ id: 'epley-roll', label: '4. 左側臥位・鼻下', note: '頭部と体幹を一体に左へログロール', holdMs: 1600,
-        pelvis: V(0, 1.00, 0.38), body: V(0, 0.12, -0.993), width: V(0, -0.993, -0.12),
+        pelvis: V(0, 1.19, 0.38), body: V(0, 0.12, -0.993), width: V(0, -0.993, -0.12),
         head: V(0, 0.12, -0.993), face: V(0, -0.96, -0.28), headUp: V(0, 0.28, -0.96),
         legs: V(0, 0.02, 1), arms: V(0, 0.04, 1), forearms: V(0, 0.02, 1) }),
       epleySideSit(),
@@ -263,13 +264,13 @@ export const MANEUVERS: Record<ManeuverId, Maneuver> = {
   },
   'supine-roll': {
     id: 'supine-roll', shortLabel: 'Supine Head Roll', title: 'Supine Head Roll Test',
-    subtitle: '枕なしの上半身モデルで、頭部約30°前屈と左右90°を表示', camera: 'posterior',
+    subtitle: '枕なしの上半身モデルで、水平仰臥位のまま頭部左右90°を表示', camera: 'posterior',
     bedAxis: 'longitudinal', pillow: 'none',
     poses: [
-      supine('roll-neutral', '1. 仰臥位・正中', '頭部を約30°前屈して水平半規管面を整える', V(0, 0.50, 0.866)),
-      supine('roll-right-45', '2. 右へ45°', '正中から患者右へ45°', V(-0.707, 0.354, 0.612)),
+      supine('roll-neutral', '1. 仰臥位・正中', '顔を真上に向けた仰臥位から開始', V(0, 1, 0)),
+      supine('roll-right-45', '2. 右へ45°', '頭だけを患者右へ45°回す', V(-Math.SQRT1_2, Math.SQRT1_2, 0)),
       supine('roll-right', '3. 右へ90°', '眼振を観察し、消退するまで保持', V(-1, 0, 0)),
-      supine('roll-left-45', '4. 左へ45°', '正中から患者左へ45°', V(0.707, 0.354, 0.612)),
+      supine('roll-left-45', '4. 左へ45°', '頭だけを患者左へ45°回す', V(Math.SQRT1_2, Math.SQRT1_2, 0)),
       supine('roll-left', '5. 左へ90°', '反対側の眼振方向と強度を観察', V(1, 0, 0)),
     ],
   },
@@ -281,21 +282,21 @@ export const MANEUVERS: Record<ManeuverId, Maneuver> = {
       // 正面座位。診察台に腰かけ検者と向かい合う
       makePose({
         id: 'sitting-front', label: '正面を向いた坐位', note: '診察台に腰かけ正面を向く',
-        pelvis: V(0, 1.00, 0.88), body: V(0, 1, 0), head: V(0, 1, 0), face: V(0, 0, 1),
+        pelvis: V(0, 1.10, 0.88), body: V(0, 1, 0), head: V(0, 1, 0), face: V(0, 0, 1),
         thighs: V(0, -0.46, 0.89), shins: V(0, -1, 0),
         arms: V(0, -0.96, 0.28), forearms: V(0, -0.92, 0.38),
       }),
       // 全身仰臥位。supine() は上半身のみなので別に作る
       makePose({
         id: 'supine-full', label: '仰臥位', note: '診察台に仰向け。顔は天井を向く',
-        holdMs: 1300, pelvis: V(0, 1.00, 0.38), body: V(0, 0.12, -0.993),
+        holdMs: 1300, pelvis: V(0, 1.09, 0.38), body: V(0, 0.12, -0.993),
         head: V(0, 0.12, -0.993), face: V(0, 1, 0.08), headUp: V(0, 0.12, -0.993),
         legs: V(0, 0.02, 1), arms: V(0.10, -0.02, 0.995), forearms: V(-0.06, 0.02, 0.998),
       }),
       // 腹臥位。仰臥位から体軸まわりに180°ロールし、鼻を床へ
       makePose({
         id: 'prone', label: '腹臥位（うつ伏せ）', note: '診察台にうつ伏せ。後頭部が見えている',
-        holdMs: 1300, pelvis: V(0, 1.00, 0.38), body: V(0, 0.12, -0.993), width: V(-1, 0, 0),
+        holdMs: 1300, pelvis: V(0, 1.09, 0.38), body: V(0, 0.12, -0.993), width: V(-1, 0, 0),
         head: V(0, 0.12, -0.993), face: V(0, -1, -0.08), headUp: V(0, 0.12, -0.993),
         legs: V(0, 0.02, 1), arms: V(0.10, 0.02, 0.995), forearms: V(-0.06, -0.02, 0.998),
       }),

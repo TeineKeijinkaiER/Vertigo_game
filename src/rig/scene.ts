@@ -12,6 +12,8 @@ const SHIRT_DARK = 0x17658f
 const TROUSERS = 0x32475f
 const SHOES = 0xf2f4f5
 const BONE = 0xffd348
+/** マットレス上面の高さ。患者はこの高さに載る */
+export const BED_TOP = 0.88
 const HEAD_SCALE = HEAD_RADIUS / 0.23
 const LOWER_LIMB = /^(hip|knee|ankle|toe)/
 
@@ -136,7 +138,7 @@ export function makeRoom(maneuver: Maneuver, options: { floor?: boolean } = {}):
   const mattressWidth = transverse ? 5.25 : 2.28
   const mattressLength = transverse ? 2.28 : 5.25
   const base = new THREE.Mesh(new THREE.BoxGeometry(bedWidth, 0.28, bedLength), mat(0x59676d)); base.position.set(0, 0.58, 0); base.castShadow = true; group.add(base)
-  const mattress = new THREE.Mesh(new THREE.BoxGeometry(mattressWidth, 0.16, mattressLength), mat(0xc8e2e6)); mattress.position.set(0, 0.80, 0); mattress.castShadow = true; mattress.receiveShadow = true; group.add(mattress)
+  const mattress = new THREE.Mesh(new THREE.BoxGeometry(mattressWidth, 0.16, mattressLength), mat(0xc8e2e6)); mattress.position.set(0, BED_TOP - 0.08, 0); mattress.castShadow = true; mattress.receiveShadow = true; group.add(mattress)
   const legXs = transverse ? [-2.1, 2.1] : [-0.92, 0.92]
   const legZs = transverse ? [-0.92, 0.92] : [-2.1, 2.1]
   for (const x of legXs) for (const z of legZs) { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.55, 0.11), mat(0x59676d)); leg.position.set(x, 0.275, z); group.add(leg) }
