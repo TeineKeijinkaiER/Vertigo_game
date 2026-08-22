@@ -3,14 +3,21 @@ import * as THREE from 'three'
 import { POSE_IDS, resolvePanels, resolvePose } from '../rig/catalog'
 import { fitCamera, makeDirectionArrow, makePatient, makeRoom } from '../rig/scene'
 import { MANEUVERS } from '../rig/poses'
+import { FILM_IDS, filmCamera, filmDurations, filmFrames, FILMS_SPEC, type FilmId } from '../rig/films'
 import type { PoseImageId } from '../data/poseImages'
 import './dixHallpikeRig.css'
 
 const SIZE = 1024
+const FILM_CAPTIONS = Object.fromEntries(
+  FILM_IDS.map((filmId) => [filmId, FILMS_SPEC[filmId].caption]),
+) as Record<FilmId, string>
 
 declare global {
   interface Window {
     __POSE_IDS__?: PoseImageId[]
+    __FILM_IDS__?: FilmId[]
+    __FILM_DURATIONS__?: number[]
+    __FILM_CAPTIONS__?: Record<FilmId, string>
   }
 }
 
@@ -25,11 +32,20 @@ export function PoseExportRoute() {
   const params = new URLSearchParams(window.location.search)
   const id = params.get('id') as PoseImageId | null
   const panelIndex = Number(params.get('panel') ?? 0) || 0
+  const film = params.get('film') as FilmId | null
+  const frameIndex = Number(params.get('frame') ?? 0) || 0
 
   useEffect(() => {
     window.__POSE_IDS__ = POSE_IDS
-    if (id) document.body.dataset.panelCount = String(resolvePanels(id).length)
-  }, [id])
+    window.__FILM_IDS__ = FILM_IDS
+    window.__FILM_CAPTIONS__ = FILM_CAPTIONS
+    if (film) {
+      window.__FILM_DURATIONS__ = filmDurations(film)
+      document.body.dataset.filmFrames = String(filmFrames(film).length)
+    } else if (id) {
+      document.body.dataset.panelCount = String(resolvePanels(id).length)
+    }
+  }, [id, film])
 
   // global.css は body に --navy-deep を塗っている。透過スクリーンショットは
   // キャンバス側だけでなくページ側も透明である必要があるため、
@@ -43,11 +59,7 @@ export function PoseExportRoute() {
 
   useEffect(() => {
     const mount = mountRef.current
-    if (!mount || !id) return
-
-    const panels = resolvePanels(id)
-    const spec = panels[Math.min(panels.length - 1, Math.max(0, panelIndex))]
-    const pose = resolvePose(spec)
+    if (!mount || (!id && !film)) return
 
     const scene = new THREE.Scene()
     scene.background = null
@@ -58,12 +70,26 @@ export function PoseExportRoute() {
     key.shadow.mapSize.set(1024, 1024)
     scene.add(key)
 
-    scene.add(makeRoom(MANEUVERS[spec.maneuver], { floor: false }))
-    scene.add(makePatient(pose, { skeleton: false, noseArrow: false }))
-    if (spec.arrow) scene.add(makeDirectionArrow(pose, spec.arrow))
-
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50)
-    fitCamera(camera, pose, spec.view, spec.framing)
+
+    if (film) {
+      // フィルムはキーポーズと中間フレームを通じて1台のカメラを使い回す。
+      // ここで毎フレーム fitCamera し直すと視線がポーズ相対に揺れてしまう。
+      const spec = FILMS_SPEC[film]
+      const frames = filmFrames(film)
+      const frame = frames[Math.min(frames.length - 1, Math.max(0, frameIndex))]
+      scene.add(makeRoom(MANEUVERS[spec.steps[0].maneuver], { floor: false }))
+      scene.add(makePatient(frame, { skeleton: false, noseArrow: false }))
+      filmCamera(camera, film)
+    } else if (id) {
+      const panels = resolvePanels(id)
+      const spec = panels[Math.min(panels.length - 1, Math.max(0, panelIndex))]
+      const pose = resolvePose(spec)
+      scene.add(makeRoom(MANEUVERS[spec.maneuver], { floor: false }))
+      scene.add(makePatient(pose, { skeleton: false, noseArrow: false }))
+      if (spec.arrow) scene.add(makeDirectionArrow(pose, spec.arrow))
+      fitCamera(camera, pose, spec.view, spec.framing)
+    }
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true })
     renderer.setPixelRatio(1)
@@ -80,9 +106,9 @@ export function PoseExportRoute() {
       renderer.dispose()
       mount.removeChild(renderer.domElement)
     }
-  }, [id, panelIndex])
+  }, [id, panelIndex, film, frameIndex])
 
-  if (!id) {
+  if (!id && !film) {
     return <div className="pose-export-list">{POSE_IDS.join(',')}</div>
   }
   return <main className="pose-export"><div ref={mountRef} className="pose-export-canvas" /></main>

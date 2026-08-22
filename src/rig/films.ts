@@ -1,0 +1,144 @@
+import { MANEUVERS, interpolatePose, mirrorPose, type ManeuverId, type RigPose } from './poses'
+import { fitCameraToPoses, type Framing, type View } from './scene'
+import * as THREE from 'three'
+
+export type FilmStep = {
+  maneuver: ManeuverId
+  pose: string
+  mirror?: boolean
+  /** このキーポーズを見せる時間 */
+  holdMs: number
+}
+
+export type FilmSpec = {
+  caption: string
+  view: View
+  framing: Framing
+  /** キーポーズ間に挟む中間フレーム数 */
+  tweens: number
+  /** 中間フレームの1コマあたりの時間 */
+  tweenMs: number
+  steps: FilmStep[]
+}
+
+const step = (maneuver: ManeuverId, pose: string, holdMs: number, mirror = false): FilmStep =>
+  mirror ? { maneuver, pose, holdMs, mirror } : { maneuver, pose, holdMs }
+
+export const FILMS_SPEC = {
+  headroll: {
+    caption: '仰臥位のまま、頭だけを左右へ90°ずつ回す。体は動かさない',
+    view: 'cranial', framing: 'upper', tweens: 4, tweenMs: 90,
+    steps: [
+      step('supine-roll', 'roll-neutral', 700),
+      step('supine-roll', 'roll-right-45', 200),
+      step('supine-roll', 'roll-right', 1400),
+      step('supine-roll', 'roll-right-45', 200),
+      step('supine-roll', 'roll-neutral', 700),
+      step('supine-roll', 'roll-left-45', 200),
+      step('supine-roll', 'roll-left', 1400),
+      step('supine-roll', 'roll-left-45', 200),
+      step('supine-roll', 'roll-neutral', 700),
+    ],
+  },
+  dix_hallpike_r: {
+    caption: '頭を患者右へ45°回したまま、素早く仰臥位にして頭を台の端から下げる',
+    view: 'lateral', framing: 'full', tweens: 4, tweenMs: 110,
+    steps: [
+      step('dix-hallpike', 'dix-yaw', 1100),
+      step('dix-hallpike', 'dix-hang', 1800),
+      step('dix-hallpike', 'dix-yaw', 900),
+    ],
+  },
+  epley_r: {
+    caption: '右後半規管のEpley法。頭部の回旋と体幹のログロールを分けて行う',
+    view: 'lateral', framing: 'full', tweens: 4, tweenMs: 110,
+    steps: [
+      step('epley', 'epley-start', 1000),
+      step('epley', 'epley-hang-right', 1500),
+      step('epley', 'epley-hang-left', 1500),
+      step('epley', 'epley-roll', 1600),
+      step('epley', 'epley-rise', 1500),
+    ],
+  },
+  gufoni_geo_r: {
+    caption: '右向地性のGufoni法。健側（患者左）へ倒し、鼻を床へ45°回す',
+    view: 'front', framing: 'full', tweens: 4, tweenMs: 110,
+    steps: [
+      step('gufoni-geotropic', 'gufoni-g-start', 1000),
+      step('gufoni-geotropic', 'gufoni-g-fall', 1500),
+      step('gufoni-geotropic', 'gufoni-g-down', 1600),
+      step('gufoni-geotropic', 'gufoni-g-return', 1200),
+    ],
+  },
+  gufoni_apo_r: {
+    caption: '右背地性のGufoni–Appiani法。患側（患者右）へ倒し、鼻を天井へ45°回す',
+    view: 'front', framing: 'full', tweens: 4, tweenMs: 110,
+    steps: [
+      step('gufoni-apogeotropic', 'gufoni-a-start', 1000),
+      step('gufoni-apogeotropic', 'gufoni-a-fall', 1500),
+      step('gufoni-apogeotropic', 'gufoni-a-up', 1600),
+      step('gufoni-apogeotropic', 'gufoni-a-return', 1200),
+    ],
+  },
+  lempert_r: {
+    caption: 'Lempert法。仰臥位から健側方向へ90°ずつ、坐位まで回す',
+    view: 'cranial', framing: 'upper', tweens: 4, tweenMs: 110,
+    steps: [
+      step('lempert', 'lempert-supine', 1200),
+      step('lempert', 'lempert-side', 1400),
+      step('lempert', 'lempert-prone', 1400),
+      step('lempert', 'lempert-side-far', 1400),
+      step('lempert', 'lempert-sit', 1500),
+    ],
+  },
+} as const satisfies Record<string, FilmSpec>
+
+export type FilmId = keyof typeof FILMS_SPEC
+export const FILM_IDS = Object.keys(FILMS_SPEC) as FilmId[]
+
+function poseOf(item: FilmStep): RigPose {
+  const found = MANEUVERS[item.maneuver].poses.find((pose) => pose.id === item.pose)
+  if (!found) throw new Error(`ポーズが見つからない: ${item.maneuver}/${item.pose}`)
+  return item.mirror ? mirrorPose(found) : found
+}
+
+export function filmKeyPoses(id: FilmId): RigPose[] {
+  return (FILMS_SPEC[id] as FilmSpec).steps.map(poseOf)
+}
+
+/** キーポーズと中間フレームを並べた全フレーム */
+export function filmFrames(id: FilmId): RigPose[] {
+  const spec = FILMS_SPEC[id] as FilmSpec
+  const keys = filmKeyPoses(id)
+  const frames: RigPose[] = []
+  for (let index = 0; index < keys.length; index += 1) {
+    frames.push(keys[index])
+    if (index === keys.length - 1) break
+    for (let tween = 1; tween <= spec.tweens; tween += 1) {
+      const raw = tween / (spec.tweens + 1)
+      // ease-in-out。等速だと開始と停止が硬く見える
+      const eased = raw * raw * (3 - 2 * raw)
+      frames.push(interpolatePose(keys[index], keys[index + 1], eased))
+    }
+  }
+  return frames
+}
+
+/** 各フレームの表示時間(ms) */
+export function filmDurations(id: FilmId): number[] {
+  const spec = FILMS_SPEC[id] as FilmSpec
+  const keys = spec.steps
+  const durations: number[] = []
+  for (let index = 0; index < keys.length; index += 1) {
+    durations.push(keys[index].holdMs)
+    if (index === keys.length - 1) break
+    for (let tween = 0; tween < spec.tweens; tween += 1) durations.push(spec.tweenMs)
+  }
+  return durations
+}
+
+/** フィルム全体で共有する固定カメラ */
+export function filmCamera(camera: THREE.PerspectiveCamera, id: FilmId): void {
+  const spec = FILMS_SPEC[id] as FilmSpec
+  fitCameraToPoses(camera, filmKeyPoses(id), spec.view, spec.framing)
+}

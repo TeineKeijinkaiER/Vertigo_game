@@ -426,6 +426,39 @@ await check('顔パーツが頭の楕円体表面に載る', async () => {
   assert.ok(faceSurfaceZ(0, 0, 0.02) < faceSurfaceZ(0, 0, 0), '沈み込み指定が効いていない')
 })
 
+await check('フィルムのキーポーズが実在し、カメラが全フレームで固定される', async () => {
+  const THREE = await import('three')
+  const { FILMS_SPEC, FILM_IDS, filmFrames, filmCamera } = await import('../src/rig/films.ts')
+  assert.ok(FILM_IDS.length >= 6, `フィルムが少なすぎる: ${FILM_IDS.length}`)
+  for (const id of FILM_IDS) {
+    const spec = FILMS_SPEC[id]
+    assert.ok(spec.steps.length >= 2, `${id} のキーポーズが 2 未満`)
+    const frames = filmFrames(id)
+    // キーポーズ数 + 中間フレーム
+    const expected = spec.steps.length + (spec.steps.length - 1) * spec.tweens
+    assert.equal(frames.length, expected, `${id} のフレーム数が ${frames.length}、期待 ${expected}`)
+
+    // 骨長がどのフレームでも変わらない
+    const reference = frames[0]
+    for (const frame of frames) {
+      for (const [start, end] of TREE) {
+        const before = reference.joints[start].distanceTo(reference.joints[end])
+        const after = frame.joints[start].distanceTo(frame.joints[end])
+        assert.ok(Math.abs(before - after) <= 1e-8, `${id} で骨長が変化した: ${start}-${end}`)
+      }
+    }
+
+    // カメラが1つだけ決まり、全フレームで同じであること
+    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50)
+    filmCamera(camera, id)
+    const position = camera.position.clone()
+    const up = camera.up.clone()
+    filmCamera(camera, id)
+    assert.ok(camera.position.distanceTo(position) < 1e-9, `${id} のカメラ位置が安定しない`)
+    assert.ok(camera.up.distanceTo(up) < 1e-9, `${id} のカメラ上方向が安定しない`)
+  }
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)

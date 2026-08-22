@@ -273,25 +273,22 @@ export function framingPoints(pose: RigPose, framing: Framing): THREE.Vector3[] 
 }
 
 /**
- * 被写体のバウンディングボックスからカメラ距離と注視点を解く。
+ * 対象点の集合からカメラ距離と注視点を解く。視線と画面上方向は呼び出し側が決める。
  *
  * v7 はポーズごとにカメラ座標を手で打っていたため、人物が小さすぎたり
  * 肝心の回旋が見えない画角になっていた。ここを機械化するのが判読性の根治になる。
  * 画面上の上方向は常に世界の +Y にする。床と天井の区別が臨床的な意味を持つため。
  */
-export function fitCamera(
+function fitPointsWithBasis(
   camera: THREE.PerspectiveCamera,
-  pose: RigPose,
-  view: View,
-  framing: Framing,
-  margin = 0.08,
+  points: THREE.Vector3[],
+  direction: THREE.Vector3,
+  worldUp: THREE.Vector3,
+  margin: number,
 ): void {
-  const direction = viewDirection(pose, view)
-  const worldUp = screenUp(pose, view)
   const right = worldUp.clone().cross(direction).normalize()
   const up = direction.clone().cross(right).normalize()
 
-  const points = framingPoints(pose, framing)
   let minRight = Infinity, maxRight = -Infinity
   let minUp = Infinity, maxUp = -Infinity
   let minDepth = Infinity
@@ -322,6 +319,43 @@ export function fitCamera(
   camera.position.copy(target).addScaledVector(direction, -distance)
   camera.lookAt(target)
   camera.updateProjectionMatrix()
+}
+
+/**
+ * 被写体のバウンディングボックスからカメラ距離と注視点を解く。単一ポーズ用。
+ */
+export function fitCamera(
+  camera: THREE.PerspectiveCamera,
+  pose: RigPose,
+  view: View,
+  framing: Framing,
+  margin = 0.08,
+): void {
+  const direction = viewDirection(pose, view)
+  const worldUp = screenUp(pose, view)
+  const points = framingPoints(pose, framing)
+  fitPointsWithBasis(camera, points, direction, worldUp, margin)
+}
+
+/**
+ * 複数のポーズをまとめて画角に収める。
+ *
+ * フィルムでは全フレームで同じカメラを使う。視線と画面上方向は基準ポーズから
+ * 決め、距離は全キーポーズの framing 点を囲めるように取る。フレームごとに
+ * 画角を計算し直すと、視線がポーズ相対なので映像が揺れる。
+ */
+export function fitCameraToPoses(
+  camera: THREE.PerspectiveCamera,
+  poses: RigPose[],
+  view: View,
+  framing: Framing,
+  margin = 0.08,
+): void {
+  const reference = poses[0]
+  const direction = viewDirection(reference, view)
+  const worldUp = screenUp(reference, view)
+  const points = poses.flatMap((pose) => framingPoints(pose, framing))
+  fitPointsWithBasis(camera, points, direction, worldUp, margin)
 }
 
 export type ArrowKind = 'fall-left' | 'fall-right' | 'roll-left' | 'roll-right'
