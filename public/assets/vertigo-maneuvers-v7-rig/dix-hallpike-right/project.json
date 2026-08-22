@@ -1,0 +1,83 @@
+{
+  "maneuver": "dix-hallpike",
+  "side": "right",
+  "variant": "dix-hallpike-right",
+  "audience": "clinical education; educational illustration",
+  "render_method": "fixed Three.js 3D rig, deterministic normalized-direction interpolation",
+  "canvas": [
+    768,
+    512
+  ],
+  "output": "dix-hallpike-right.gif",
+  "frames": [
+    {
+      "file": "frames/frame-001.png",
+      "duration_ms": 1100,
+      "pose": 0,
+      "key_pose": true
+    },
+    {
+      "file": "frames/frame-002.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-003.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-004.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-005.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-006.png",
+      "duration_ms": 1500,
+      "pose": 1,
+      "key_pose": true
+    },
+    {
+      "file": "frames/frame-007.png",
+      "duration_ms": 140,
+      "pose": "1->0",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-008.png",
+      "duration_ms": 140,
+      "pose": "1->0",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-009.png",
+      "duration_ms": 140,
+      "pose": "1->0",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-010.png",
+      "duration_ms": 140,
+      "pose": "1->0",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-011.png",
+      "duration_ms": 900,
+      "pose": 0,
+      "key_pose": true
+    }
+  ],
+  "source_component": "src/prototypes/ManeuverRigPrototype.tsx",
+  "capture_script": "scripts/capture_maneuver_rig_frames.mjs",
+  "build_script": "scripts/build_maneuver_rig_gifs.py"
+}

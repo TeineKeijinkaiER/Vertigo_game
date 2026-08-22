@@ -36,6 +36,26 @@
   letter-spacing: 0;
 }
 
+.rig-prototype--export {
+  width: 768px;
+  height: 512px;
+  min-height: 512px;
+  grid-template-rows: 512px;
+  overflow: hidden;
+}
+
+.rig-prototype--export .rig-stage {
+  width: 768px;
+  height: 512px;
+  min-height: 512px;
+}
+
+.rig-subtitle {
+  margin: 3px 0 0;
+  color: #53666d;
+  font-size: 11px;
+}
+
 .rig-kicker {
   margin: 0;
   color: #46606a;
@@ -114,11 +134,44 @@
   flex-wrap: wrap;
 }
 
+.rig-maneuver-tabs {
+  width: 100%;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.rig-maneuver-tabs button,
+.rig-play {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 6px 11px;
+  border: 1px solid #839096;
+  background: #eef3f2;
+  color: #25383f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rig-maneuver-tabs button.active,
+.rig-play.active {
+  border-color: #244e5c;
+  background: #244e5c;
+  color: #fff;
+}
+
 .rig-segment {
   display: grid;
   grid-template-columns: repeat(3, minmax(110px, 1fr));
   border: 1px solid #839096;
   width: min(660px, 100%);
+}
+
+.rig-segment--poses {
+  grid-template-columns: repeat(var(--pose-count), minmax(112px, 1fr));
+  width: min(900px, 100%);
+  overflow-x: auto;
 }
 
 .rig-segment button {
@@ -208,6 +261,10 @@
     grid-template-columns: 1fr;
   }
 
+  .rig-segment--poses {
+    grid-template-columns: repeat(var(--pose-count), minmax(124px, 1fr));
+  }
+
   .rig-segment button {
     border-right: 0;
     border-bottom: 1px solid #839096;
@@ -220,6 +277,7 @@
   .rig-control-row {
     width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
   }
 
   .rig-segment--small {
@@ -238,4 +296,30 @@
   .rig-readout span {
     max-width: 280px;
   }
+}
+
+.pose-export {
+  width: 1024px;
+  height: 1024px;
+  margin: 0;
+  background: transparent;
+}
+
+.pose-export-canvas,
+.pose-export-canvas canvas {
+  width: 1024px;
+  height: 1024px;
+  display: block;
+}
+
+.pose-export-list {
+  font: 12px/1.4 ui-monospace, monospace;
+  word-break: break-all;
+}
+
+/* global.css が body に --navy-deep を塗るため、書き出しルートがマウントされている
+   間だけ上書きして透過にする。screenshot の omitBackground はブラウザの既定背景
+   しか透過にしないので、明示的な background は消しておかないと不透明になる。 */
+body.pose-export-body {
+  background: transparent;
 }

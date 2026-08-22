@@ -1,0 +1,70 @@
+{
+  "status": {
+    "technical": "pending automated verification",
+    "clinical": "domain-owner sign-off required"
+  },
+  "accessed_on": "2026-08-21",
+  "references": [
+    {
+      "title": "Dix-Hallpike Test & Epley Manoeuvre - OSCE Guide",
+      "publisher": "Geeky Medics",
+      "url": "https://www.youtube.com/watch?v=D6qEdlFVxig",
+      "timestamps": {
+        "dix_hallpike": "00:38",
+        "epley": "01:14"
+      },
+      "quality": "supporting"
+    },
+    {
+      "title": "Dix Hallpike Test and Epley Manoeuvre",
+      "publisher": "TeachMeSurgery / University Hospitals of Leicester consultant demonstration",
+      "url": "https://www.youtube.com/watch?v=fd8TVMOYqZg",
+      "timestamps": {},
+      "quality": "supporting"
+    },
+    {
+      "title": "Training videos for healthcare professionals",
+      "publisher": "Haukeland University Hospital / Helse Bergen",
+      "url": "https://www.helse-bergen.no/nasjonal-kompetansetjeneste-for-vestibulere-sykdommer/oppleringsvideoar-til-helsepersonell",
+      "timestamps": {},
+      "quality": "primary"
+    },
+    {
+      "title": "BPPV Videos",
+      "publisher": "Stanford Medicine; videos courtesy of University of Michigan Medical School",
+      "url": "https://med.stanford.edu/ohns/OHNS-healthcare/earinstitute/our-services/dizziness-clinic/BPPV-Videos.html",
+      "timestamps": {},
+      "quality": "primary"
+    },
+    {
+      "title": "Videos",
+      "publisher": "Kenniscentrum Duizeligheid / Gelre ziekenhuizen",
+      "url": "https://www.kenniscentrumduizeligheid.nl/kenniscentrum-duizeligheid/Welkom-bij-Kenniscentrum-Duizeligheid/Videos",
+      "timestamps": {},
+      "quality": "primary"
+    }
+  ],
+  "comparison_cycles": [
+    {
+      "id": "comparison-cycle-01",
+      "artifact": "review/storyboard.png",
+      "scope": "encoded GIF key poses inspected; external reference still sheet and clinician sign-off remain pending",
+      "issues": [
+        {
+          "id": "CLINICAL-SIGNOFF",
+          "frame": "all",
+          "category": "clinical review",
+          "finding": "No domain-owner sign-off has been recorded.",
+          "status": "open",
+          "resolution": "Review encoded GIF against timestamped accepted reference stills and record reviewer decision.",
+          "correction_cycle": 1
+        }
+      ]
+    }
+  ],
+  "clinical_sign_off": {
+    "reviewer": null,
+    "date": null,
+    "status": "pending"
+  }
+}

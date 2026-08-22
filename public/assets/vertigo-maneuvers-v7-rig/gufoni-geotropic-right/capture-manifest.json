@@ -1,0 +1,105 @@
+{
+  "maneuver": "gufoni-geotropic",
+  "canvas": [
+    768,
+    512
+  ],
+  "frames": [
+    {
+      "file": "frames/frame-001.png",
+      "duration_ms": 1100,
+      "pose": 0,
+      "key_pose": true
+    },
+    {
+      "file": "frames/frame-002.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-003.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-004.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-005.png",
+      "duration_ms": 140,
+      "pose": "0->1",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-006.png",
+      "duration_ms": 1500,
+      "pose": 1,
+      "key_pose": true
+    },
+    {
+      "file": "frames/frame-007.png",
+      "duration_ms": 140,
+      "pose": "1->2",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-008.png",
+      "duration_ms": 140,
+      "pose": "1->2",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-009.png",
+      "duration_ms": 140,
+      "pose": "1->2",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-010.png",
+      "duration_ms": 140,
+      "pose": "1->2",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-011.png",
+      "duration_ms": 1500,
+      "pose": 2,
+      "key_pose": true
+    },
+    {
+      "file": "frames/frame-012.png",
+      "duration_ms": 140,
+      "pose": "2->3",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-013.png",
+      "duration_ms": 140,
+      "pose": "2->3",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-014.png",
+      "duration_ms": 140,
+      "pose": "2->3",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-015.png",
+      "duration_ms": 140,
+      "pose": "2->3",
+      "key_pose": false
+    },
+    {
+      "file": "frames/frame-016.png",
+      "duration_ms": 1100,
+      "pose": 3,
+      "key_pose": true
+    }
+  ]
+}
