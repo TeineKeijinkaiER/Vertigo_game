@@ -85,7 +85,9 @@ export function PoseExportRoute() {
       const panels = resolvePanels(id)
       const spec = panels[Math.min(panels.length - 1, Math.max(0, panelIndex))]
       const pose = resolvePose(spec)
-      scene.add(makeRoom(MANEUVERS[spec.maneuver], { floor: false }))
+      // 頭部寄りの画角ではベッドが画面を埋め尽くし、輪郭も見えないので情報を持たない。
+      // 描くと不透明な白い矩形になり、紺色のゲームUIの上で箱として浮く
+      if (spec.framing !== 'head') scene.add(makeRoom(MANEUVERS[spec.maneuver], { floor: false }))
       scene.add(makePatient(pose, { skeleton: false, noseArrow: false }))
       if (spec.arrow) scene.add(makeDirectionArrow(pose, spec.arrow))
       fitCamera(camera, pose, spec.view, spec.framing)
