@@ -520,6 +520,40 @@ await check('フィルムのキーポーズが実在し、カメラが全フレ�
   }
 })
 
+await check('髪のトゲが上を向き、後ろ髪にもトゲがあり、眉が太い', async () => {
+  const THREE = await import('three')
+  const pose = MANEUVERS['basic-positions'].poses.find((item) => item.id === 'sitting-front')
+  const group = makePatient(pose, { noseArrow: false })
+
+  const cones = []
+  const capsules = []
+  group.traverse((node) => {
+    const type = node.geometry?.type
+    if (type === 'ConeGeometry') cones.push(node)
+    if (type === 'CapsuleGeometry') capsules.push(node)
+  })
+
+  // 鼻も円錐なので、髪色のものだけ数える
+  const hairCones = cones.filter((node) => node.material.color.getHex() === 0x39261f)
+  assert.ok(hairCones.length >= 24, `髪のトゲが少なすぎる: ${hairCones.length}`)
+
+  // 頭部ローカルで上向き成分を持つこと。全部が寝ていたら失敗する
+  const upward = hairCones.filter((node) => {
+    const aim = new THREE.Vector3(0, 1, 0).applyQuaternion(node.quaternion)
+    return aim.y > 0.45
+  })
+  assert.ok(
+    upward.length >= hairCones.length * 0.6,
+    `上を向いたトゲが少ない: ${upward.length} / ${hairCones.length}`,
+  )
+
+  // 眉。髪色のカプセルのうち最も細いものの半径で判定する
+  const brows = capsules.filter((node) => node.material.color.getHex() === 0x39261f)
+  assert.ok(brows.length >= 2, `眉が見つからない: ${brows.length}`)
+  const radius = Math.min(...brows.map((node) => node.geometry.parameters.radius))
+  assert.ok(radius >= 0.010, `眉が細い: 半径 ${radius}`)
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)

@@ -84,22 +84,49 @@ function makeHead(pose: RigPose) {
   backHair.scale.set(0.92, 1.03, 0.92)
   backHair.position.set(0, 0, -0.085)
   group.add(backHair)
-  // 生え際を尖らせる。滑らかなドームだと帽子をかぶって見える
-  const spikeCount = 14
+  // 生え際のトゲ。法線方向のままだと寝てしまうので、上向きへ寄せて立たせる
+  const spikeCount = 18
   const spikeTheta = Math.PI * 0.33
   for (let index = 0; index < spikeCount; index += 1) {
     const phi = (index / spikeCount) * Math.PI * 2
-    const length = index % 2 === 0 ? 0.085 : 0.055
-    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.030, length, 6), mat(HAIR))
+    const length = index % 2 === 0 ? 0.135 : 0.095
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.034, length, 5), mat(HAIR))
     const normal = new THREE.Vector3(
       Math.sin(spikeTheta) * Math.sin(phi),
       Math.cos(spikeTheta),
       Math.sin(spikeTheta) * Math.cos(phi),
     )
     const seat = normal.clone().multiply(V(0.90, 1.05, 0.94)).multiplyScalar(HEAD_RADIUS * 1.02)
-    spike.position.copy(seat).addScaledVector(normal, length * 0.25)
+    // 生やす向きは法線と真上の中間。真上だけだと横のトゲが頭に埋まる
+    const aim = normal.clone().multiplyScalar(0.45).add(V(0, 0.85, 0)).normalize()
+    spike.position.copy(seat).addScaledVector(aim, length * 0.32)
     spike.position.y += 0.012 * HEAD_SCALE
-    spike.quaternion.setFromUnitVectors(V(0, 1, 0), normal)
+    spike.quaternion.setFromUnitVectors(V(0, 1, 0), aim)
+    group.add(spike)
+  }
+  // 後ろ髪のギザギザ。顔側には出さないよう、後方寄りの方位角だけに生やす。
+  // 緯度は backHair の縁（0.66π）に合わせる。縁より下げると地肌の上に
+  // トゲが浮いてしまう。ただし縁のままの向き・オフセットだと、仰臥位で
+  // 後頭部を枕に付けたときにトゲの根元がマットレスへ沈み込むため、
+  // 生やす向きをほぼ真上寄りにして沈み込みを抑えている
+  const backSpikeCount = 16
+  const backTheta = Math.PI * 0.66
+  for (let index = 0; index < backSpikeCount; index += 1) {
+    const phi = (index / backSpikeCount) * Math.PI * 2
+    const outward = new THREE.Vector3(
+      Math.sin(backTheta) * Math.sin(phi),
+      Math.cos(backTheta),
+      Math.sin(backTheta) * Math.cos(phi),
+    )
+    // z 成分が正（顔側）のものは飛ばす
+    if (outward.z > -0.15) continue
+    const length = index % 2 === 0 ? 0.075 : 0.052
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.022, length, 5), mat(HAIR))
+    const seat = outward.clone().multiply(V(0.92, 1.03, 0.92)).multiplyScalar(HEAD_RADIUS * 1.02)
+      .add(V(0, 0, -0.085))
+    const aim = outward.clone().multiplyScalar(0.5).add(V(0, 0.8, -0.15)).normalize()
+    spike.position.copy(seat).addScaledVector(aim, length * 0.05)
+    spike.quaternion.setFromUnitVectors(V(0, 1, 0), aim)
     group.add(spike)
   }
   const features = new THREE.Group()
@@ -112,8 +139,8 @@ function makeHead(pose: RigPose) {
     iris.scale.z = 0.42; iris.position.set(x, -0.004, faceSurfaceZ(x, -0.004, 0.006)); features.add(iris)
     const shine = new THREE.Mesh(new THREE.SphereGeometry(0.006, 8, 6), mat(0xffffff))
     shine.position.set(x - 0.006, 0.004, faceSurfaceZ(x - 0.006, 0.004, 0.0)); features.add(shine)
-    const brow = new THREE.Mesh(new THREE.CapsuleGeometry(0.006, 0.052, 5, 9), mat(HAIR))
-    brow.rotation.z = Math.PI / 2 + (x < 0 ? -0.08 : 0.08); brow.position.set(x, 0.061, faceSurfaceZ(x, 0.061, 0.014)); features.add(brow)
+    const brow = new THREE.Mesh(new THREE.CapsuleGeometry(0.011, 0.060, 5, 9), mat(HAIR))
+    brow.rotation.z = Math.PI / 2 + (x < 0 ? -0.10 : 0.10); brow.position.set(x, 0.063, faceSurfaceZ(x, 0.063, 0.016)); features.add(brow)
   }
   const nose = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.068, 16), mat(0xd97d63))
   nose.position.set(0, -0.02, faceSurfaceZ(0, -0.02, 0.006)); nose.rotation.x = Math.PI / 2; features.add(nose)
