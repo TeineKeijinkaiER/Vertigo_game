@@ -109,7 +109,6 @@ export const case12: CaseDef = {
   diagnosis: {
     correct: '水平半規管BPPV（背地性・クプラ結石）',
     side: 'R',
-    asksSide: true,
   },
 
   maneuver: { kind: 'gufoni_apo', side: 'R' },

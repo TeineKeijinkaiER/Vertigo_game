@@ -97,8 +97,7 @@ export const case01: CaseDef = {
 
   diagnosis: {
     correct: '後半規管BPPV',
-    side: 'R',
-    options: ['後半規管BPPV', '水平半規管BPPV（向地性）', '前庭神経炎', 'メニエール病'],
+    side: 'R'
   },
 
   maneuver: { kind: 'epley', side: 'R' },

@@ -106,8 +106,7 @@ export const case07: CaseDef = {
 
   diagnosis: {
     correct: 'メニエール病',
-    side: 'L',
-    options: ['メニエール病', '前庭神経炎', '前庭性片頭痛', '椎骨脳底動脈TIA'],
+    side: 'L'
   },
 
   maneuver: null,

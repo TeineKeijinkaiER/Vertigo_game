@@ -1,14 +1,11 @@
-import { asksSide, DISPOSITIONS } from '../data/actions'
-import type { CaseDef } from '../data/types'
+import { ALL_DIAGNOSES, asksSide, DISPOSITIONS } from '../data/actions'
 import { Button, MenuItem, Win } from '../components/ui'
 import type { Action, GameState } from '../game/state'
 
 export function DiagnosisScreen({
-  caseDef,
   state,
   dispatch,
 }: {
-  caseDef: CaseDef
   state: GameState
   dispatch: (a: Action) => void
 }) {

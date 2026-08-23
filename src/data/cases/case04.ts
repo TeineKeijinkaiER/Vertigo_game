@@ -114,8 +114,7 @@ export const case04: CaseDef = {
 
   diagnosis: {
     correct: '水平半規管BPPV（向地性）',
-    side: 'R',
-    options: ['水平半規管BPPV（向地性）', '水平半規管BPPV（背地性・クプラ結石）', '後半規管BPPV', '前庭神経炎'],
+    side: 'R'
   },
 
   // 向地性型は Lempert 法（患側と反対方向へ360°）が第一選択。

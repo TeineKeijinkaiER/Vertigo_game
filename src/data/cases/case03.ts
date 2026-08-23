@@ -106,7 +106,6 @@ export const case03: CaseDef = {
   diagnosis: {
     correct: '水平半規管BPPV（向地性）',
     side: 'L',
-    asksSide: true,
   },
 
   maneuver: { kind: 'lempert', side: 'L' },

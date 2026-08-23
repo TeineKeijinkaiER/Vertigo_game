@@ -182,30 +182,6 @@ export const DIX_HALLPIKE_NOTE =
 export const ATAXIA_NOTE =
   'Grade 2以上は脳卒中に対して感度93%・特異度61%、Grade 3は感度67%・特異度100%。起立歩行は指鼻試験より感度が高い。'
 
-/**
- * 患側を答えさせる診断名。
- *
- * 患側の判断が診療を変えるのは、BPPV（どちらの耳石置換法を行うか）と
- * 末梢性前庭障害（前庭神経炎・メニエール病）だけ。中枢性やその他の診断では
- * 左右を問わない。
- *
- * 判定は「症例の正解」ではなく「プレイヤーが選んだ診断名」に対して行う。
- * 症例側の属性で出し分けると、患側の設問が出るかどうかで末梢性か中枢性かが
- * 分かってしまい、答えが漏れる。
- */
-const LATERALIZED_DIAGNOSES = new Set([
-  '後半規管BPPV',
-  '水平半規管BPPV（向地性）',
-  '水平半規管BPPV（背地性・クプラ結石）',
-  '前庭神経炎',
-  'メニエール病',
-  '末梢性前庭障害（軽度）',
-])
-
-export function asksSide(diagnosis: string | null): boolean {
-  return diagnosis !== null && LATERALIZED_DIAGNOSES.has(diagnosis)
-}
-
 /** GRACE-3 のめまい3分類。どれにも当てはまらないという選択肢も用意する */
 export type VestibularChoice = 'AVS' | 's-EVS' | 't-EVS' | 'none'
 
@@ -254,9 +230,29 @@ export const ALL_DIAGNOSES: { group: string; items: string[] }[] = [
   },
   {
     group: 'その他',
-    items: ['前庭性片頭痛'],
+    items: ['前庭性片頭痛', '心因性めまい', '正常圧水頭症'],
   },
 ]
+
+/**
+ * 患側を答えさせる診断のグループ。
+ *
+ * 患側の判断が診療を変えるのは、BPPV（どちらの耳石置換法を行うか）と
+ * 末梢性前庭障害だけ。中枢性やその他の診断では左右を問わない。
+ */
+const LATERALIZED_GROUPS = ['BPPV（t-EVS）', '末梢性']
+
+/**
+ * 判定は「症例の正解」ではなく「プレイヤーが選んだ診断名」に対して行う。
+ * 症例側の属性で出し分けると、患側の設問が出るかどうかで末梢性か中枢性かが
+ * 分かってしまい、答えが漏れる。
+ */
+export function asksSide(diagnosis: string | null): boolean {
+  if (diagnosis === null) return false
+  return ALL_DIAGNOSES.some(
+    (group) => LATERALIZED_GROUPS.includes(group.group) && group.items.includes(diagnosis),
+  )
+}
 
 export const SUBTYPE_LABEL = new Map(
   Object.values(SUBTYPES)

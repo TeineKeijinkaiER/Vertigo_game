@@ -102,7 +102,6 @@ export const case02: CaseDef = {
   diagnosis: {
     correct: '後半規管BPPV',
     side: 'L',
-    asksSide: true,
   },
 
   maneuver: { kind: 'epley', side: 'L' },

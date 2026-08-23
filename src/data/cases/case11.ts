@@ -116,8 +116,7 @@ export const case11: CaseDef = {
 
   diagnosis: {
     correct: '小脳出血',
-    side: 'R',
-    options: ['小脳出血', '小脳梗塞（PICA領域）', '前庭神経炎', '後半規管BPPV'],
+    side: 'R'
   },
 
   maneuver: null,

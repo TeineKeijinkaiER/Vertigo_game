@@ -37,6 +37,9 @@ const POSITIONAL_ACTIONS = ['eye_dh_r', 'eye_dh_l', 'eye_roll_r', 'eye_roll_l']
 
 type Modal = 'dx' | 'criteria' | 'maneuver' | null
 
+/** 画像検査の適応を考えてから出すコマンド */
+const IMAGING_ORDERS = ['im_ct', 'im_mri']
+
 /**
  * 体位アニメーションと眼振を横に並べ、コマンドを選んだ直後にその2つへ
  * 画面をずらす。頭位変換の所見は「その体位で眼がどう動くか」なので、

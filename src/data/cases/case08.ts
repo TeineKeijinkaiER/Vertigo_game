@@ -115,7 +115,6 @@ export const case08: CaseDef = {
   diagnosis: {
     correct: '前庭性片頭痛',
     side: null,
-    asksSide: false,
   },
 
   maneuver: null,

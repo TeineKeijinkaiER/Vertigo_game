@@ -123,7 +123,6 @@ export const case06: CaseDef = {
   diagnosis: {
     correct: '前庭神経炎',
     side: 'L',
-    asksSide: true,
   },
 
   maneuver: null,

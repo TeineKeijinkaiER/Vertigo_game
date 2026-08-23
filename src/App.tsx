@@ -61,7 +61,7 @@ export default function App() {
     <div className="app">
       {state.phase === 'brief' && <BriefScreen caseDef={caseDef} dispatch={dispatch} />}
       {state.phase === 'exam' && <ExamScreen caseDef={caseDef} state={state} dispatch={dispatch} />}
-      {state.phase === 'diagnosis' && <DiagnosisScreen caseDef={caseDef} state={state} dispatch={dispatch} />}
+      {state.phase === 'diagnosis' && <DiagnosisScreen state={state} dispatch={dispatch} />}
       {state.phase === 'disposition' && <DispositionScreen state={state} dispatch={dispatch} />}
       {state.phase === 'result' && <ResultScreen caseDef={caseDef} state={state} dispatch={dispatch} />}
     </div>
