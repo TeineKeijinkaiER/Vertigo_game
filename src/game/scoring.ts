@@ -48,7 +48,6 @@ const MAX = {
   diagnosis: 15,
   side: 5,
   maneuver: 5,
-  treatment: 4,
   disposition: 15,
 }
 
@@ -238,17 +237,6 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     deductions.push({ label: '耳石置換法', points: -10, reason: 'この症例に耳石置換法の適応はありません' })
   }
 
-  // ── その他の治療
-  const missedTx = c.treatment.required.filter((id) => !did(id))
-  const txRate =
-    c.treatment.required.length === 0 ? 1 : (c.treatment.required.length - missedTx.length) / c.treatment.required.length
-  lines.push({
-    label: '治療・指導',
-    earned: Math.round(MAX.treatment * txRate),
-    max: MAX.treatment,
-    notes: missedTx.length ? [`行うべきだった治療：${missedTx.map(label).join('、')}`] : ['必要な治療を実施しています'],
-  })
-
   // ── 方針
   const dispoId = s.dispositionChoice
   const dispoForbidden = dispoId ? c.disposition.forbidden.find((f) => f.id === dispoId) : undefined
@@ -281,9 +269,6 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
   for (const p of c.penalties) {
     if (did(p.id)) deductions.push({ label: label(p.id), points: p.points, reason: p.reason })
   }
-  for (const f of c.treatment.forbidden) {
-    if (did(f.id)) deductions.push({ label: label(f.id), points: f.points, reason: f.reason })
-  }
 
   const earned = lines.reduce((a, l) => a + l.earned, 0)
   const maxSum = lines.reduce((a, l) => a + l.max, 0)
@@ -297,7 +282,7 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
 
   let ending: EndingTier
   if (dischargedWhenUnsafe || severeMistake) ending = 'worst'
-  else if (dxCorrect && sideCorrect && dispoCorrect && missedTx.length === 0) ending = 'best'
+  else if (dxCorrect && sideCorrect && dispoCorrect) ending = 'best'
   else if (dxCorrect && dispoCorrect) ending = 'good'
   else ending = 'bad'
 

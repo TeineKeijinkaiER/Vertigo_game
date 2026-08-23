@@ -1,4 +1,4 @@
-import { DISPOSITIONS } from '../data/actions'
+import { ALL_DIAGNOSES, DISPOSITIONS } from '../data/actions'
 import type { CaseDef } from '../data/types'
 import { Button, MenuItem, Win } from '../components/ui'
 import type { Action, GameState } from '../game/state'
@@ -16,22 +16,24 @@ export function DiagnosisScreen({
   const ready = state.diagnosisAnswer !== null && (!needsSide || state.sideAnswer !== null)
 
   return (
-    <div className="stack grow">
-      <Win title="鑑別診断">
+    <div className="stack grow scroll">
+      <Win title="最終診断">
         <div className="msg small dim">この患者の診断は何ですか。</div>
       </Win>
-      <Win>
-        <div className="menu">
-          {caseDef.diagnosis.options.map((o) => (
-            <MenuItem
-              key={o}
-              label={o}
-              checked={state.diagnosisAnswer === o}
-              onSelect={() => dispatch({ type: 'SET_DIAGNOSIS', value: o })}
-            />
-          ))}
-        </div>
-      </Win>
+      {ALL_DIAGNOSES.map((g) => (
+        <Win key={g.group} title={g.group}>
+          <div className="menu">
+            {g.items.map((o) => (
+              <MenuItem
+                key={o}
+                label={o}
+                checked={state.diagnosisAnswer === o}
+                onSelect={() => dispatch({ type: 'SET_DIAGNOSIS', value: o })}
+              />
+            ))}
+          </div>
+        </Win>
+      ))}
       {needsSide && (
         <Win title="患側">
           <div className="menu">
@@ -40,7 +42,6 @@ export function DiagnosisScreen({
           </div>
         </Win>
       )}
-      <div className="grow" />
       <Button variant="primary" disabled={!ready} onClick={() => dispatch({ type: 'GOTO', phase: 'disposition' })}>
         方針をきめる
       </Button>
@@ -52,10 +53,7 @@ export function DispositionScreen({ state, dispatch }: { state: GameState; dispa
   return (
     <div className="stack grow">
       <Win title="方針をきめる">
-        <div className="msg small dim">
-          この患者を、これからどうしますか。{'\n'}
-          今は夜間の救急外来です。
-        </div>
+        <div className="msg small dim">夜間の救急外来です。この患者をどうしますか。</div>
       </Win>
       <Win>
         <div className="menu">

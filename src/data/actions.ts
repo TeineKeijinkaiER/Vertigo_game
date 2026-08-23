@@ -5,7 +5,7 @@ export const ACTION_GROUPS: { id: ActionGroup; label: string }[] = [
   { id: 'eye', label: 'めをみる' },
   { id: 'exam', label: 'しんさつ' },
   { id: 'imaging', label: 'がぞうけんさ' },
-  { id: 'assess', label: 'みたてる' },
+  { id: 'assess', label: 'かんべつ' },
   { id: 'tx', label: 'てあて' },
 ]
 
@@ -119,11 +119,10 @@ export const ACTIONS: ActionDef[] = [
   { id: 'im_ct', group: 'imaging', label: '頭部CTを撮る', fallback: '頭蓋内出血を認めない。明らかな低吸収域も指摘できない。' },
   { id: 'im_mri', group: 'imaging', label: '頭部MRIを撮る', hint: 'DWI', fallback: 'DWIで明らかな高信号域を認めない。' },
 
-  // ── みたてる（画面を開いて自分で鑑別を立てる）
-  { id: 'as_dx', group: 'assess', label: 'めまいを分類して鑑別する', hint: 'GRACE-3', fallback: '' },
+  // ── かんべつ（分類 → 疾患名の順に絞る）
+  { id: 'as_dx', group: 'assess', label: 'めまいを分類する', hint: 'GRACE-3', fallback: '' },
 
   // ── てあて
-  { id: 'tx_fluid', group: 'tx', label: '輸液を開始する', fallback: '輸液を開始した。' },
   {
     id: 'tx_atarax',
     group: 'tx',
@@ -139,9 +138,6 @@ export const ACTIONS: ActionDef[] = [
     fallback: 'プリンペラン 1A（10mg）+ 生食50mLを15分で投与した。',
   },
   { id: 'tx_maneuver', group: 'tx', label: '耳石置換法をおこなう', hint: '手技を組み立てる', fallback: '' },
-  { id: 'tx_oral', group: 'tx', label: '内服を処方する', fallback: 'めまい・嘔気に対する内服を処方した。' },
-  { id: 'tx_rehab', group: 'tx', label: '前庭リハビリを指導する', fallback: '前庭リハビリテーションの方法を説明し、自宅で行うよう指導した。' },
-  { id: 'tx_fall', group: 'tx', label: '転倒予防を指導する', fallback: '起床時の動作をゆっくり行うこと、手すりの使用を指導した。' },
 ]
 
 export const ACTION_MAP = new Map(ACTIONS.map((a) => [a.id, a]))
@@ -177,7 +173,7 @@ export const ATAXIA_GRADES = [
 ]
 
 export const ATAXIA_NOTE =
-  'Grade 2以上は脳卒中に対して感度93%・特異度61%。Grade 3は感度67%・特異度100%。HOWTOの通り、起立歩行は指鼻試験より感度の高い診察である。'
+  'Grade 2以上は脳卒中に対して感度93%・特異度61%、Grade 3は感度67%・特異度100%。起立歩行は指鼻試験より感度が高い。'
 
 /** GRACE-3 のめまい3分類。どれにも当てはまらないという選択肢も用意する */
 export type VestibularChoice = 'AVS' | 's-EVS' | 't-EVS' | 'none'
@@ -207,6 +203,29 @@ export const SUBTYPES: Record<Exclude<VestibularChoice, 'none'>, { id: string; l
     { id: 'sub_orthostatic', label: '起立性低血圧', hint: '起立で誘発・眼振なし' },
   ],
 }
+
+/**
+ * 最終診断の選択肢。症例ごとの4択ではなく、全症例の鑑別を並べたマスタから選ばせる。
+ * 見出しごとに分けて表示する。
+ */
+export const ALL_DIAGNOSES: { group: string; items: string[] }[] = [
+  {
+    group: 'BPPV（t-EVS）',
+    items: ['後半規管BPPV', '水平半規管BPPV（向地性）', '水平半規管BPPV（背地性・クプラ結石）'],
+  },
+  {
+    group: '末梢性',
+    items: ['前庭神経炎', 'メニエール病', '突発性難聴に伴うめまい'],
+  },
+  {
+    group: '中枢性',
+    items: ['小脳梗塞（PICA領域）', '小脳出血', '延髄外側症候群（Wallenberg）', '椎骨脳底動脈TIA'],
+  },
+  {
+    group: 'その他',
+    items: ['前庭性片頭痛', '起立性低血圧', '心因性めまい', '末梢性前庭障害（軽度）'],
+  },
+]
 
 export const SUBTYPE_LABEL = new Map(
   Object.values(SUBTYPES)
