@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { CASES } from '../data/cases'
+import { CASES, CATEGORY_LABELS } from '../data/cases'
 import type { CaseDef } from '../data/types'
 import { Button, MenuItem, TypedText, Win } from '../components/ui'
 import { unlockAudio } from '../audio/sfx'
@@ -37,49 +36,42 @@ export function TitleScreen({ dispatch }: { dispatch: (a: Action) => void }) {
   )
 }
 
-type SelectMode = 'root' | 'list'
-
 export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }) {
-  const [mode, setMode] = useState<SelectMode>('root')
-
   const start = (id: number) => dispatch({ type: 'START_CASE', caseId: id })
 
-  if (mode === 'list') {
-    return (
-      <div className="stack grow">
-        <Win title="症例をえらぶ">
+  // カテゴリごとに全症例を並べる。ラベルは最終診断で選ぶ名前と揃える
+  const groups = (['bppv', 'peripheral', 'other', 'central'] as const).map((cat) => ({
+    cat,
+    label: CATEGORY_LABELS[cat],
+    cases: CASES.filter((c) => c.category === cat),
+  }))
+
+  return (
+    <div className="stack grow scroll">
+      <Win title="症例をえらぶ">
+        <div className="menu">
+          <MenuItem
+            label="ランダム"
+            hint="診断名を伏せて解く"
+            onSelect={() => start(CASES[Math.floor(Math.random() * CASES.length)].id)}
+          />
+          <MenuItem label="連続チャレンジ" hint="v0.3で実装" onSelect={() => {}} disabled />
+        </div>
+      </Win>
+      {groups.map((g) => (
+        <Win key={g.cat} title={g.label}>
           <div className="menu">
-            {CASES.map((c) => (
+            {g.cases.map((c) => (
               <MenuItem
                 key={c.id}
-                label={`症例${c.id}`}
-                hint={`${c.age}${c.gender} / ${c.categoryLabel}`}
+                label={`${c.diagnosis.correct}${c.diagnosis.side ? `　${c.diagnosis.side === 'R' ? '右' : '左'}` : ''}`}
+                hint={`${c.age}${c.gender}`}
                 onSelect={() => start(c.id)}
               />
             ))}
           </div>
         </Win>
-        <p className="small dim center" style={{ margin: 0 }}>
-          ※ 疾患名は伏せてあります
-        </p>
-        <Button onClick={() => setMode('root')}>もどる</Button>
-      </div>
-    )
-  }
-
-  return (
-    <div className="stack grow">
-      <Win title="症例をえらぶ">
-        <div className="menu">
-          <MenuItem
-            label="ランダム"
-            hint="おまかせ"
-            onSelect={() => start(CASES[Math.floor(Math.random() * CASES.length)].id)}
-          />
-          <MenuItem label="一覧からえらぶ" onSelect={() => setMode('list')} />
-          <MenuItem label="連続チャレンジ" hint="v0.3で実装" onSelect={() => {}} disabled />
-        </div>
-      </Win>
+      ))}
       <Button onClick={() => dispatch({ type: 'GOTO', phase: 'title' })}>タイトルへ</Button>
     </div>
   )
@@ -88,7 +80,7 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
 export function BriefScreen({ caseDef, dispatch }: { caseDef: CaseDef; dispatch: (a: Action) => void }) {
   return (
     <div className="stack grow">
-      <Win title="夜間救急外来">
+      <Win title="救急外来">
         <p className="msg small dim" style={{ margin: '0 0 10px' }}>
           {caseDef.age}{caseDef.gender}が、めまいを訴えて救急車で搬送されてきた。
         </p>

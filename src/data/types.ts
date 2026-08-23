@@ -26,7 +26,7 @@ export interface NystagmusSpec {
   caption?: string
 }
 
-export type Category = 'bppv' | 'peripheral' | 'central'
+export type Category = 'bppv' | 'peripheral' | 'central' | 'other'
 export type VestibularType = 'AVS' | 's-EVS' | 't-EVS'
 export type Side = 'R' | 'L' | null
 
@@ -112,11 +112,11 @@ export interface CaseDef {
 
   /** 耳石置換法の正解。適応がない症例は null */
   maneuver: { kind: ManeuverKind; side: 'R' | 'L' } | null
-
-  treatment: {
-    required: string[]
-    forbidden: { id: string; points: number; reason: string }[]
-  }
+  /**
+   * 正解と同等に妥当な代替手技。
+   * 例：向地性の水平半規管BPPVはLempert法でもGufoni法（向地性）でもよい。
+   */
+  maneuverAlternatives?: ManeuverKind[]
 
   disposition: {
     correct: string[]
