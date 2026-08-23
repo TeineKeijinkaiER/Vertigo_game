@@ -80,7 +80,7 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
 export function BriefScreen({ caseDef, dispatch }: { caseDef: CaseDef; dispatch: (a: Action) => void }) {
   return (
     <div className="stack grow">
-      <Win title="夜間救急外来">
+      <Win title="救急外来">
         <p className="msg small dim" style={{ margin: '0 0 10px' }}>
           {caseDef.age}{caseDef.gender}が、めまいを訴えて救急車で搬送されてきた。
         </p>

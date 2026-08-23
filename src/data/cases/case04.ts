@@ -143,6 +143,7 @@ export const case04: CaseDef = {
   },
 
   keyPoints: [
+    '仰臥位での寝返りで誘発されるなら水平半規管型。起き上がり・頭後屈が主体なら後半規管型',
     'Head Rollで水平向地性眼振 ＝ 水平半規管BPPV。向地性では眼振の強い側が患側',
     'Dix-Hallpike陰性・Head Roll陽性の組み合わせが水平半規管由来を示す',
     '向地性の治療はLempert法（健側方向へ360°）またはGufoni法（健側へ倒れ顔を下向き）',
