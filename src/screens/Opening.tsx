@@ -98,9 +98,12 @@ export function BriefScreen({ caseDef, dispatch }: { caseDef: CaseDef; dispatch:
         <div className="msg small">{caseDef.vitals}</div>
       </Win>
       <div className="grow" />
-      <Button variant="primary" onClick={() => dispatch({ type: 'GOTO', phase: 'exam' })}>
-        診察をはじめる
-      </Button>
+      <div className="row">
+        <Button onClick={() => dispatch({ type: 'GOTO', phase: 'select' })}>もどる</Button>
+        <Button variant="primary" onClick={() => dispatch({ type: 'GOTO', phase: 'exam' })}>
+          診察をはじめる
+        </Button>
+      </div>
     </div>
   )
 }

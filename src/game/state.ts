@@ -1,4 +1,5 @@
 import type { ManeuverAttempt } from '../data/maneuvers'
+import { asksSide } from '../data/actions'
 import type { VestibularChoice } from '../data/actions'
 import type { Side } from '../data/types'
 
@@ -105,8 +106,13 @@ export function reducer(state: GameState, action: Action): GameState {
         log: [...state.log, action.entry],
       }
 
+    // 左右を問わない診断に選び直したら、患側の回答は残さない
     case 'SET_DIAGNOSIS':
-      return { ...state, diagnosisAnswer: action.value }
+      return {
+        ...state,
+        diagnosisAnswer: action.value,
+        sideAnswer: asksSide(action.value) ? state.sideAnswer : null,
+      }
 
     case 'SET_SIDE':
       return { ...state, sideAnswer: action.value }

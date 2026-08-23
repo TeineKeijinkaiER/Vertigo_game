@@ -101,6 +101,18 @@ export function ManeuverGame({
           <p className="small dim center" style={{ margin: '8px 0 0' }}>
             手順 {index + 1} / {steps.length}
           </p>
+          <div style={{ marginTop: 8 }}>
+            {/* 最初の手順から戻るときは患側の選び直しに返す */}
+            <Button
+              onClick={() => {
+                sfxCancel()
+                if (index === 0) setSide(null)
+                else setAnswers(answers.slice(0, -1))
+              }}
+            >
+              もどる
+            </Button>
+          </div>
         </Win>
       </div>
     )

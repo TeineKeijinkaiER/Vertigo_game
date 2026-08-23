@@ -126,7 +126,6 @@ export const case06: CaseDef = {
     correct: '前庭神経炎',
     side: 'L',
     options: ['前庭神経炎', '小脳梗塞（PICA領域）', 'メニエール病', '後半規管BPPV'],
-    asksSide: true,
   },
 
   maneuver: null,

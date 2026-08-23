@@ -97,7 +97,6 @@ export const case19: CaseDef = {
     correct: '小脳梗塞（PICA領域）',
     side: 'R',
     options: ['小脳梗塞（PICA領域）', '末梢性前庭障害（軽度）', '心因性めまい', '正常圧水頭症'],
-    asksSide: true,
   },
 
   maneuver: null,

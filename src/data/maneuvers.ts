@@ -17,6 +17,8 @@ import type { Side } from './types'
  *   Gufoni（クプラ結石症＝背地性）… 坐位から患側方向へすばやく側臥位とし、
  *     頭部を上方に45度回転、数分維持して坐位に戻す。
  *
+ * Gufoni は坐位から始めるのが自明なので、開始体位は問わず、倒す方向から組み立てさせる。
+ *
  * Epley（後半規管型）… Dix-Hallpike 陽性の頭位から、懸垂位のまま頭だけを健側へ回し、
  *   その後に体ごと側臥位にして鼻を床へ向け、最後に起坐する。
  *   頭の回旋と体のロールを混同しないことが要点。
@@ -140,18 +142,10 @@ export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]):
       ]
 
     case 'gufoni_geo': {
-      const fallen = (answers[1] as LR | undefined) ?? healthy
+      const fallen = (answers[0] as LR | undefined) ?? healthy
       return [
         {
-          question: '①　どの体位から始めますか',
-          options: [
-            { label: '坐位から', value: 'sitting', image: 'sitting_front' },
-            { label: '仰臥位から', value: 'supine', image: 'supine' },
-          ],
-          correct: 'sitting',
-        },
-        {
-          question: '②　坐位からどちらへすばやく倒して側臥位にしますか',
+          question: '①　坐位からどちらへすばやく倒して側臥位にしますか',
           options: [
             { label: '右へ倒す', value: 'R', image: gufoniFall('R') },
             { label: '左へ倒す', value: 'L', image: gufoniFall('L') },
@@ -159,7 +153,7 @@ export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]):
           correct: healthy,
         },
         {
-          question: '③　そのまま頭部をどちらへ45°回しますか',
+          question: '②　そのまま頭部をどちらへ45°回しますか',
           options: [
             { label: '下方（床）へ45°', value: 'down', image: sideDown(fallen) },
             { label: '上方（天井）へ45°', value: 'up', image: sideUp(fallen) },
@@ -170,18 +164,10 @@ export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]):
     }
 
     case 'gufoni_apo': {
-      const fallen = (answers[1] as LR | undefined) ?? affected
+      const fallen = (answers[0] as LR | undefined) ?? affected
       return [
         {
-          question: '①　どの体位から始めますか',
-          options: [
-            { label: '坐位から', value: 'sitting', image: 'sitting_front' },
-            { label: '仰臥位から', value: 'supine', image: 'supine' },
-          ],
-          correct: 'sitting',
-        },
-        {
-          question: '②　坐位からどちらへすばやく倒して側臥位にしますか',
+          question: '①　坐位からどちらへすばやく倒して側臥位にしますか',
           options: [
             { label: '右へ倒す', value: 'R', image: gufoniFall('R') },
             { label: '左へ倒す', value: 'L', image: gufoniFall('L') },
@@ -189,7 +175,7 @@ export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]):
           correct: affected,
         },
         {
-          question: '③　そのまま頭部をどちらへ45°回しますか',
+          question: '②　そのまま頭部をどちらへ45°回しますか',
           options: [
             { label: '下方（床）へ45°', value: 'down', image: sideDown(fallen) },
             { label: '上方（天井）へ45°', value: 'up', image: sideUp(fallen) },

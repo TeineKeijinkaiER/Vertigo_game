@@ -16,7 +16,7 @@ OUT_ROOT = ROOT / "public" / "poses" / "films"
 SRC_JSON = ROOT / "src" / "data" / "poseFilms.json"
 SIZE = 320
 QUALITY = 82
-FILM_COUNT = 11
+FILM_COUNT = 12
 
 Box = tuple[int, int, int, int]
 

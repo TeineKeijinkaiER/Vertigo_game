@@ -1,4 +1,4 @@
-import { DISPOSITIONS } from '../data/actions'
+import { asksSide, DISPOSITIONS } from '../data/actions'
 import type { CaseDef } from '../data/types'
 import { Button, MenuItem, Win } from '../components/ui'
 import type { Action, GameState } from '../game/state'
@@ -12,7 +12,8 @@ export function DiagnosisScreen({
   state: GameState
   dispatch: (a: Action) => void
 }) {
-  const needsSide = caseDef.diagnosis.asksSide
+  // 患側を訊くかどうかは、選んだ診断名で決まる。BPPVと末梢性以外は左右を問わない
+  const needsSide = asksSide(state.diagnosisAnswer)
   const ready = state.diagnosisAnswer !== null && (!needsSide || state.sideAnswer !== null)
 
   return (
@@ -71,13 +72,16 @@ export function DispositionScreen({ state, dispatch }: { state: GameState; dispa
         </div>
       </Win>
       <div className="grow" />
-      <Button
-        variant="primary"
-        disabled={state.dispositionChoice === null}
-        onClick={() => dispatch({ type: 'GOTO', phase: 'result' })}
-      >
-        けってい
-      </Button>
+      <div className="row">
+        <Button onClick={() => dispatch({ type: 'GOTO', phase: 'diagnosis' })}>もどる</Button>
+        <Button
+          variant="primary"
+          disabled={state.dispositionChoice === null}
+          onClick={() => dispatch({ type: 'GOTO', phase: 'result' })}
+        >
+          けってい
+        </Button>
+      </div>
     </div>
   )
 }

@@ -15,18 +15,19 @@ const MANEUVER_FILM: Record<ManeuverKind, { R: FilmId; L: FilmId }> = {
   gufoni_apo: { R: 'gufoni_apo_r', L: 'gufoni_apo_l' },
 }
 
-// headroll は1本で左右への往復を含むので、右耳下・左耳下のどちらでも同じフィルムを使う
+// 診察のフィルムは所見をとる体位（懸垂位・頭を回した側）で止まる。所見の文章が
+// その体位のものなので、元の体位へ戻すところまで見せない
 const FILM_FOR: Partial<Record<string, { film: FilmId; caption?: string }>> = {
   eye_dh_r: {
     film: 'dix_hallpike_r',
-    caption: '坐位で頭を右へ45°回し、その向きのまま素早く仰臥位にして頭を台の端から下げる',
+    caption: '坐位で頭を右へ45°回し、その向きのまま素早く仰臥位にして頭を台の端から下げ、懸垂位で観察する',
   },
   eye_dh_l: {
     film: 'dix_hallpike_l',
-    caption: '坐位で頭を左へ45°回し、その向きのまま素早く仰臥位にして頭を台の端から下げる',
+    caption: '坐位で頭を左へ45°回し、その向きのまま素早く仰臥位にして頭を台の端から下げ、懸垂位で観察する',
   },
-  eye_roll_r: { film: 'headroll' },
-  eye_roll_l: { film: 'headroll' },
+  eye_roll_r: { film: 'headroll_r' },
+  eye_roll_l: { film: 'headroll_l' },
 }
 
 export function ExamPose({

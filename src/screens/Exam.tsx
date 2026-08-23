@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   ACTIONS,
   ACTION_GROUPS,
   ATAXIA_NOTE,
+  DIX_HALLPIKE_NOTE,
   IMAGING_CRITERIA,
   MODAL_ACTIONS,
   SUBTYPES,
@@ -31,7 +32,27 @@ const EYE_VIEW_ACTIONS = [
   'eye_roll_l',
 ]
 
+/** 頭位変換で誘発する所見。体位と眼球を並べて同時に見せる */
+const POSITIONAL_ACTIONS = ['eye_dh_r', 'eye_dh_l', 'eye_roll_r', 'eye_roll_l']
+
 type Modal = 'dx' | 'criteria' | 'maneuver' | null
+
+/**
+ * 体位アニメーションと眼振を横に並べ、コマンドを選んだ直後にその2つへ
+ * 画面をずらす。頭位変換の所見は「その体位で眼がどう動くか」なので、
+ * 片方をスクロールで探させると所見の意味が伝わらない。
+ */
+function ExamDuo({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    ref.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }, [])
+  return (
+    <div className="exam-duo" ref={ref}>
+      {children}
+    </div>
+  )
+}
 
 export function ExamScreen({
   caseDef,
@@ -47,6 +68,20 @@ export function ExamScreen({
   const [confirmEnd, setConfirmEnd] = useState(false)
 
   const last = state.log[state.log.length - 1]
+
+  /**
+   * 手技のアニメーションは、手技の種類・患側・手順のすべてが正しいときだけ流す。
+   * 誤った手技を動かして見せると、間違った手順を正解のように覚えてしまう。
+   * 誤りは所見の文章だけで伝える。
+   */
+  const correctManeuver =
+    state.maneuver &&
+    caseDef.maneuver &&
+    caseDef.maneuver.kind === state.maneuver.kind &&
+    caseDef.maneuver.side === state.maneuver.side &&
+    state.maneuver.perfect
+      ? state.maneuver
+      : null
 
   const perform = (actionId: string) => {
     if (actionId === 'as_dx') return setModal('dx')
@@ -131,16 +166,26 @@ export function ExamScreen({
           </Win>
         )}
         <div className="grow" />
-        <Button
-          variant="primary"
-          disabled={cls === null || (cls !== 'none' && state.subtypeAnswer === null)}
-          onClick={() => {
-            dispatch({ type: 'CONFIRM_ASSESS', id: 'as_dx' })
-            setModal(null)
-          }}
-        >
-          決定
-        </Button>
+        <div className="row">
+          <Button
+            onClick={() => {
+              sfxCancel()
+              setModal(null)
+            }}
+          >
+            もどる
+          </Button>
+          <Button
+            variant="primary"
+            disabled={cls === null || (cls !== 'none' && state.subtypeAnswer === null)}
+            onClick={() => {
+              dispatch({ type: 'CONFIRM_ASSESS', id: 'as_dx' })
+              setModal(null)
+            }}
+          >
+            決定
+          </Button>
+        </div>
       </div>
     )
   }
@@ -166,15 +211,25 @@ export function ExamScreen({
           </div>
         </Win>
         <div className="grow" />
-        <Button
-          variant="primary"
-          onClick={() => {
-            dispatch({ type: 'CONFIRM_ASSESS', id: 'im_criteria' })
-            setModal(null)
-          }}
-        >
-          決定（どれも該当しない場合もこのまま）
-        </Button>
+        <div className="row">
+          <Button
+            onClick={() => {
+              sfxCancel()
+              setModal(null)
+            }}
+          >
+            もどる
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              dispatch({ type: 'CONFIRM_ASSESS', id: 'im_criteria' })
+              setModal(null)
+            }}
+          >
+            決定（どれも該当しない場合もこのまま）
+          </Button>
+        </div>
       </div>
     )
   }
@@ -216,23 +271,35 @@ export function ExamScreen({
           <>
             <div className="win-title">{last.label}</div>
             {/* key は兄弟間で重複させないこと。重複するとフィバーが更新されず所見が前のまま残る */}
-            <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={state.maneuver} />
-            {last.actionId === 'eye_skew' && (
-              <SkewTest
-                key={`skew-${last.actionId}`}
-                positive={caseDef.redFlagActions.includes('eye_skew')}
-                caption={
-                  caseDef.redFlagActions.includes('eye_skew')
-                    ? '遮蔽を外した眼が垂直に戻る ＝ skew deviation 陽性'
-                    : '遮蔽を外しても眼は動かない ＝ 陰性'
-                }
-              />
-            )}
-            {EYE_VIEW_ACTIONS.includes(last.actionId) && (
-              <Nystagmus key={`nys-${last.actionId}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
+            {POSITIONAL_ACTIONS.includes(last.actionId) ? (
+              <ExamDuo key={`duo-${last.actionId}`}>
+                <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={correctManeuver} />
+                <Nystagmus key={`nys-${last.actionId}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
+              </ExamDuo>
+            ) : (
+              <>
+                <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={correctManeuver} />
+                {last.actionId === 'eye_skew' && (
+                  <SkewTest
+                    key={`skew-${last.actionId}`}
+                    positive={caseDef.redFlagActions.includes('eye_skew')}
+                    caption={
+                      caseDef.redFlagActions.includes('eye_skew')
+                        ? '遮蔽を外した眼が垂直に戻る ＝ skew deviation 陽性'
+                        : '遮蔽を外しても眼は動かない ＝ 陰性'
+                    }
+                  />
+                )}
+                {EYE_VIEW_ACTIONS.includes(last.actionId) && (
+                  <Nystagmus key={`nys-${last.actionId}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
+                )}
+              </>
             )}
             <TypedText key={`txt-${last.actionId}`} text={last.text} />
             {last.actionId === 'ex_ataxia' && <p className="small dim" style={{ marginTop: 8 }}>{ATAXIA_NOTE}</p>}
+            {(last.actionId === 'eye_dh_r' || last.actionId === 'eye_dh_l') && (
+              <p className="small dim" style={{ marginTop: 8 }}>{DIX_HALLPIKE_NOTE}</p>
+            )}
           </>
         ) : (
           <div className="msg dim">コマンドを選んで診察を始めてください。</div>

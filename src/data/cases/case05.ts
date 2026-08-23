@@ -120,7 +120,6 @@ export const case05: CaseDef = {
       '後半規管BPPV',
       '前庭性片頭痛',
     ],
-    asksSide: true,
   },
 
   // 背地性型は Gufoni法（患側に倒れて顔を上向き）
