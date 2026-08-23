@@ -95,7 +95,7 @@ export const case04: CaseDef = {
   ],
 
   vestibularType: 't-EVS',
-  subtype: 'sub_hc_bppv',
+  subtype: 'sub_hc_geo',
   ataxiaGrade: 0,
 
   // 高齢・高血圧・不整脈というリスク因子はあるが、眼振は典型的な頭位性で
@@ -122,7 +122,6 @@ export const case04: CaseDef = {
   // Gufoni 法（向地性）も同等に妥当なので、どちらを選んでも正解として扱う。
   maneuver: { kind: 'lempert', side: 'R' },
   maneuverAlternatives: ['gufoni_geo'],
-
 
   disposition: {
     correct: ['dp_home'],

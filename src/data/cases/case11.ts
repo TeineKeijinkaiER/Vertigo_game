@@ -122,7 +122,6 @@ export const case11: CaseDef = {
 
   maneuver: null,
 
-
   disposition: {
     correct: ['dp_consult', 'dp_admit'],
     forbidden: [

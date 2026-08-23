@@ -112,7 +112,6 @@ export const case07: CaseDef = {
 
   maneuver: null,
 
-
   disposition: {
     correct: ['dp_home'],
     forbidden: [
