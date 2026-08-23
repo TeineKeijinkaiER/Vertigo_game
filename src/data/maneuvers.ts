@@ -9,7 +9,8 @@ import type { Side } from './types'
  *   ・hc-bppv.pdf（小川恭生「外側半規管型良性発作性頭位めまい症」東医大誌 74(2), 2016）
  *
  * PDF の記載:
- *   Lempert（Barbecue rotation）… 仰臥位から開始し、頭部を健側方向へ90度ずつ回転。
+ *   Lempert（Barbecue rotation）… 仰臥位から開始し、まず体は動かさず頭だけを患側へ90°回して
+ *     誘発を確認したのち正中へ戻す。そこから頭部を健側方向へ90度ずつ回転。
  *     患側上（健側下）頭位 → 体ごとうつ伏せ → さらに90度で患側下 → 坐位に戻す。
  *     各頭位は30〜60秒維持。原法は270度、Baloh は360度。
  *   Gufoni（半規管結石症＝向地性）… 坐位から健側方向へすばやく倒して側臥位とし、
@@ -56,6 +57,7 @@ type LR = 'R' | 'L'
 const jp = (s: LR) => (s === 'R' ? '右' : '左')
 const other = (s: LR): LR => (s === 'R' ? 'L' : 'R')
 
+const headTurn = (s: LR): PoseImageId => (s === 'R' ? 'headroll_r90' : 'headroll_l90')
 const dhHang = (s: LR): PoseImageId => (s === 'R' ? 'dh_hang_r' : 'dh_hang_l')
 const epCross = (s: LR): PoseImageId => (s === 'R' ? 'ep_cross_r' : 'ep_cross_l')
 const gufoniFall = (s: LR): PoseImageId => (s === 'R' ? 'gufoni_fall_r' : 'gufoni_fall_l')
@@ -108,36 +110,20 @@ export function buildSteps(kind: ManeuverKind, affected: LR, answers: string[]):
     case 'lempert':
       return [
         {
-          question: '①　どの体位から始めますか',
+          question: '①　仰臥位のまま、体は動かさずに頭だけをどちらへ90°回して誘発を確認しますか',
           options: [
-            { label: '仰臥位から', value: 'supine', image: 'supine' },
-            { label: '坐位から', value: 'sitting', image: 'sitting_front' },
+            { label: jp(affected) + 'へ回す（患側へ）', value: 'affected', image: headTurn(affected) },
+            { label: jp(healthy) + 'へ回す（健側へ）', value: 'healthy', image: headTurn(healthy) },
           ],
-          correct: 'supine',
+          correct: 'affected',
         },
         {
-          question: '②　仰臥位から、どちらの方向へ90°ずつ回していきますか',
+          question: '②　頭を正中に戻したあと、体ごとどちらの方向へ90°ずつ回転していきますか',
           options: [
             { label: jp(healthy) + '方向へ（健側へ）', value: 'healthy', image: lempertRoll(healthy) },
             { label: jp(affected) + '方向へ（患側へ）', value: 'affected', image: lempertRoll(affected) },
           ],
           correct: 'healthy',
-        },
-        {
-          question: '③　側臥位の次はどうしますか',
-          options: [
-            { label: '同じ方向へ回して腹臥位にする', value: 'prone', image: 'prone' },
-            { label: '仰臥位へ戻す', value: 'back', image: 'supine' },
-          ],
-          correct: 'prone',
-        },
-        {
-          question: '④　合計で何度回しますか',
-          options: [
-            { label: '180°でやめる', value: '180', image: 'lempert_half' },
-            { label: '270〜360°まで回す', value: '360', image: 'lempert_full' },
-          ],
-          correct: '360',
         },
       ]
 
