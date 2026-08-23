@@ -72,6 +72,9 @@ export function ExamScreen({
   const [confirmEnd, setConfirmEnd] = useState(false)
 
   const last = state.log[state.log.length - 1]
+  // log の位置そのものを key にする。同じ手技を続けて選んでも毎回ここが変わるので、
+  // アニメーションや文章が「前回表示済み」のまま止まらず、毎回最初から再生される
+  const lastKey = state.log.length - 1
   const criteriaDone = state.performed.includes('im_criteria')
 
   /**
@@ -321,18 +324,19 @@ export function ExamScreen({
         {last ? (
           <>
             <div className="win-title">{last.label}</div>
-            {/* key は兄弟間で重複させないこと。重複するとフィバーが更新されず所見が前のまま残る */}
+            {/* key は log の位置。兄弟間で重複させないのに加え、同じ手技を選び直したときも
+                毎回別の key にして、フィバーを作り直させる（重複キーだと所見が前のまま残る） */}
             {POSITIONAL_ACTIONS.includes(last.actionId) ? (
-              <ExamDuo key={`duo-${last.actionId}`}>
-                <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={performedManeuver} />
-                <Nystagmus key={`nys-${last.actionId}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
+              <ExamDuo key={`duo-${lastKey}`}>
+                <ExamPose key={`pose-${lastKey}`} actionId={last.actionId} maneuver={performedManeuver} />
+                <Nystagmus key={`nys-${lastKey}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
               </ExamDuo>
             ) : (
               <>
-                <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={performedManeuver} />
+                <ExamPose key={`pose-${lastKey}`} actionId={last.actionId} maneuver={performedManeuver} />
                 {last.actionId === 'eye_skew' && (
                   <SkewTest
-                    key={`skew-${last.actionId}`}
+                    key={`skew-${lastKey}`}
                     positive={caseDef.redFlagActions.includes('eye_skew')}
                     caption={
                       caseDef.redFlagActions.includes('eye_skew')
@@ -342,11 +346,11 @@ export function ExamScreen({
                   />
                 )}
                 {EYE_VIEW_ACTIONS.includes(last.actionId) && (
-                  <Nystagmus key={`nys-${last.actionId}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
+                  <Nystagmus key={`nys-${lastKey}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
                 )}
               </>
             )}
-            <TypedText key={`txt-${last.actionId}`} text={last.text} />
+            <TypedText key={`txt-${lastKey}`} text={last.text} />
             {last.actionId === 'ex_ataxia' && <p className="small dim" style={{ marginTop: 8 }}>{ATAXIA_NOTE}</p>}
             {(last.actionId === 'eye_dh_r' || last.actionId === 'eye_dh_l') && (
               <p className="small dim" style={{ marginTop: 8 }}>{DIX_HALLPIKE_NOTE}</p>

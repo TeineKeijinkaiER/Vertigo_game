@@ -68,11 +68,14 @@ export function reducer(state: GameState, action: Action): GameState {
     case 'START_CASE':
       return { ...initialState, phase: 'brief', caseId: action.caseId }
 
+    // performed は採点用の実施済み集合なので重複させない。log には毎回積み、
+    // 何度でも同じ所見を選び直して見返せるようにする
     case 'PERFORM':
-      if (state.performed.includes(action.entry.actionId)) return state
       return {
         ...state,
-        performed: [...state.performed, action.entry.actionId],
+        performed: state.performed.includes(action.entry.actionId)
+          ? state.performed
+          : [...state.performed, action.entry.actionId],
         log: [...state.log, action.entry],
       }
 
