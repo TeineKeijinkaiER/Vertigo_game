@@ -109,6 +109,11 @@ export interface CaseDef {
 
   /** 耳石置換法の正解。適応がない症例は null */
   maneuver: { kind: ManeuverKind; side: 'R' | 'L' } | null
+  /**
+   * 正解と同等に妥当な代替手技。
+   * 例：向地性の水平半規管BPPVはLempert法でもGufoni法（向地性）でもよい。
+   */
+  maneuverAlternatives?: ManeuverKind[]
 
   treatment: {
     required: string[]

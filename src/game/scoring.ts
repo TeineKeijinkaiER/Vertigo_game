@@ -209,10 +209,15 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
   // ── 耳石置換法
   const attempt = s.maneuver
   if (c.maneuver) {
-    const kindOk = attempt?.kind === c.maneuver.kind
+    // 同等に妥当な代替手技（向地性の水平半規管BPPVなど）も正解として扱う
+    const acceptableKinds = [c.maneuver.kind, ...(c.maneuverAlternatives ?? [])]
+    const kindOk = attempt !== null && acceptableKinds.includes(attempt.kind)
     const sideOk = attempt?.side === c.maneuver.side
     const perfect = Boolean(attempt?.perfect) && kindOk && sideOk
-    const correctLabel = `${MANEUVER_KINDS.find((m) => m.id === c.maneuver!.kind)?.label}（${c.maneuver.side === 'R' ? '右' : '左'}）`
+    const kindLabels = acceptableKinds
+      .map((k) => MANEUVER_KINDS.find((m) => m.id === k)?.label ?? k)
+      .join(' または ')
+    const correctLabel = `${kindLabels}（${c.maneuver.side === 'R' ? '右' : '左'}）`
     lines.push({
       label: '耳石置換法',
       earned: perfect ? MAX.maneuver : kindOk && sideOk ? Math.round(MAX.maneuver / 2) : 0,
