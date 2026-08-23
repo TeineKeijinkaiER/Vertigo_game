@@ -110,8 +110,10 @@ export const case06: CaseDef = {
   // 神経所見は陰性、倒れ方は一方向。HINTSも末梢性パターン。
   criteria: [true, false, false, true],
 
-  // AVSでHINTSが末梢性で揃えば必須ではないが、Grade 2の失調があり撮る判断も十分妥当
+  // AVSでHINTSが末梢性で揃えば必須ではないが、4条件のうち2つ（リスク因子のある突然発症／
+  // Grade 2のふらつき）に該当しており、撮る判断も十分妥当。撮っても減点しない
   imagingIndicated: false,
+  imagingOptional: true,
   imagingPreferred: 'mri',
   ctResult: '頭部CT：頭蓋内出血なし。後頭蓋窩はアーチファクトが強く、微小病変の評価は困難。',
   mriResult: 'DWIで明らかな高信号域を認めない。後頭蓋窩にも急性期梗塞を示唆する所見なし。',

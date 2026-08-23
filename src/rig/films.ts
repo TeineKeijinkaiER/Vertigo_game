@@ -122,7 +122,7 @@ export const FILMS_SPEC = {
     ],
   },
   lempert_r: {
-    caption: 'Lempert法（右患側）。患側（右）を下にして始め、頭と体を一体で90°ずつ360°回して起坐する',
+    caption: 'Lempert法（右患側）。まず頭だけを患側（右）へ回して誘発を確認し、正中に戻してから健側（左）方向へ頭と体を一体で90°ずつ回して起坐する',
     view: 'cranial', framing: 'upper', tweens: 4, tweenMs: 110,
     steps: [
       step('lempert', 'lempert-0-supine', 1500),
@@ -135,7 +135,7 @@ export const FILMS_SPEC = {
     ],
   },
   lempert_l: {
-    caption: 'Lempert法（左患側）。患側（左）を下にして始め、頭と体を一体で90°ずつ360°回して起坐する',
+    caption: 'Lempert法（左患側）。まず頭だけを患側（左）へ回して誘発を確認し、正中に戻してから健側（右）方向へ頭と体を一体で90°ずつ回して起坐する',
     view: 'cranial', framing: 'upper', tweens: 4, tweenMs: 110,
     steps: [
       step('lempert', 'lempert-0-supine', 1500, true),
