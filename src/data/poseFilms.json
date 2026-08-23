@@ -1,0 +1,992 @@
+[
+  {
+    "id": "headroll",
+    "caption": "仰臥位のまま、頭だけを左右へ90°ずつ回す。体は動かさない",
+    "frames": [
+      {
+        "file": "headroll/frame-000.webp",
+        "durationMs": 700
+      },
+      {
+        "file": "headroll/frame-001.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-002.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-003.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-004.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-005.webp",
+        "durationMs": 200
+      },
+      {
+        "file": "headroll/frame-006.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-007.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-008.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-009.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-010.webp",
+        "durationMs": 1400
+      },
+      {
+        "file": "headroll/frame-011.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-012.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-013.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-014.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-015.webp",
+        "durationMs": 200
+      },
+      {
+        "file": "headroll/frame-016.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-017.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-018.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-019.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-020.webp",
+        "durationMs": 700
+      },
+      {
+        "file": "headroll/frame-021.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-022.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-023.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-024.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-025.webp",
+        "durationMs": 200
+      },
+      {
+        "file": "headroll/frame-026.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-027.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-028.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-029.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-030.webp",
+        "durationMs": 1400
+      },
+      {
+        "file": "headroll/frame-031.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-032.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-033.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-034.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-035.webp",
+        "durationMs": 200
+      },
+      {
+        "file": "headroll/frame-036.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-037.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-038.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-039.webp",
+        "durationMs": 90
+      },
+      {
+        "file": "headroll/frame-040.webp",
+        "durationMs": 700
+      }
+    ]
+  },
+  {
+    "id": "dix_hallpike_r",
+    "caption": "頭を患者右へ45°回したまま、素早く仰臥位にして頭を台の端から下げる",
+    "frames": [
+      {
+        "file": "dix_hallpike_r/frame-000.webp",
+        "durationMs": 1100
+      },
+      {
+        "file": "dix_hallpike_r/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_r/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_r/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_r/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_r/frame-005.webp",
+        "durationMs": 1800
+      },
+      {
+        "file": "dix_hallpike_r/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_r/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_r/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_r/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_r/frame-010.webp",
+        "durationMs": 900
+      }
+    ]
+  },
+  {
+    "id": "dix_hallpike_l",
+    "caption": "頭を患者左へ45°回したまま、素早く仰臥位にして頭を台の端から下げる",
+    "frames": [
+      {
+        "file": "dix_hallpike_l/frame-000.webp",
+        "durationMs": 1100
+      },
+      {
+        "file": "dix_hallpike_l/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_l/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_l/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_l/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_l/frame-005.webp",
+        "durationMs": 1800
+      },
+      {
+        "file": "dix_hallpike_l/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_l/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_l/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_l/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "dix_hallpike_l/frame-010.webp",
+        "durationMs": 900
+      }
+    ]
+  },
+  {
+    "id": "epley_r",
+    "caption": "右後半規管のEpley法。頭部の回旋と体幹のログロールを分けて行う",
+    "frames": [
+      {
+        "file": "epley_r/frame-000.webp",
+        "durationMs": 1000
+      },
+      {
+        "file": "epley_r/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-005.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "epley_r/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-010.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "epley_r/frame-011.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-012.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-013.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-014.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-015.webp",
+        "durationMs": 1600
+      },
+      {
+        "file": "epley_r/frame-016.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-017.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-018.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-019.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_r/frame-020.webp",
+        "durationMs": 1500
+      }
+    ]
+  },
+  {
+    "id": "epley_l",
+    "caption": "左後半規管のEpley法。頭部の回旋と体幹のログロールを分けて行う",
+    "frames": [
+      {
+        "file": "epley_l/frame-000.webp",
+        "durationMs": 1000
+      },
+      {
+        "file": "epley_l/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-005.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "epley_l/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-010.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "epley_l/frame-011.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-012.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-013.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-014.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-015.webp",
+        "durationMs": 1600
+      },
+      {
+        "file": "epley_l/frame-016.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-017.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-018.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-019.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "epley_l/frame-020.webp",
+        "durationMs": 1500
+      }
+    ]
+  },
+  {
+    "id": "gufoni_geo_r",
+    "caption": "右向地性のGufoni法。健側（患者左）へ倒し、鼻を床へ45°回す",
+    "frames": [
+      {
+        "file": "gufoni_geo_r/frame-000.webp",
+        "durationMs": 1000
+      },
+      {
+        "file": "gufoni_geo_r/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-005.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "gufoni_geo_r/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-010.webp",
+        "durationMs": 1600
+      },
+      {
+        "file": "gufoni_geo_r/frame-011.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-012.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-013.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-014.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_r/frame-015.webp",
+        "durationMs": 1200
+      }
+    ]
+  },
+  {
+    "id": "gufoni_geo_l",
+    "caption": "左向地性のGufoni法。健側（患者右）へ倒し、鼻を床へ45°回す",
+    "frames": [
+      {
+        "file": "gufoni_geo_l/frame-000.webp",
+        "durationMs": 1000
+      },
+      {
+        "file": "gufoni_geo_l/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-005.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "gufoni_geo_l/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-010.webp",
+        "durationMs": 1600
+      },
+      {
+        "file": "gufoni_geo_l/frame-011.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-012.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-013.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-014.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_geo_l/frame-015.webp",
+        "durationMs": 1200
+      }
+    ]
+  },
+  {
+    "id": "gufoni_apo_r",
+    "caption": "右背地性のGufoni–Appiani法。患側（患者右）へ倒し、鼻を天井へ45°回す",
+    "frames": [
+      {
+        "file": "gufoni_apo_r/frame-000.webp",
+        "durationMs": 1000
+      },
+      {
+        "file": "gufoni_apo_r/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-005.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "gufoni_apo_r/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-010.webp",
+        "durationMs": 1600
+      },
+      {
+        "file": "gufoni_apo_r/frame-011.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-012.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-013.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-014.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_r/frame-015.webp",
+        "durationMs": 1200
+      }
+    ]
+  },
+  {
+    "id": "gufoni_apo_l",
+    "caption": "左背地性のGufoni–Appiani法。患側（患者左）へ倒し、鼻を天井へ45°回す",
+    "frames": [
+      {
+        "file": "gufoni_apo_l/frame-000.webp",
+        "durationMs": 1000
+      },
+      {
+        "file": "gufoni_apo_l/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-005.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "gufoni_apo_l/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-010.webp",
+        "durationMs": 1600
+      },
+      {
+        "file": "gufoni_apo_l/frame-011.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-012.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-013.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-014.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "gufoni_apo_l/frame-015.webp",
+        "durationMs": 1200
+      }
+    ]
+  },
+  {
+    "id": "lempert_r",
+    "caption": "Lempert法（右患側）。患側（右）を下にして始め、頭と体を一体で90°ずつ360°回して起坐する",
+    "frames": [
+      {
+        "file": "lempert_r/frame-000.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_r/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-005.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_r/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-010.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_r/frame-011.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-012.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-013.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-014.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-015.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_r/frame-016.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-017.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-018.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-019.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-020.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_r/frame-021.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-022.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-023.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-024.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-025.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_r/frame-026.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-027.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-028.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-029.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_r/frame-030.webp",
+        "durationMs": 1500
+      }
+    ]
+  },
+  {
+    "id": "lempert_l",
+    "caption": "Lempert法（左患側）。患側（左）を下にして始め、頭と体を一体で90°ずつ360°回して起坐する",
+    "frames": [
+      {
+        "file": "lempert_l/frame-000.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_l/frame-001.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-002.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-003.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-004.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-005.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_l/frame-006.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-007.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-008.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-009.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-010.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_l/frame-011.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-012.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-013.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-014.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-015.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_l/frame-016.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-017.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-018.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-019.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-020.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_l/frame-021.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-022.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-023.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-024.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-025.webp",
+        "durationMs": 1500
+      },
+      {
+        "file": "lempert_l/frame-026.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-027.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-028.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-029.webp",
+        "durationMs": 110
+      },
+      {
+        "file": "lempert_l/frame-030.webp",
+        "durationMs": 1500
+      }
+    ]
+  }
+]

@@ -216,7 +216,7 @@ export function ExamScreen({
           <>
             <div className="win-title">{last.label}</div>
             {/* key は兄弟間で重複させないこと。重複するとフィバーが更新されず所見が前のまま残る */}
-            <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} />
+            <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={state.maneuver} />
             {last.actionId === 'eye_skew' && (
               <SkewTest
                 key={`skew-${last.actionId}`}

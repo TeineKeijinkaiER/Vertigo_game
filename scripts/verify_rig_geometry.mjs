@@ -577,6 +577,36 @@ await check('髪のトゲが上を向き、後ろ髪にもトゲがあり、眉�
   assert.ok(radius >= 0.010, `眉が細い: 半径 ${radius}`)
 })
 
+await check('全手技に左右のフィルムがある', async () => {
+  const { FILM_IDS, filmFrames } = await import('../src/rig/films.ts')
+  const pairs = [
+    ['dix_hallpike_r', 'dix_hallpike_l'],
+    ['epley_r', 'epley_l'],
+    ['gufoni_geo_r', 'gufoni_geo_l'],
+    ['gufoni_apo_r', 'gufoni_apo_l'],
+    ['lempert_r', 'lempert_l'],
+  ]
+  for (const [right, left] of pairs) {
+    assert.ok(FILM_IDS.includes(right), `${right} が無い`)
+    assert.ok(FILM_IDS.includes(left), `${left} が無い`)
+    const rightFrames = filmFrames(right)
+    const leftFrames = filmFrames(left)
+    assert.equal(leftFrames.length, rightFrames.length, `${left} のフレーム数が ${right} と違う`)
+    // 鏡像であること。対応するフレームで顔の x が反転する
+    for (let index = 0; index < rightFrames.length; index += 1) {
+      const a = rightFrames[index].faceDirection
+      const b = leftFrames[index].faceDirection
+      assert.ok(
+        Math.abs(a.x + b.x) < 1e-6 && Math.abs(a.y - b.y) < 1e-6,
+        `${left} の ${index} コマ目が ${right} の鏡像でない`,
+      )
+    }
+  }
+  // headroll は左右を1本で往復するので対にしない
+  assert.ok(FILM_IDS.includes('headroll'), 'headroll が無い')
+  assert.equal(FILM_IDS.length, 11, `フィルム数が 11 でない: ${FILM_IDS.length}`)
+})
+
 if (failures.length > 0) {
   console.error(`\n${failures.length} 件失敗\n${failures.map((line) => `  - ${line}`).join('\n')}`)
   process.exit(1)
