@@ -53,7 +53,7 @@ export function DispositionScreen({ state, dispatch }: { state: GameState; dispa
   return (
     <div className="stack grow">
       <Win title="方針をきめる">
-        <div className="msg small dim">夜間の救急外来です。この患者をどうしますか。</div>
+        <div className="msg small dim">救急外来です。耳鼻科はすぐには呼べません。</div>
       </Win>
       <Win>
         <div className="menu">

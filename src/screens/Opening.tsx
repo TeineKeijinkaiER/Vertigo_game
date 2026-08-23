@@ -40,7 +40,7 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
   const start = (id: number) => dispatch({ type: 'START_CASE', caseId: id })
 
   // カテゴリごとに全症例を並べる。ラベルは最終診断で選ぶ名前と揃える
-  const groups = (['bppv', 'peripheral', 'central'] as const).map((cat) => ({
+  const groups = (['bppv', 'peripheral', 'other', 'central'] as const).map((cat) => ({
     cat,
     label: CATEGORY_LABELS[cat],
     cases: CASES.filter((c) => c.category === cat),
@@ -80,7 +80,7 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
 export function BriefScreen({ caseDef, dispatch }: { caseDef: CaseDef; dispatch: (a: Action) => void }) {
   return (
     <div className="stack grow">
-      <Win title="夜間救急外来">
+      <Win title="救急外来">
         <p className="msg small dim" style={{ margin: '0 0 10px' }}>
           {caseDef.age}{caseDef.gender}が、めまいを訴えて救急車で搬送されてきた。
         </p>

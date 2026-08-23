@@ -6,6 +6,7 @@ import { case04 } from './case04'
 import { case05 } from './case05'
 import { case06 } from './case06'
 import { case07 } from './case07'
+import { case08 } from './case08'
 import { case09 } from './case09'
 import { case11 } from './case11'
 import { case12 } from './case12'
@@ -15,7 +16,7 @@ import { case19 } from './case19'
  * 症例は id 順に並べる。
  * BPPV群は後半規管（左右）・水平半規管向地性（左右）・クプラ結石（左右）を網羅する。
  *   1 後半規管R ／ 2 後半規管L ／ 3 水平向地性L ／ 4 水平向地性R ／ 5 クプラL ／ 12 クプラR
- * 末梢性（6・7）／中枢性（9・11・19）。
+ * 末梢性（6・7）／その他（8：前庭性片頭痛）／中枢性（9・11・19）。
  */
 export const CASES: CaseDef[] = [
   case01,
@@ -26,6 +27,7 @@ export const CASES: CaseDef[] = [
   case12,
   case06,
   case07,
+  case08,
   case09,
   case11,
   case19,
@@ -37,4 +39,5 @@ export const CATEGORY_LABELS: Record<CaseDef['category'], string> = {
   bppv: 'BPPV',
   peripheral: '末梢性',
   central: '中枢性',
+  other: 'その他',
 }

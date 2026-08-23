@@ -202,6 +202,7 @@ export function ExamScreen({
         <Win title="画像検査の適応を考える">
           <p className="msg small dim" style={{ margin: 0 }}>
             診察で得た情報から、当てはまるものを選んでください。当てはまるものがあれば画像検査を考慮します。
+            {'\n'}※「突然発症」は、持続するめまいが突然始まった場合を指します。体位で誘発される短時間のめまい（t-EVS）は含めません。
           </p>
         </Win>
         <Win>

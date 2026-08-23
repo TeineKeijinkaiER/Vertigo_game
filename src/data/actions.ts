@@ -146,7 +146,7 @@ export const ACTION_MAP = new Map(ACTIONS.map((a) => [a.id, a]))
 export const MODAL_ACTIONS = ['as_dx', 'im_criteria', 'tx_maneuver']
 
 /**
- * 方針。夜間ERを想定しているため耳鼻科は選択肢に置かない。
+ * 方針。時間外の救急外来を想定しているため、耳鼻科は選択肢に置かない。
  */
 export const DISPOSITIONS: DispositionDef[] = [
   { id: 'dp_home', label: '帰宅させる', hint: '内服処方・翌日以降に外来' },
