@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { CASES, CATEGORY_LABELS } from '../data/cases'
 import type { CaseDef } from '../data/types'
 import { Button, MenuItem, TypedText, Win } from '../components/ui'
@@ -37,53 +36,42 @@ export function TitleScreen({ dispatch }: { dispatch: (a: Action) => void }) {
   )
 }
 
-type SelectMode = 'root' | 'list'
-
 export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }) {
-  const [mode, setMode] = useState<SelectMode>('root')
-
   const start = (id: number) => dispatch({ type: 'START_CASE', caseId: id })
 
-  if (mode === 'list') {
-    const groups = (['bppv', 'peripheral', 'central'] as const).map((cat) => ({
-      cat,
-      label: CATEGORY_LABELS[cat],
-      cases: CASES.filter((c) => c.category === cat),
-    }))
-    return (
-      <div className="stack grow scroll">
-        <Win title="疾患からえらぶ">
-          <p className="msg small dim" style={{ margin: 0 }}>
-            学びたい疾患を選んでください。答えを伏せて解きたいときは「ランダム」を。
-          </p>
-        </Win>
-        {groups.map((g) => (
-          <Win key={g.cat} title={g.label}>
-            <div className="menu">
-              {g.cases.map((c) => (
-                <MenuItem key={c.id} label={c.title} hint={`${c.age}${c.gender}`} onSelect={() => start(c.id)} />
-              ))}
-            </div>
-          </Win>
-        ))}
-        <Button onClick={() => setMode('root')}>もどる</Button>
-      </div>
-    )
-  }
+  // カテゴリごとに全症例を並べる。ラベルは最終診断で選ぶ名前と揃える
+  const groups = (['bppv', 'peripheral', 'central'] as const).map((cat) => ({
+    cat,
+    label: CATEGORY_LABELS[cat],
+    cases: CASES.filter((c) => c.category === cat),
+  }))
 
   return (
-    <div className="stack grow">
+    <div className="stack grow scroll">
       <Win title="症例をえらぶ">
         <div className="menu">
           <MenuItem
             label="ランダム"
-            hint="おまかせ"
+            hint="診断名を伏せて解く"
             onSelect={() => start(CASES[Math.floor(Math.random() * CASES.length)].id)}
           />
-          <MenuItem label="疾患からえらぶ" hint="疾患名を見て選ぶ" onSelect={() => setMode('list')} />
           <MenuItem label="連続チャレンジ" hint="v0.3で実装" onSelect={() => {}} disabled />
         </div>
       </Win>
+      {groups.map((g) => (
+        <Win key={g.cat} title={g.label}>
+          <div className="menu">
+            {g.cases.map((c) => (
+              <MenuItem
+                key={c.id}
+                label={`${c.diagnosis.correct}${c.diagnosis.side ? `　${c.diagnosis.side === 'R' ? '右' : '左'}` : ''}`}
+                hint={`${c.age}${c.gender}`}
+                onSelect={() => start(c.id)}
+              />
+            ))}
+          </div>
+        </Win>
+      ))}
       <Button onClick={() => dispatch({ type: 'GOTO', phase: 'title' })}>タイトルへ</Button>
     </div>
   )
