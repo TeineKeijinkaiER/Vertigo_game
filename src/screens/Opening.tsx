@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CASES } from '../data/cases'
+import { CASES, CATEGORY_LABELS } from '../data/cases'
 import type { CaseDef } from '../data/types'
 import { Button, MenuItem, TypedText, Win } from '../components/ui'
 import { unlockAudio } from '../audio/sfx'
@@ -45,23 +45,27 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
   const start = (id: number) => dispatch({ type: 'START_CASE', caseId: id })
 
   if (mode === 'list') {
+    const groups = (['bppv', 'peripheral', 'central'] as const).map((cat) => ({
+      cat,
+      label: CATEGORY_LABELS[cat],
+      cases: CASES.filter((c) => c.category === cat),
+    }))
     return (
-      <div className="stack grow">
-        <Win title="症例をえらぶ">
-          <div className="menu">
-            {CASES.map((c) => (
-              <MenuItem
-                key={c.id}
-                label={`症例${c.id}`}
-                hint={`${c.age}${c.gender} / ${c.categoryLabel}`}
-                onSelect={() => start(c.id)}
-              />
-            ))}
-          </div>
+      <div className="stack grow scroll">
+        <Win title="疾患からえらぶ">
+          <p className="msg small dim" style={{ margin: 0 }}>
+            学びたい疾患を選んでください。答えを伏せて解きたいときは「ランダム」を。
+          </p>
         </Win>
-        <p className="small dim center" style={{ margin: 0 }}>
-          ※ 疾患名は伏せてあります
-        </p>
+        {groups.map((g) => (
+          <Win key={g.cat} title={g.label}>
+            <div className="menu">
+              {g.cases.map((c) => (
+                <MenuItem key={c.id} label={c.title} hint={`${c.age}${c.gender}`} onSelect={() => start(c.id)} />
+              ))}
+            </div>
+          </Win>
+        ))}
         <Button onClick={() => setMode('root')}>もどる</Button>
       </div>
     )
@@ -76,7 +80,7 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
             hint="おまかせ"
             onSelect={() => start(CASES[Math.floor(Math.random() * CASES.length)].id)}
           />
-          <MenuItem label="一覧からえらぶ" onSelect={() => setMode('list')} />
+          <MenuItem label="疾患からえらぶ" hint="疾患名を見て選ぶ" onSelect={() => setMode('list')} />
           <MenuItem label="連続チャレンジ" hint="v0.3で実装" onSelect={() => {}} disabled />
         </div>
       </Win>

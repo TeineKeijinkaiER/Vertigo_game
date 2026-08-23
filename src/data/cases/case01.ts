@@ -103,7 +103,6 @@ export const case01: CaseDef = {
 
   maneuver: { kind: 'epley', side: 'R' },
 
-
   disposition: {
     correct: ['dp_home'],
     forbidden: [

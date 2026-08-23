@@ -199,8 +199,8 @@ export const SUBTYPES: Record<Exclude<VestibularChoice, 'none'>, { id: string; l
   ],
   't-EVS': [
     { id: 'sub_pc_bppv', label: '後半規管BPPV', hint: 'Dix-Hallpike陽性' },
-    { id: 'sub_hc_bppv', label: '水平半規管BPPV', hint: 'Head Roll陽性' },
-    { id: 'sub_orthostatic', label: '起立性低血圧', hint: '起立で誘発・眼振なし' },
+    { id: 'sub_hc_geo', label: '水平半規管BPPV（向地性）', hint: 'Head Roll陽性・強い側が患側' },
+    { id: 'sub_hc_apo', label: '水平半規管BPPV（背地性）', hint: 'クプラ結石・弱い側が患側' },
   ],
 }
 
@@ -215,7 +215,7 @@ export const ALL_DIAGNOSES: { group: string; items: string[] }[] = [
   },
   {
     group: '末梢性',
-    items: ['前庭神経炎', 'メニエール病', '突発性難聴に伴うめまい'],
+    items: ['前庭神経炎', 'メニエール病', '突発性難聴に伴うめまい', '末梢性前庭障害（軽度）'],
   },
   {
     group: '中枢性',
@@ -223,7 +223,7 @@ export const ALL_DIAGNOSES: { group: string; items: string[] }[] = [
   },
   {
     group: 'その他',
-    items: ['前庭性片頭痛', '起立性低血圧', '心因性めまい', '末梢性前庭障害（軽度）'],
+    items: ['前庭性片頭痛'],
   },
 ]
 
