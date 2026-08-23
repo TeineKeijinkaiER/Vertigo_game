@@ -103,7 +103,6 @@ export interface CaseDef {
   diagnosis: {
     correct: string
     side: Side
-    options: string[]
     asksSide: boolean
   }
 
@@ -114,11 +113,6 @@ export interface CaseDef {
    * 例：向地性の水平半規管BPPVはLempert法でもGufoni法（向地性）でもよい。
    */
   maneuverAlternatives?: ManeuverKind[]
-
-  treatment: {
-    required: string[]
-    forbidden: { id: string; points: number; reason: string }[]
-  }
 
   disposition: {
     correct: string[]

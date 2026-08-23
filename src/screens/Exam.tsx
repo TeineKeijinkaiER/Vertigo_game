@@ -33,6 +33,9 @@ const EYE_VIEW_ACTIONS = [
 
 type Modal = 'dx' | 'criteria' | 'maneuver' | null
 
+/** 画像検査の適応を考えてから出すコマンド */
+const IMAGING_ORDERS = ['im_ct', 'im_mri']
+
 export function ExamScreen({
   caseDef,
   state,
@@ -44,12 +47,17 @@ export function ExamScreen({
 }) {
   const [group, setGroup] = useState<ActionGroup | null>(null)
   const [modal, setModal] = useState<Modal>(null)
+  const [dxStep, setDxStep] = useState<'type' | 'sub'>('type')
   const [confirmEnd, setConfirmEnd] = useState(false)
 
   const last = state.log[state.log.length - 1]
+  const criteriaDone = state.performed.includes('im_criteria')
 
   const perform = (actionId: string) => {
-    if (actionId === 'as_dx') return setModal('dx')
+    if (actionId === 'as_dx') {
+      setDxStep('type')
+      return setModal('dx')
+    }
     if (actionId === 'im_criteria') return setModal('criteria')
     if (actionId === 'tx_maneuver') return setModal('maneuver')
 
@@ -95,52 +103,95 @@ export function ExamScreen({
   if (modal === 'dx') {
     const cls = state.vestibularAnswer
     const subs = cls && cls !== 'none' ? SUBTYPES[cls] : null
-    return (
-      <div className="stack grow scroll">
-        <Win title="めまいを分類して鑑別する">
-          <p className="msg small dim" style={{ margin: 0 }}>
-            GRACE-3では、TriggerとTimingでめまいを3つに分けます。この患者はどれにあたりますか。
-          </p>
-        </Win>
-        <Win>
-          <div className="menu">
-            {VESTIBULAR_TYPES.map((o) => (
-              <MenuItem
-                key={o.id}
-                label={o.label}
-                hint={o.hint}
-                checked={cls === o.id}
-                onSelect={() => dispatch({ type: 'SET_VESTIBULAR', value: o.id as VestibularChoice })}
-              />
-            ))}
-          </div>
-        </Win>
-        {subs && (
-          <Win title="この分類なら、何を考えますか">
+
+    // ① まず GRACE-3 の3分類を選ぶ
+    if (dxStep === 'type') {
+      return (
+        <div className="stack grow scroll">
+          <Win title="かんべつ①　めまいを分類する">
+            <p className="msg small dim" style={{ margin: 0 }}>
+              GRACE-3では、TriggerとTimingでめまいを3つに分けます。
+            </p>
+          </Win>
+          <Win>
             <div className="menu">
-              {subs.map((sub) => (
+              {VESTIBULAR_TYPES.map((o) => (
                 <MenuItem
-                  key={sub.id}
-                  label={sub.label}
-                  hint={sub.hint}
-                  checked={state.subtypeAnswer === sub.id}
-                  onSelect={() => dispatch({ type: 'SET_SUBTYPE', value: sub.id })}
+                  key={o.id}
+                  label={o.label}
+                  hint={o.hint}
+                  checked={cls === o.id}
+                  onSelect={() => {
+                    dispatch({ type: 'SET_VESTIBULAR', value: o.id as VestibularChoice })
+                    if (o.id !== 'none') setDxStep('sub')
+                  }}
                 />
               ))}
             </div>
           </Win>
-        )}
+          <div className="grow" />
+          <div className="row">
+            <Button
+              onClick={() => {
+                sfxCancel()
+                setModal(null)
+              }}
+            >
+              やめる
+            </Button>
+            {cls === 'none' && (
+              <Button
+                variant="primary"
+                onClick={() => {
+                  dispatch({ type: 'CONFIRM_ASSESS', id: 'as_dx' })
+                  setModal(null)
+                }}
+              >
+                決定
+              </Button>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    // ② その分類のなかで疾患名まで絞る
+    return (
+      <div className="stack grow scroll">
+        <Win title={`かんべつ②　${cls} なら何を考えますか`}>
+          <div className="menu">
+            {subs?.map((sub) => (
+              <MenuItem
+                key={sub.id}
+                label={sub.label}
+                hint={sub.hint}
+                checked={state.subtypeAnswer === sub.id}
+                onSelect={() => dispatch({ type: 'SET_SUBTYPE', value: sub.id })}
+              />
+            ))}
+          </div>
+        </Win>
         <div className="grow" />
-        <Button
-          variant="primary"
-          disabled={cls === null || (cls !== 'none' && state.subtypeAnswer === null)}
-          onClick={() => {
-            dispatch({ type: 'CONFIRM_ASSESS', id: 'as_dx' })
-            setModal(null)
-          }}
-        >
-          決定
-        </Button>
+        <div className="row">
+          <Button
+            onClick={() => {
+              sfxCancel()
+              setDxStep('type')
+            }}
+          >
+            分類にもどる
+          </Button>
+          <Button
+            variant="primary"
+            disabled={state.subtypeAnswer === null}
+            onClick={() => {
+              dispatch({ type: 'CONFIRM_ASSESS', id: 'as_dx' })
+              setModal(null)
+            }}
+          >
+            決定
+          </Button>
+        </div>
       </div>
     )
   }
@@ -171,6 +222,7 @@ export function ExamScreen({
           onClick={() => {
             dispatch({ type: 'CONFIRM_ASSESS', id: 'im_criteria' })
             setModal(null)
+            setGroup('imaging')
           }}
         >
           決定（どれも該当しない場合もこのまま）
@@ -182,9 +234,9 @@ export function ExamScreen({
   if (confirmEnd) {
     return (
       <div className="stack grow">
-        <Win title="診察をおえる">
+        <Win title="最終診断へ">
           <div className="msg">
-            診察を打ち切って、鑑別診断に進みますか。{'\n'}
+            診察をおえて最終診断に進みますか。{'\n'}
             <span className="danger">一度進むと、診察には戻れません。</span>
           </div>
         </Win>
@@ -245,13 +297,15 @@ export function ExamScreen({
             {ACTION_GROUPS.map((g) => (
               <MenuItem key={g.id} label={g.label} onSelect={() => setGroup(g.id)} />
             ))}
-            <MenuItem label="診察をおえる" hint="鑑別診断へ" onSelect={() => setConfirmEnd(true)} />
+            <MenuItem label="最終診断" hint="診察をおえて診断する" onSelect={() => setConfirmEnd(true)} />
           </div>
         </Win>
       ) : (
         <Win title={ACTION_GROUPS.find((g) => g.id === group)?.label}>
           <div className="menu scroll" style={{ maxHeight: '42dvh' }}>
-            {ACTIONS.filter((a) => a.group === group).map((a) => {
+            {ACTIONS.filter((a) => a.group === group)
+              .filter((a) => a.id === 'im_criteria' || !IMAGING_ORDERS.includes(a.id) || criteriaDone)
+              .map((a) => {
               const done = state.performed.includes(a.id)
               const repeatable = MODAL_ACTIONS.includes(a.id)
               return (
@@ -264,7 +318,12 @@ export function ExamScreen({
                   onSelect={() => perform(a.id)}
                 />
               )
-            })}
+              })}
+            {group === 'imaging' && !criteriaDone && (
+              <p className="small dim" style={{ margin: '4px 0 0' }}>
+                まず適応を考えてから、CT / MRI を選びます。
+              </p>
+            )}
           </div>
           <div style={{ marginTop: 8 }}>
             <Button
