@@ -75,18 +75,13 @@ export function ExamScreen({
   const criteriaDone = state.performed.includes('im_criteria')
 
   /**
-   * 手技のアニメーションは、手技の種類・患側・手順のすべてが正しいときだけ流す。
-   * 誤った手技を動かして見せると、間違った手順を正解のように覚えてしまう。
-   * 誤りは所見の文章だけで伝える。
+   * 手技のアニメーションは、実際に施行した手順が（その手技・患側として）正しく
+   * 組み立てられていたときだけ流す。手技の種類や患側がこの患者にとって正しいか
+   * どうかは問わない――手順そのものが合っていれば、指定した通りの手技が動いて
+   * 見える。組み立てが崩れているものを動かして見せると、誤った手順を正解のように
+   * 覚えてしまうため、そこだけは文章のみで伝える。
    */
-  const correctManeuver =
-    state.maneuver &&
-    caseDef.maneuver &&
-    caseDef.maneuver.kind === state.maneuver.kind &&
-    caseDef.maneuver.side === state.maneuver.side &&
-    state.maneuver.perfect
-      ? state.maneuver
-      : null
+  const performedManeuver = state.maneuver?.perfect ? state.maneuver : null
 
   const perform = (actionId: string) => {
     if (actionId === 'as_dx') {
@@ -112,13 +107,27 @@ export function ExamScreen({
     const kindLabel = MANEUVER_KINDS.find((m) => m.id === attempt.kind)?.label ?? ''
     const sideLabel = attempt.side === 'R' ? '右' : '左'
     const correct = caseDef.maneuver
-    const rightChoice = correct && correct.kind === attempt.kind && correct.side === attempt.side
-    const text =
-      rightChoice && attempt.perfect
-        ? `${kindLabel}（${sideLabel}）を正しい手順で施行した。\n\n直後に頭位変換試験を再検すると、眼振もめまいも誘発されない。患者は「治りました」と目を丸くしている。`
-        : rightChoice
-          ? `${kindLabel}（${sideLabel}）を施行した。……手順のどこかが違ったようで、眼振とめまいは残ったままである。`
-          : `${kindLabel}（${sideLabel}）を施行した。眼振・めまいに変化はない。手技の選択か患側の判断が誤っている可能性がある。`
+    // 向地性の水平半規管BPPVなど、同等に妥当な代替手技も正解として扱う（scoring.ts と揃える）
+    const acceptableKinds = correct ? [correct.kind, ...(caseDef.maneuverAlternatives ?? [])] : []
+    const kindOk = correct !== null && acceptableKinds.includes(attempt.kind)
+    const sideOk = correct !== null && attempt.side === correct.side
+    const cured = kindOk && sideOk && attempt.perfect
+
+    // 治らなかったときは「間違っている」で終わらせず、正しい耳石置換法を短く示唆する
+    const hint = cured
+      ? null
+      : !correct
+        ? 'この患者の所見からは、耳石置換法が効くとは考えにくい。診断から見直したほうがよさそうだ。'
+        : !kindOk
+          ? `所見を振り返ると、${MANEUVER_KINDS.find((m) => m.id === correct.kind)?.hint}の耳石置換法を考えたほうがよさそうだ。`
+          : !sideOk
+            ? '手技の選択は良さそうだが、患側の判定を見直したほうがよさそうだ。'
+            : '手技と患側の判断は合っているが、手順のどこかが違ったようだ。もう一度手順を確認しよう。'
+
+    const text = cured
+      ? `${kindLabel}（${sideLabel}）を正しい手順で施行した。\n\n直後に頭位変換試験を再検すると、眼振もめまいも誘発されない。患者は「治りました」と目を丸くしている。`
+      : `${kindLabel}（${sideLabel}）を施行した。眼振・めまいに変化はない。${hint}`
+
     dispatch({
       type: 'SET_MANEUVER',
       attempt,
@@ -315,12 +324,12 @@ export function ExamScreen({
             {/* key は兄弟間で重複させないこと。重複するとフィバーが更新されず所見が前のまま残る */}
             {POSITIONAL_ACTIONS.includes(last.actionId) ? (
               <ExamDuo key={`duo-${last.actionId}`}>
-                <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={correctManeuver} />
+                <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={performedManeuver} />
                 <Nystagmus key={`nys-${last.actionId}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
               </ExamDuo>
             ) : (
               <>
-                <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={correctManeuver} />
+                <ExamPose key={`pose-${last.actionId}`} actionId={last.actionId} maneuver={performedManeuver} />
                 {last.actionId === 'eye_skew' && (
                   <SkewTest
                     key={`skew-${last.actionId}`}
