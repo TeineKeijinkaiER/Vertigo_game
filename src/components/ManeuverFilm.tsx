@@ -21,7 +21,8 @@ export type FilmId =
   | 'gufoni_apo_l'
   | 'dix_hallpike_r'
   | 'dix_hallpike_l'
-  | 'headroll'
+  | 'headroll_r'
+  | 'headroll_l'
 
 interface FilmFrame {
   file: string
@@ -41,6 +42,15 @@ const FILMS = Object.fromEntries(
 const url = (file: string) => `${import.meta.env.BASE_URL}poses/films/${file}`
 
 /**
+ * 最終コマで止めるフィルム。診察のフィルムは頭位変換した先（懸垂位・頭を回した
+ * 側臥頭位）で終わり、眼振所見も説明もその体位のものなので、繰り返して元の体位へ
+ * 戻してしまうと画と説明が食い違う。
+ * 治療手技のフィルムは最後が起坐で、頭からもう一度回しても手技として筋が通るため
+ * 繰り返したままにする。
+ */
+const PLAY_ONCE: FilmId[] = ['dix_hallpike_r', 'dix_hallpike_l', 'headroll_r', 'headroll_l']
+
+/**
  * setTimeout でコマを送る（rAF だとタブが非表示のとき止まってしまう）。
  * 全コマを重ねて置き、表示中のものだけ不透明にすることで、
  * 切り替え時の読み込み待ちとちらつきを避ける。
@@ -58,9 +68,10 @@ export function ManeuverFilm({ film, caption }: { film: FilmId; caption?: string
 
   useEffect(() => {
     if (missing) return
+    if (i === frames.length - 1 && PLAY_ONCE.includes(film)) return
     const t = window.setTimeout(() => setI((n) => (n + 1) % frames.length), frames[i].durationMs)
     return () => window.clearTimeout(t)
-  }, [i, frames, missing])
+  }, [i, frames, missing, film])
 
   const shownCaption = caption ?? spec.caption
 

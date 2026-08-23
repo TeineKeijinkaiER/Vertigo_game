@@ -14,9 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 FILMS_ROOT = ROOT / "public" / "poses" / "films"
 SRC_JSON = ROOT / "src" / "data" / "poseFilms.json"
 SIZE = 320
-FILM_COUNT = 11
+FILM_COUNT = 12
 
-# film id が game 側で必要とする 11 本すべて含まれているかのチェック用。
+# film id が game 側で必要とする 12 本すべて含まれているかのチェック用。
 # ハードコードでよい (brief 参照)
 REQUIRED_GAME_FILM_IDS = [
     "epley_r",
@@ -29,7 +29,8 @@ REQUIRED_GAME_FILM_IDS = [
     "gufoni_apo_l",
     "dix_hallpike_r",
     "dix_hallpike_l",
-    "headroll",
+    "headroll_r",
+    "headroll_l",
 ]
 # Max allowed bbox-center shift between ADJACENT frames, as a fraction of the
 # canvas width. This is the camera-fixed check: a compose bug that re-crops
@@ -41,7 +42,7 @@ REQUIRED_GAME_FILM_IDS = [
 # while staying far below what a per-frame recrop bug would produce.
 MAX_CENTER_DRIFT = 0.10
 
-# Right/left pairs. headroll sweeps both sides in one clip, so it has no pair.
+# Right/left pairs whose every frame must differ between the two sides.
 PAIRS = [
     ("dix_hallpike_r", "dix_hallpike_l"),
     ("epley_r", "epley_l"),
@@ -49,6 +50,12 @@ PAIRS = [
     ("gufoni_apo_r", "gufoni_apo_l"),
     ("lempert_r", "lempert_l"),
 ]
+
+# headroll_r / headroll_l both open on the same midline-symmetric supine pose, so
+# their frame 0 legitimately renders identically on both sides. Every frame after
+# the head starts turning must still differ, so this pair gets its own check
+# instead of the strict per-frame one above.
+HEADROLL_PAIR = ("headroll_r", "headroll_l")
 
 
 def load_frames(film_id: str, entry: dict) -> list[Image.Image]:
@@ -139,10 +146,8 @@ def main() -> None:
             # Adjacent frames must differ: a broken tween (e.g. interpolation
             # stuck on one pose) shows up as two consecutive identical
             # renders. Non-adjacent duplicates are expected and fine -- these
-            # maneuvers legitimately revisit earlier keyframes (e.g.
-            # Dix-Hallpike returns to the same seated pose it started from,
-            # and Head Roll retraces the same 45/90 degree angles on the way
-            # back to neutral).
+            # maneuvers legitimately revisit earlier keyframes (e.g. Epley
+            # passes through the same head-hanging angle twice).
             if index > 0 and image.tobytes() == images[index - 1].tobytes():
                 failures.append(f"{film_id}[{index}]: identical to frame {index - 1} (tween not interpolating)")
 
@@ -180,6 +185,31 @@ def main() -> None:
         for index, (right_image, left_image) in enumerate(zip(right_images, left_images)):
             if right_image.tobytes() == left_image.tobytes():
                 failures.append(f"{left_id}[{index}]: identical to {right_id} (mirroring not applied)")
+
+    right_id, left_id = HEADROLL_PAIR
+    right = by_id.get(right_id)
+    left = by_id.get(left_id)
+    if right is None or left is None:
+        failures.append(f"{right_id}/{left_id}: missing from manifest")
+    elif len(right["frames"]) != len(left["frames"]):
+        failures.append(
+            f"{left_id}: frame count differs from {right_id} "
+            f"({len(left['frames'])} != {len(right['frames'])})"
+        )
+    elif right_id in frames_cache and left_id in frames_cache:
+        identical = [
+            index
+            for index, (right_image, left_image) in enumerate(
+                zip(frames_cache[right_id], frames_cache[left_id])
+            )
+            if right_image.tobytes() == left_image.tobytes()
+        ]
+        # Only the shared neutral opening frame may match.
+        if identical not in ([], [0]):
+            failures.append(
+                f"{left_id}: frames {identical} identical to {right_id} "
+                "(mirroring not applied beyond the neutral start)"
+            )
 
     if failures:
         print(f"{len(failures)} failures")

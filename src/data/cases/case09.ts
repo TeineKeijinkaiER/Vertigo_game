@@ -127,7 +127,7 @@ export const case09: CaseDef = {
   diagnosis: {
     correct: '延髄外側症候群（Wallenberg）',
     side: 'R',
-    asksSide: true,
+    options: ['延髄外側症候群（Wallenberg）', '前庭神経炎', '小脳梗塞（PICA領域）', 'メニエール病'],
   },
 
   maneuver: null,

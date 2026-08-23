@@ -1,5 +1,6 @@
 import {
   ACTION_MAP,
+  asksSide,
   ATAXIA_GRADES,
   DISPOSITION_MAP,
   IMAGING_CRITERIA,
@@ -187,7 +188,8 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
 
   // ── 診断
   const dxCorrect = s.diagnosisAnswer === c.diagnosis.correct
-  const sideCorrect = !c.diagnosis.asksSide || s.sideAnswer === c.diagnosis.side
+  const sideAsked = asksSide(c.diagnosis.correct)
+  const sideCorrect = !sideAsked || s.sideAnswer === c.diagnosis.side
   lines.push({
     label: '診断',
     earned: dxCorrect ? MAX.diagnosis : 0,
@@ -196,7 +198,7 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
       dxCorrect ? `正解：${c.diagnosis.correct}` : `あなたの診断：${s.diagnosisAnswer ?? '未回答'} ／ 正解：${c.diagnosis.correct}`,
     ],
   })
-  if (c.diagnosis.asksSide) {
+  if (sideAsked) {
     lines.push({
       label: '患側',
       earned: dxCorrect && sideCorrect ? MAX.side : 0,

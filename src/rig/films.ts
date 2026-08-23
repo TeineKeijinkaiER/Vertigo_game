@@ -25,37 +25,38 @@ const step = (maneuver: ManeuverId, pose: string, holdMs: number, mirror = false
   mirror ? { maneuver, pose, holdMs, mirror } : { maneuver, pose, holdMs }
 
 export const FILMS_SPEC = {
-  headroll: {
-    caption: '仰臥位のまま、頭だけを左右へ90°ずつ回す。体は動かさない',
+  headroll_r: {
+    caption: '仰臥位のまま、頭だけを患者右へ90°回す。体は動かさず、その向きのまま眼振を観察する',
     view: 'cranial', framing: 'upper', tweens: 4, tweenMs: 90,
     steps: [
       step('supine-roll', 'roll-neutral', 700),
       step('supine-roll', 'roll-right-45', 200),
-      step('supine-roll', 'roll-right', 1400),
-      step('supine-roll', 'roll-right-45', 200),
-      step('supine-roll', 'roll-neutral', 700),
-      step('supine-roll', 'roll-left-45', 200),
-      step('supine-roll', 'roll-left', 1400),
-      step('supine-roll', 'roll-left-45', 200),
-      step('supine-roll', 'roll-neutral', 700),
+      step('supine-roll', 'roll-right', 1800),
+    ],
+  },
+  headroll_l: {
+    caption: '仰臥位のまま、頭だけを患者左へ90°回す。体は動かさず、その向きのまま眼振を観察する',
+    view: 'cranial', framing: 'upper', tweens: 4, tweenMs: 90,
+    steps: [
+      step('supine-roll', 'roll-neutral', 700, true),
+      step('supine-roll', 'roll-right-45', 200, true),
+      step('supine-roll', 'roll-right', 1800, true),
     ],
   },
   dix_hallpike_r: {
-    caption: '頭を患者右へ45°回したまま、素早く仰臥位にして頭を台の端から下げる',
+    caption: '頭を患者右へ45°回したまま、素早く仰臥位にして頭を台の端から下げ、懸垂位で観察する',
     view: 'lateral', framing: 'full', tweens: 4, tweenMs: 110,
     steps: [
       step('dix-hallpike', 'dix-yaw', 1100),
       step('dix-hallpike', 'dix-hang', 1800),
-      step('dix-hallpike', 'dix-yaw', 900),
     ],
   },
   dix_hallpike_l: {
-    caption: '頭を患者左へ45°回したまま、素早く仰臥位にして頭を台の端から下げる',
+    caption: '頭を患者左へ45°回したまま、素早く仰臥位にして頭を台の端から下げ、懸垂位で観察する',
     view: 'lateral', framing: 'full', tweens: 4, tweenMs: 110,
     steps: [
       step('dix-hallpike', 'dix-yaw', 1100, true),
       step('dix-hallpike', 'dix-hang', 1800, true),
-      step('dix-hallpike', 'dix-yaw', 900, true),
     ],
   },
   epley_r: {
@@ -165,6 +166,7 @@ export const FILM_IDS = Object.keys(FILMS_SPEC) as FilmId[]
  * 手技の左右反転が自動的に成り立つ（lempert_l で採った方式を共通化したもの）
  */
 const MIRROR_SOURCE: Partial<Record<FilmId, FilmId>> = {
+  headroll_l: 'headroll_r',
   dix_hallpike_l: 'dix_hallpike_r',
   epley_l: 'epley_r',
   gufoni_geo_l: 'gufoni_geo_r',

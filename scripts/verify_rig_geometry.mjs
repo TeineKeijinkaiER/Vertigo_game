@@ -580,6 +580,7 @@ await check('髪のトゲが上を向き、後ろ髪にもトゲがあり、眉�
 await check('全手技に左右のフィルムがある', async () => {
   const { FILM_IDS, filmFrames } = await import('../src/rig/films.ts')
   const pairs = [
+    ['headroll_r', 'headroll_l'],
     ['dix_hallpike_r', 'dix_hallpike_l'],
     ['epley_r', 'epley_l'],
     ['gufoni_geo_r', 'gufoni_geo_l'],
@@ -602,9 +603,7 @@ await check('全手技に左右のフィルムがある', async () => {
       )
     }
   }
-  // headroll は左右を1本で往復するので対にしない
-  assert.ok(FILM_IDS.includes('headroll'), 'headroll が無い')
-  assert.equal(FILM_IDS.length, 11, `フィルム数が 11 でない: ${FILM_IDS.length}`)
+  assert.equal(FILM_IDS.length, 12, `フィルム数が 12 でない: ${FILM_IDS.length}`)
 })
 
 if (failures.length > 0) {

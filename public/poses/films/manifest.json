@@ -1,177 +1,107 @@
 [
   {
-    "id": "headroll",
-    "caption": "仰臥位のまま、頭だけを左右へ90°ずつ回す。体は動かさない",
+    "id": "headroll_r",
+    "caption": "仰臥位のまま、頭だけを患者右へ90°回す。体は動かさず、その向きのまま眼振を観察する",
     "frames": [
       {
-        "file": "headroll/frame-000.webp",
+        "file": "headroll_r/frame-000.webp",
         "durationMs": 700
       },
       {
-        "file": "headroll/frame-001.webp",
+        "file": "headroll_r/frame-001.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-002.webp",
+        "file": "headroll_r/frame-002.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-003.webp",
+        "file": "headroll_r/frame-003.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-004.webp",
+        "file": "headroll_r/frame-004.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-005.webp",
+        "file": "headroll_r/frame-005.webp",
         "durationMs": 200
       },
       {
-        "file": "headroll/frame-006.webp",
+        "file": "headroll_r/frame-006.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-007.webp",
+        "file": "headroll_r/frame-007.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-008.webp",
+        "file": "headroll_r/frame-008.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-009.webp",
+        "file": "headroll_r/frame-009.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-010.webp",
-        "durationMs": 1400
-      },
+        "file": "headroll_r/frame-010.webp",
+        "durationMs": 1800
+      }
+    ]
+  },
+  {
+    "id": "headroll_l",
+    "caption": "仰臥位のまま、頭だけを患者左へ90°回す。体は動かさず、その向きのまま眼振を観察する",
+    "frames": [
       {
-        "file": "headroll/frame-011.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-012.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-013.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-014.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-015.webp",
-        "durationMs": 200
-      },
-      {
-        "file": "headroll/frame-016.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-017.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-018.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-019.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-020.webp",
+        "file": "headroll_l/frame-000.webp",
         "durationMs": 700
       },
       {
-        "file": "headroll/frame-021.webp",
+        "file": "headroll_l/frame-001.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-022.webp",
+        "file": "headroll_l/frame-002.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-023.webp",
+        "file": "headroll_l/frame-003.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-024.webp",
+        "file": "headroll_l/frame-004.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-025.webp",
+        "file": "headroll_l/frame-005.webp",
         "durationMs": 200
       },
       {
-        "file": "headroll/frame-026.webp",
+        "file": "headroll_l/frame-006.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-027.webp",
+        "file": "headroll_l/frame-007.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-028.webp",
+        "file": "headroll_l/frame-008.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-029.webp",
+        "file": "headroll_l/frame-009.webp",
         "durationMs": 90
       },
       {
-        "file": "headroll/frame-030.webp",
-        "durationMs": 1400
-      },
-      {
-        "file": "headroll/frame-031.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-032.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-033.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-034.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-035.webp",
-        "durationMs": 200
-      },
-      {
-        "file": "headroll/frame-036.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-037.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-038.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-039.webp",
-        "durationMs": 90
-      },
-      {
-        "file": "headroll/frame-040.webp",
-        "durationMs": 700
+        "file": "headroll_l/frame-010.webp",
+        "durationMs": 1800
       }
     ]
   },
   {
     "id": "dix_hallpike_r",
-    "caption": "頭を患者右へ45°回したまま、素早く仰臥位にして頭を台の端から下げる",
+    "caption": "頭を患者右へ45°回したまま、素早く仰臥位にして頭を台の端から下げ、懸垂位で観察する",
     "frames": [
       {
         "file": "dix_hallpike_r/frame-000.webp",
@@ -196,32 +126,12 @@
       {
         "file": "dix_hallpike_r/frame-005.webp",
         "durationMs": 1800
-      },
-      {
-        "file": "dix_hallpike_r/frame-006.webp",
-        "durationMs": 110
-      },
-      {
-        "file": "dix_hallpike_r/frame-007.webp",
-        "durationMs": 110
-      },
-      {
-        "file": "dix_hallpike_r/frame-008.webp",
-        "durationMs": 110
-      },
-      {
-        "file": "dix_hallpike_r/frame-009.webp",
-        "durationMs": 110
-      },
-      {
-        "file": "dix_hallpike_r/frame-010.webp",
-        "durationMs": 900
       }
     ]
   },
   {
     "id": "dix_hallpike_l",
-    "caption": "頭を患者左へ45°回したまま、素早く仰臥位にして頭を台の端から下げる",
+    "caption": "頭を患者左へ45°回したまま、素早く仰臥位にして頭を台の端から下げ、懸垂位で観察する",
     "frames": [
       {
         "file": "dix_hallpike_l/frame-000.webp",
@@ -246,26 +156,6 @@
       {
         "file": "dix_hallpike_l/frame-005.webp",
         "durationMs": 1800
-      },
-      {
-        "file": "dix_hallpike_l/frame-006.webp",
-        "durationMs": 110
-      },
-      {
-        "file": "dix_hallpike_l/frame-007.webp",
-        "durationMs": 110
-      },
-      {
-        "file": "dix_hallpike_l/frame-008.webp",
-        "durationMs": 110
-      },
-      {
-        "file": "dix_hallpike_l/frame-009.webp",
-        "durationMs": 110
-      },
-      {
-        "file": "dix_hallpike_l/frame-010.webp",
-        "durationMs": 900
       }
     ]
   },

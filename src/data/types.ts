@@ -100,10 +100,14 @@ export interface CaseDef {
    */
   dischargeAfterNegativeOk: boolean
 
+  /**
+   * 患側を答えさせるかどうかは診断名から決まる（actions.ts の asksSide）。
+   * 症例ごとの属性にすると、設問の有無で診断が漏れる
+   */
   diagnosis: {
     correct: string
     side: Side
-    asksSide: boolean
+    options: string[]
   }
 
   /** 耳石置換法の正解。適応がない症例は null */

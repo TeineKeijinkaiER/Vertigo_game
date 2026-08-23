@@ -112,7 +112,12 @@ export const case05: CaseDef = {
   diagnosis: {
     correct: '水平半規管BPPV（背地性・クプラ結石）',
     side: 'L',
-    asksSide: true,
+    options: [
+      '水平半規管BPPV（背地性・クプラ結石）',
+      '水平半規管BPPV（向地性）',
+      '後半規管BPPV',
+      '前庭性片頭痛',
+    ],
   },
 
   // 背地性型は Gufoni法（患側に倒れて顔を上向き）
