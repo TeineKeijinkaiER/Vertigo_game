@@ -40,7 +40,7 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
   const start = (id: number) => dispatch({ type: 'START_CASE', caseId: id })
 
   // カテゴリごとに全症例を並べる。ラベルは最終診断で選ぶ名前と揃える
-  const groups = (['bppv', 'peripheral', 'central'] as const).map((cat) => ({
+  const groups = (['bppv', 'peripheral', 'other', 'central'] as const).map((cat) => ({
     cat,
     label: CATEGORY_LABELS[cat],
     cases: CASES.filter((c) => c.category === cat),

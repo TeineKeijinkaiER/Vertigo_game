@@ -26,7 +26,7 @@ export interface NystagmusSpec {
   caption?: string
 }
 
-export type Category = 'bppv' | 'peripheral' | 'central'
+export type Category = 'bppv' | 'peripheral' | 'central' | 'other'
 export type VestibularType = 'AVS' | 's-EVS' | 't-EVS'
 export type Side = 'R' | 'L' | null
 
