@@ -37,6 +37,8 @@ export interface GameState {
   criteriaAnswers: boolean[]
   /** 起立・歩行の観察後にプレイヤーが選んだ失調Grade */
   ataxiaAnswer: AtaxiaGrade | null
+  /** プレイ中に選択したGradeの履歴（画像適応の判定に使う） */
+  ataxiaHistory: AtaxiaGrade[]
   /** 耳石置換法の実施内容。組み立てを誤っていても記録する */
   maneuver: ManeuverAttempt | null
   diagnosisAnswer: string | null
@@ -54,6 +56,7 @@ export const initialState: GameState = {
   subtypeAnswer: null,
   criteriaAnswers: [false, false, false, false],
   ataxiaAnswer: null,
+  ataxiaHistory: [],
   maneuver: null,
   diagnosisAnswer: null,
   sideAnswer: null,
@@ -108,7 +111,7 @@ export function reducer(state: GameState, action: Action): GameState {
     }
 
     case 'SET_ATAXIA':
-      return { ...state, ataxiaAnswer: action.value }
+      return { ...state, ataxiaAnswer: action.value, ataxiaHistory: [...state.ataxiaHistory, action.value] }
 
     // 「どれも該当しない」が正解の症例があるので、
     // 選択の有無ではなく決定したことをもって実施済みとする

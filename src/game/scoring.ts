@@ -61,6 +61,16 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
   const lines: ScoreLine[] = []
   const deductions: Deduction[] = []
   const did = (id: string) => s.performed.includes(id)
+  const acceptableManeuvers = c.maneuver ? [c.maneuver.kind, ...(c.maneuverAlternatives ?? [])] : []
+  const maneuverImprovedBppv =
+    c.category === 'bppv' &&
+    c.maneuver !== null &&
+    s.maneuver !== null &&
+    s.maneuver.perfect &&
+    acceptableManeuvers.includes(s.maneuver.kind) &&
+    s.maneuver.side === c.maneuver.side
+  const expectedAtaxiaGrade = maneuverImprovedBppv ? 0 : c.ataxiaGrade
+  const highAtaxiaObserved = s.ataxiaHistory.some((grade) => grade >= 2)
 
   // ── 診察プロセス
   const missedRequired = c.required.filter((id) => !did(id))
@@ -88,17 +98,17 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
 
   // ── 起立・歩行の失調Grade
   const ataxiaAssessed = did('ex_ataxia')
-  const ataxiaOk = ataxiaAssessed && s.ataxiaAnswer === c.ataxiaGrade
+  const ataxiaOk = ataxiaAssessed && s.ataxiaAnswer === expectedAtaxiaGrade
   lines.push({
     label: '起立・歩行の失調Grade',
     earned: ataxiaOk ? MAX.ataxia : 0,
     max: MAX.ataxia,
     notes: [
       !ataxiaAssessed
-        ? `起立・歩行を評価していません。正解はGrade ${c.ataxiaGrade}`
+        ? `起立・歩行を評価していません。正解はGrade ${expectedAtaxiaGrade}`
         : ataxiaOk
-          ? `正解：Grade ${c.ataxiaGrade}`
-          : `あなたの選択：${s.ataxiaAnswer === null ? '未回答' : `Grade ${s.ataxiaAnswer}`} ／ 正解：Grade ${c.ataxiaGrade}`,
+          ? `正解：Grade ${expectedAtaxiaGrade}`
+          : `あなたの選択：${s.ataxiaAnswer === null ? '未回答' : `Grade ${s.ataxiaAnswer}`} ／ 正解：Grade ${expectedAtaxiaGrade}`,
     ],
   })
 
@@ -161,17 +171,25 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
       points: -30,
       reason: `MRI禁忌の患者に撮影を指示している。${c.mriContraindicated}`,
     })
-  } else if (c.imagingIndicated) {
+  } else if (c.imagingIndicated || highAtaxiaObserved) {
     if (!tookAny) {
       imagingEarned = 0
       imagingNotes.push(
-        `この症例では画像検査が必要でした（${c.imagingPreferred === 'ct' ? '頭部CT' : '頭部MRI'}）`,
+        highAtaxiaObserved
+          ? 'プレイ中にGrade 2以上の失調を認めたため、原則として画像検査が必要でした'
+          : `この症例では画像検査が必要でした（${c.imagingPreferred === 'ct' ? '頭部CT' : '頭部MRI'}）`,
       )
       deductions.push({ label: '画像を撮らなかった', points: -10, reason: '中枢性を疑う所見が揃っており、画像検査が必要でした' })
-    } else if ((c.imagingPreferred === 'ct' && tookCt) || (c.imagingPreferred === 'mri' && tookMri)) {
+    } else if (
+      highAtaxiaObserved ||
+      (c.imagingPreferred === 'ct' && tookCt) ||
+      (c.imagingPreferred === 'mri' && tookMri)
+    ) {
       imagingEarned = MAX.imaging
       imagingNotes.push(
-        c.imagingPreferred === 'ct'
+        highAtaxiaObserved
+          ? 'Grade 2以上の失調があったため画像検査を行いました'
+          : c.imagingPreferred === 'ct'
           ? '第一選択としてCTを選べています'
           : '画像検査の適応とMRIの選択、いずれも正しく判断しています',
       )

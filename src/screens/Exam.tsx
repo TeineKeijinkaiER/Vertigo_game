@@ -88,6 +88,15 @@ export function ExamScreen({
    */
   const performedManeuver = state.maneuver?.perfect ? state.maneuver : null
 
+  const maneuverKinds = caseDef.maneuver ? [caseDef.maneuver.kind, ...(caseDef.maneuverAlternatives ?? [])] : []
+  const maneuverImprovedBppv =
+    caseDef.category === 'bppv' &&
+    caseDef.maneuver !== null &&
+    state.maneuver !== null &&
+    state.maneuver.perfect &&
+    maneuverKinds.includes(state.maneuver.kind) &&
+    state.maneuver.side === caseDef.maneuver.side
+
   const perform = (actionId: string) => {
     if (actionId === 'as_dx') {
       setDxStep('type')
@@ -113,7 +122,9 @@ export function ExamScreen({
     const def = ACTIONS.find((a) => a.id === 'ex_ataxia')
     if (!def) return
     const raw = caseDef.findings.ex_ataxia ?? def.fallback
-    const observation = raw.replace(/^Grade [0-3]：\s*/, '')
+    const observation = maneuverImprovedBppv
+      ? '耳石置換法のあとに立位・歩行を再確認した。ふらつきはなく、問題なく歩行できる。'
+      : raw.replace(/^Grade [0-3]：\s*/, '')
     dispatch({ type: 'PERFORM', entry: { actionId: 'ex_ataxia', label: def.label, text: observation } })
     dispatch({ type: 'SET_ATAXIA', value: grade })
     setModal(null)
