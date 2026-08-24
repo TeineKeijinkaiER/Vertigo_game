@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { IMAGING_CRITERIA } from '../data/actions'
 import type { CaseDef } from '../data/types'
 import { Button, TypedText, Win } from '../components/ui'
@@ -8,6 +8,8 @@ import type { Action, GameState } from '../game/state'
 import { caseTitle } from '../data/cases'
 import { useRecordResult } from '../profile/useRecordResult'
 import type { PlayResult } from '../profile/types'
+import { useProfile } from '../profile/ProfileContext'
+import { buildPayload, sendResult } from '../telemetry/send'
 
 const RANK_COLOR: Record<string, string> = {
   S: 'var(--accent)',
@@ -50,6 +52,25 @@ export function ResultScreen({
     [step, caseDef, result.rank, result.total, result.ending, state.fromRandom],
   )
   useRecordResult(play)
+
+  // 送信も1回だけ。StrictMode の二重実行を ref で防ぐ
+  const { profile } = useProfile()
+  const sent = useRef(false)
+  useEffect(() => {
+    if (!play || sent.current) return
+    sent.current = true
+    void sendResult(
+      buildPayload({
+        play,
+        roleId: profile.roleId,
+        maneuverPerfect: state.maneuver?.perfect ?? null,
+        diagnosisCorrect: result.diagnosisCorrect,
+        sideCorrect: result.sideCorrect,
+        completedAt: Date.now(),
+        pageUrl: window.location.href,
+      }),
+    )
+  }, [play, profile.roleId, state.maneuver, result.diagnosisCorrect, result.sideCorrect])
 
   useEffect(() => {
     if (step === 'score') {
