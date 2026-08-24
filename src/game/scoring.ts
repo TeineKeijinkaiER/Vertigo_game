@@ -70,7 +70,9 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     acceptableManeuvers.includes(s.maneuver.kind) &&
     s.maneuver.side === c.maneuver.side
   const expectedAtaxiaGrade = maneuverImprovedBppv ? 0 : c.ataxiaGrade
-  const highAtaxiaObserved = s.ataxiaHistory.some((grade) => grade >= 2)
+  // 画像適応は「過去に一度でも」ではなく、最終評価でもGrade 2以上が続く場合だけ。
+  // BPPVが適切な耳石置換法で改善した場合は、改善後のGrade 0を優先する。
+  const highAtaxiaObserved = !maneuverImprovedBppv && s.ataxiaAnswer !== null && s.ataxiaAnswer >= 2
 
   // ── 診察プロセス
   const missedRequired = c.required.filter((id) => !did(id))

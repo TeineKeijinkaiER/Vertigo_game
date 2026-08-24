@@ -20,7 +20,7 @@
 - 起立・歩行を選択すると、Grade表記を隠したふらつきの観察所見を表示。
 - Grade 0〜3をプレイヤーが選択し、症例の正解Gradeを5点満点で採点。
 - BPPVで適切な耳石置換法後に再評価した場合は、立位・歩行をGrade 0として扱う。
-- プレイ中に一度でもGrade 2以上を記録した場合は、原則画像検査が必要として採点。
+- 最終評価でもGrade 2以上のふらつきが続く場合は、原則画像検査が必要として採点。BPPVが耳石置換法で改善した場合は画像不要。
 
 ### 引き継ぎ時の確認
 
@@ -28,4 +28,4 @@
 - 症例ごとの正解Gradeは `CaseDef.ataxiaGrade` に定義する。
 - Gradeの回答は `GameState.ataxiaAnswer` に保存し、`scoreGame()` の「起立・歩行の失調Grade」で採点する。
 - 起立・歩行のUIは `src/screens/Exam.tsx` の `modal === 'ataxia'` に実装している。
-- Gradeの履歴は `GameState.ataxiaHistory` に保存し、画像適応の判定に使う。
+- Gradeの履歴は `GameState.ataxiaHistory` に保存する。画像適応は最終的な `ataxiaAnswer` と改善後の状態で判定する。
