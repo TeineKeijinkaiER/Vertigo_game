@@ -1,8 +1,11 @@
 import { CASES, CATEGORY_LABELS, caseTitle } from '../data/cases'
 import { Button, MenuItem, Win } from '../components/ui'
 import type { Action } from '../game/state'
+import { useProfile } from '../profile/ProfileContext'
+import { clearOf } from '../profile/storage'
 
 export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }) {
+  const { profile } = useProfile()
   const start = (id: number) => dispatch({ type: 'START_CASE', caseId: id, fromRandom: false })
 
   // カテゴリごとに全症例を並べる。ラベルは最終診断で選ぶ名前と揃える
@@ -22,6 +25,13 @@ export function CaseSelectScreen({ dispatch }: { dispatch: (a: Action) => void }
                 key={c.id}
                 label={caseTitle(c)}
                 hint={`${c.age}${c.gender}`}
+                note={
+                  clearOf(profile, c.id)?.bestRank === 'S'
+                    ? '☆'
+                    : clearOf(profile, c.id)?.firstClearedAt
+                      ? '✔'
+                      : undefined
+                }
                 onSelect={() => start(c.id)}
               />
             ))}

@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { IMAGING_CRITERIA } from '../data/actions'
 import type { CaseDef } from '../data/types'
 import { Button, TypedText, Win } from '../components/ui'
 import { sfxFanfare, sfxGameOver } from '../audio/sfx'
 import { scoreGame } from '../game/scoring'
 import type { Action, GameState } from '../game/state'
+import { caseTitle } from '../data/cases'
+import { useRecordResult } from '../profile/useRecordResult'
+import type { PlayResult } from '../profile/types'
 
 const RANK_COLOR: Record<string, string> = {
   S: 'var(--accent)',
@@ -28,6 +31,25 @@ export function ResultScreen({
   const result = scoreGame(caseDef, state)
   const [step, setStep] = useState<Step>(result.showsDay2 ? 'day2' : 'ending')
   const isBad = result.ending === 'worst'
+
+  // 記録はスコア画面に到達した時点で確定する。
+  // それ以前は null を渡して useRecordResult を黙らせておく。
+  const play: PlayResult | null = useMemo(
+    () =>
+      step === 'score' || step === 'review'
+        ? {
+            caseId: caseDef.id,
+            caseTitle: caseTitle(caseDef),
+            category: caseDef.category,
+            rank: result.rank,
+            score: result.total,
+            ending: result.ending,
+            fromRandom: state.fromRandom,
+          }
+        : null,
+    [step, caseDef, result.rank, result.total, result.ending, state.fromRandom],
+  )
+  useRecordResult(play)
 
   useEffect(() => {
     if (step === 'score') {

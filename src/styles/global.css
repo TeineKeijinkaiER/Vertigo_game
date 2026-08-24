@@ -626,3 +626,81 @@ button {
   color: var(--dim);
   font-size: 12px;
 }
+
+/* ── タブ行 ─────────────────────────────────────── */
+.tabrow {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+  overflow-x: auto;
+}
+
+.tabrow-btn {
+  flex: 1 1 auto;
+  padding: 5px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--dim);
+  border: 1px solid var(--dim);
+  border-radius: 3px;
+  background: var(--navy);
+}
+
+.tabrow-btn.is-on {
+  color: var(--navy-deep);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ── クリア記録・履歴の一覧 ─────────────────────────── */
+.reclist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recrow {
+  display: grid;
+  grid-template-columns: 1.6em 1fr auto;
+  gap: 2px 8px;
+  align-items: baseline;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(154, 164, 200, 0.25);
+  font-size: 13px;
+}
+
+.recrow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.recmark {
+  color: var(--dim);
+  text-align: center;
+}
+
+.recmark.is-clear {
+  color: var(--accent);
+}
+
+.recname {
+  min-width: 0;
+}
+
+.recmeta {
+  color: var(--dim);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.recdate {
+  grid-column: 2 / -1;
+  font-size: 11px;
+}
+
+.recempty {
+  color: var(--dim);
+  font-size: 13px;
+  text-align: center;
+  padding: 12px 0;
+}
