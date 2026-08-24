@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useReducer, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useReducer, useState } from 'react'
 import { CASE_MAP } from './data/cases'
 import { initialState, reducer } from './game/state'
 import { AppHeader, type Overlay } from './components/AppHeader'
@@ -15,6 +15,8 @@ import { BppvLearnScreen } from './screens/BppvLearn'
 import { ExamScreen } from './screens/Exam'
 import { DiagnosisScreen, DispositionScreen } from './screens/Decision'
 import { ResultScreen } from './screens/Result'
+import { startMusic, stopMusic } from './audio/music'
+import { setSoundEnabled } from './audio/sfx'
 
 const ManeuverRigPrototype = lazy(() =>
   import('./prototypes/ManeuverRigPrototype').then((module) => ({ default: module.ManeuverRigPrototype })),
@@ -47,6 +49,28 @@ export default function App() {
   const { profile } = useProfile()
   const openRolePick = useCallback(() => setOverlay('role'), [])
   const { guard, resume, cancel } = useRoleGate(profile.roleId, openRolePick)
+
+  // ミュートは BGM と効果音の両方を止める
+  useEffect(() => {
+    setSoundEnabled(!profile.muted)
+  }, [profile.muted])
+
+  useEffect(() => {
+    if (profile.muted) {
+      stopMusic()
+      return
+    }
+    // メニューを触っているあいだは診察が止まっているので opening に切り替える。
+    // ただし結果画面の上で開いたときだけは、ファンファーレの直後に
+    // 曲が始まると興を削ぐので停止したままにする。
+    if (state.phase === 'result') {
+      stopMusic()
+      return
+    }
+    const menuish =
+      overlay !== null || state.phase === 'title' || state.phase === 'select' || state.phase === 'learn'
+    startMusic(menuish ? 'opening' : 'exam')
+  }, [profile.muted, overlay, state.phase])
 
   const close = () => setOverlay(null)
 
