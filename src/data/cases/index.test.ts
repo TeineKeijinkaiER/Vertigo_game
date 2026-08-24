@@ -131,6 +131,22 @@ describe('末梢性症例の眼振', () => {
     }
   })
 
+  // Frenzel眼鏡は固視を外す道具で、末梢性の眼振は固視を外した分だけ増強する。
+  // 「Frenzelで減弱しない」のように向きを取り違えた記述を書いてしまわないよう、
+  // 描画データの側でも増強することを固定しておく。
+  // 中枢性は固視で抑制されないため増強とは限らず、この規則は末梢性だけに課す。
+  it('固視を外すと自発眼振より増強する', () => {
+    for (const c of peripheral) {
+      const spont = c.nystagmus?.eye_spont?.horizontal
+      const frenzel = c.nystagmus?.eye_frenzel?.horizontal
+      if (!spont || !frenzel) continue
+      expect(
+        Math.abs(frenzel),
+        `症例${c.id}：Frenzelで固視を外したのに眼振が増強していない`,
+      ).toBeGreaterThan(Math.abs(spont))
+    }
+  })
+
   // 患側の機能低下でも過興奮でも、水平成分と回旋成分は同じ耳へ向かって打つ。
   // 符号が食い違っていれば、どちらかの向きを取り違えている。
   it('水平成分と回旋成分は同じ向きに打つ', () => {
