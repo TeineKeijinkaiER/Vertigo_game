@@ -179,7 +179,7 @@ export function ResultScreen({
 
       <div className="row">
         <Button
-          onClick={() => dispatch({ type: 'START_CASE', caseId: caseDef.id, fromRandom: state.fromRandom })}
+          onClick={() => dispatch({ type: 'START_CASE', caseId: caseDef.id, fromRandom: false })}
         >
           もういちど
         </Button>
