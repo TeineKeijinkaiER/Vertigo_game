@@ -211,6 +211,14 @@ export const SUBTYPES: Record<Exclude<VestibularChoice, 'none'>, { id: string; l
   ],
 }
 
+/** かんべつ②で患側もたずねる鑑別ID（BPPV3型・メニエール病・前庭神経炎） */
+const LATERALIZED_SUBTYPES = ['sub_vn', 'sub_meniere', 'sub_pc_bppv', 'sub_hc_geo', 'sub_hc_apo']
+
+/** この鑑別を選んだときに、かんべつ②で患側も答えさせるか */
+export function subtypeAsksSide(subtype: string | null): boolean {
+  return subtype !== null && LATERALIZED_SUBTYPES.includes(subtype)
+}
+
 /**
  * 最終診断の選択肢。症例ごとの4択ではなく、全症例の鑑別を並べたマスタから選ばせる。
  * 見出しごとに分けて表示する。

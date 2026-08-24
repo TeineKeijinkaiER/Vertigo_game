@@ -1,5 +1,5 @@
 import type { ManeuverAttempt } from '../data/maneuvers'
-import { asksSide } from '../data/actions'
+import { asksSide, subtypeAsksSide } from '../data/actions'
 import type { VestibularChoice } from '../data/actions'
 import type { AtaxiaGrade, Side } from '../data/types'
 
@@ -34,6 +34,7 @@ export interface GameState {
   log: LogEntry[]
   vestibularAnswer: VestibularChoice | null
   subtypeAnswer: string | null
+  subtypeSideAnswer: Side
   criteriaAnswers: boolean[]
   /** 起立・歩行の観察後にプレイヤーが選んだ失調Grade */
   ataxiaAnswer: AtaxiaGrade | null
@@ -54,6 +55,7 @@ export const initialState: GameState = {
   log: [],
   vestibularAnswer: null,
   subtypeAnswer: null,
+  subtypeSideAnswer: null,
   criteriaAnswers: [false, false, false, false],
   ataxiaAnswer: null,
   ataxiaHistory: [],
@@ -69,6 +71,7 @@ export type Action =
   | { type: 'PERFORM'; entry: LogEntry }
   | { type: 'SET_VESTIBULAR'; value: VestibularChoice }
   | { type: 'SET_SUBTYPE'; value: string }
+  | { type: 'SET_SUBTYPE_SIDE'; value: Side }
   | { type: 'TOGGLE_CRITERION'; index: number }
   | { type: 'SET_ATAXIA'; value: AtaxiaGrade }
   | { type: 'CONFIRM_ASSESS'; id: 'as_dx' | 'im_criteria' }
@@ -98,11 +101,19 @@ export function reducer(state: GameState, action: Action): GameState {
       }
 
     case 'SET_VESTIBULAR':
-      // 分類を選び直したら細かい鑑別はいったん白紙に戻す
-      return { ...state, vestibularAnswer: action.value, subtypeAnswer: null }
+      // 分類を選び直したら細かい鑑別と患側はいったん白紙に戻す
+      return { ...state, vestibularAnswer: action.value, subtypeAnswer: null, subtypeSideAnswer: null }
 
+    // 患側を問わない鑑別に選び直したら、患側の回答は残さない
     case 'SET_SUBTYPE':
-      return { ...state, subtypeAnswer: action.value }
+      return {
+        ...state,
+        subtypeAnswer: action.value,
+        subtypeSideAnswer: subtypeAsksSide(action.value) ? state.subtypeSideAnswer : null,
+      }
+
+    case 'SET_SUBTYPE_SIDE':
+      return { ...state, subtypeSideAnswer: action.value }
 
     case 'TOGGLE_CRITERION': {
       const next = [...state.criteriaAnswers]
