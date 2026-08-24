@@ -11,3 +11,6 @@
 
 `googleSheetsWebAppUrl` が空、または `/exec` で終わる Apps Script の URL でない場合、
 アプリは何も送信しない。
+
+ゲーム結果は `vertigo_results` シートに、BPPV学習画面でどの型を参照したかは
+`bppv_learn_views` シートに、それぞれ自動で作成・記録される。
