@@ -1,8 +1,11 @@
-import { lazy, Suspense, useReducer, useState } from 'react'
+import { lazy, Suspense, useCallback, useReducer, useState } from 'react'
 import { CASE_MAP } from './data/cases'
 import { initialState, reducer } from './game/state'
 import { AppHeader, type Overlay } from './components/AppHeader'
 import { HowtoScreen } from './screens/Howto'
+import { RolePickScreen } from './screens/RolePick'
+import { useProfile } from './profile/ProfileContext'
+import { useRoleGate } from './profile/useRoleGate'
 import { TitleScreen } from './screens/Title'
 import { CaseSelectScreen } from './screens/CaseSelect'
 import { BriefScreen } from './screens/Brief'
@@ -39,13 +42,25 @@ export default function App() {
   const [overlay, setOverlay] = useState<Overlay>(null)
   const caseDef = state.caseId !== null ? CASE_MAP.get(state.caseId) : undefined
 
+  const { profile } = useProfile()
+  const openRolePick = useCallback(() => setOverlay('role'), [])
+  const { guard, resume, cancel } = useRoleGate(profile.roleId, openRolePick)
+
   const close = () => setOverlay(null)
 
   const screen = () => {
     if (state.phase === 'select') return <CaseSelectScreen dispatch={dispatch} />
     if (state.phase === 'learn') return <BppvLearnScreen dispatch={dispatch} />
     // 症例が解決できない場合もタイトルに戻す（データ不整合の保険）
-    if (state.phase === 'title' || !caseDef) return <TitleScreen dispatch={dispatch} />
+    if (state.phase === 'title' || !caseDef)
+      return (
+        <TitleScreen
+          dispatch={dispatch}
+          roleId={profile.roleId}
+          onChangeRole={() => setOverlay('role')}
+          guard={guard}
+        />
+      )
     if (state.phase === 'brief') return <BriefScreen caseDef={caseDef} dispatch={dispatch} />
     if (state.phase === 'exam') return <ExamScreen caseDef={caseDef} state={state} dispatch={dispatch} />
     if (state.phase === 'diagnosis') return <DiagnosisScreen state={state} dispatch={dispatch} />
@@ -56,7 +71,22 @@ export default function App() {
   return (
     <div className="app">
       <AppHeader onOpen={setOverlay} />
-      {overlay === 'howto' ? <HowtoScreen onClose={close} /> : screen()}
+      {overlay === 'howto' ? (
+        <HowtoScreen onClose={close} />
+      ) : overlay === 'role' ? (
+        <RolePickScreen
+          onDone={() => {
+            setOverlay(null)
+            resume()
+          }}
+          onCancel={() => {
+            setOverlay(null)
+            cancel()
+          }}
+        />
+      ) : (
+        screen()
+      )}
     </div>
   )
 }
