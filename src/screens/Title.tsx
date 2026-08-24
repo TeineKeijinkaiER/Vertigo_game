@@ -54,16 +54,10 @@ export function TitleScreen({
         </div>
       </Win>
       <button type="button" className="rolechip" onClick={onChangeRole}>
-        <span className="rolechip-label">しょくしゅ</span>
+        <span className="rolechip-label">しょくぎょう</span>
         <span className="rolechip-value">{roleName(roleId)}</span>
         <span className="rolechip-action">▸ かえる</span>
       </button>
-      <Win title="このゲームについて">
-        <p className="msg small dim" style={{ margin: 0 }}>
-          あなたは救急外来の当直医です。搬送されてきためまい患者を、自分でコマンドを選んで診察し、診断・治療・方針を決めてください。
-          {'\n'}やらなかった診察の情報は最後まで得られません。不要な検査は減点されます。
-        </p>
-      </Win>
       <div className="grow" />
       <Button onClick={() => guard(startRandom)}>すぐにはじめる</Button>
     </div>

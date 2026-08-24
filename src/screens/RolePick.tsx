@@ -12,7 +12,7 @@ export function RolePickScreen({ onDone, onCancel }: { onDone: () => void; onCan
 
   return (
     <div className="stack grow scroll">
-      <Win title="しょくしゅをえらぶ">
+      <Win title="しょくぎょうをえらぶ">
         <p className="msg small dim" style={{ margin: '0 0 8px' }}>
           学習状況の集計に使います。個人を特定する情報は送りません。
         </p>

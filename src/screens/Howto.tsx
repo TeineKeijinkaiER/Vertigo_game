@@ -22,7 +22,8 @@ export function HowtoScreen({ onClose }: { onClose: () => void }) {
       <Win title="てんすうのつきかた">
         <p className="msg small" style={{ margin: 0 }}>
           やらなかった診察の情報は最後まで得られません。
-          {'\n'}不要な検査と、禁忌にあたる方針は減点されます。
+          {'\n'}不要な診察や検査をしても減点されません。
+          {'\n'}ただし、禁忌にあたる方針は減点されます。
           {'\n'}起立・歩行の評価は指鼻試験より感度が高い診察です。省くと減点されます。
         </p>
       </Win>
@@ -38,13 +39,19 @@ export function HowtoScreen({ onClose }: { onClose: () => void }) {
           成績は「きろく」、遊んだ記録は「りれき」で見られます。
         </p>
       </Win>
-      <Win title="しょくしゅ と おくられるデータ">
+      <Win title="しょくぎょう と おくられるデータ">
         <p className="msg small" style={{ margin: 0 }}>
           学習状況を集計するため、症例を解き終えるたびに
-          <span className="accent">職種と成績</span>を送信します。
+          <span className="accent">職業と成績</span>を送信します。
           {'\n'}氏名・端末の情報・メールアドレスなど、
           <span className="accent">個人を特定する情報は一切送りません</span>。
           {'\n'}送信に失敗してもゲームは止まりません。
+        </p>
+      </Win>
+      <Win title="めんせきじこう">
+        <p className="msg small" style={{ margin: 0 }}>
+          このゲームは医学教育を目的としたシミュレーションです。実際の患者さんの診断・治療を行う際は、所属施設の方針や最新のガイドラインに従い、必要に応じて専門家へ相談してください。
+          {'\n'}このゲームの内容だけで実際の診療を判断しないでください。
         </p>
       </Win>
       <Win title="こうしんりれき">

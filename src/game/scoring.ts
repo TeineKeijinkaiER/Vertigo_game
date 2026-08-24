@@ -175,13 +175,8 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
       imagingEarned = MAX.imaging
       imagingNotes.push('必須ではありませんが、中枢性を除外するために画像を撮る判断は妥当です')
     } else {
-      imagingEarned = Math.round(MAX.imaging / 2)
-      imagingNotes.push('所見が典型的であり、この症例で画像検査は不要でした')
-      deductions.push({
-        label: tookMri ? '頭部MRIを撮る' : '頭部CTを撮る',
-        points: -3,
-        reason: '所見が典型的であり画像検査は不要でした',
-      })
+      imagingEarned = MAX.imaging
+      imagingNotes.push('画像検査は不要な症例でしたが、実施しても減点されません')
     }
   }
   lines.push({ label: '画像検査の判断', earned: imagingEarned, max: MAX.imaging, notes: imagingNotes })
@@ -236,7 +231,7 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
       ],
     })
   } else if (attempt) {
-    deductions.push({ label: '耳石置換法', points: -10, reason: 'この症例に耳石置換法の適応はありません' })
+    // 適応外の手技を実施しても、不要な診察・検査と同様に減点しない。
   }
 
   // ── 方針
@@ -268,9 +263,7 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
     })
   }
 
-  for (const p of c.penalties) {
-    if (did(p.id)) deductions.push({ label: label(p.id), points: p.points, reason: p.reason })
-  }
+  // 不要な診察・検査を実施しても減点しない。必要な診察を省いた場合の評価は上で行う。
 
   const earned = lines.reduce((a, l) => a + l.earned, 0)
   const maxSum = lines.reduce((a, l) => a + l.max, 0)
