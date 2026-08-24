@@ -30,10 +30,10 @@ export const case07: CaseDef = {
     eye_frenzel: 'Frenzel眼鏡下で眼振は明瞭となり、振幅が増大する。方向は右向きのまま。',
     eye_fixation: '固視により眼振は減弱する。固視を外すと増強する（末梢性のパターン）。',
     eye_gaze: '右方注視で眼振増強、左方注視では方向は変わらず振幅のみ減少。方向不変性の水平眼振。',
-    eye_dh_r: '右Dix-Hallpike：後半規管由来の回旋眼振は誘発されない。',
-    eye_dh_l: '左Dix-Hallpike：後半規管由来の回旋眼振は誘発されない。',
-    eye_roll_r: '右耳下：BPPV様の短時間眼振は誘発されない。',
-    eye_roll_l: '左耳下：BPPV様の短時間眼振は誘発されない。',
+    eye_dh_r: '右Dix-Hallpike：後半規管由来の回旋眼振は誘発されない。自発眼振がそのまま持続する。',
+    eye_dh_l: '左Dix-Hallpike：後半規管由来の回旋眼振は誘発されない。自発眼振がそのまま持続する。',
+    eye_roll_r: '右耳下：BPPV様の短時間眼振は誘発されない。自発眼振が頭位に関わらず持続する。',
+    eye_roll_l: '左耳下：BPPV様の短時間眼振は誘発されない。自発眼振が頭位に関わらず持続する。',
     eye_hit: 'HIT：左側でわずかに補償性サッケードを認めるが、明瞭ではない。',
     eye_skew: '交代遮蔽で垂直方向のずれを認めない。Test of Skew：陰性。',
 
@@ -83,6 +83,12 @@ export const case07: CaseDef = {
       gazeOffset: 14,
       caption: '右方注視で増強。方向は不変',
     },
+    // 発作中の自発眼振は頭位を変えても打ち続ける。体位で誘発されるBPPVとの決定的な違いなので、
+    // 頭位検査でも同じ眼振を見せる（静止した眼を描くと自発眼振の所見と食い違う）
+    eye_dh_r: { horizontal: 6, torsional: 5, frequency: 2.8, caption: '自発眼振がそのまま持続。頭位性眼振は誘発されない' },
+    eye_dh_l: { horizontal: 6, torsional: 5, frequency: 2.8, caption: '自発眼振がそのまま持続。頭位性眼振は誘発されない' },
+    eye_roll_r: { horizontal: 6, torsional: 5, frequency: 2.8, caption: '頭位に関わらず同じ眼振が続く' },
+    eye_roll_l: { horizontal: 6, torsional: 5, frequency: 2.8, caption: '頭位に関わらず同じ眼振が続く' },
   },
 
   redFlagActions: [],

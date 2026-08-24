@@ -42,6 +42,25 @@ describe('末梢性症例の眼振', () => {
     }
   })
 
+  // 自発眼振が出ている時期の末梢性めまいでは、眼振は頭位を変えても同じ向きに打ち続ける
+  // （体位で誘発されるBPPVとの決定的な違い）。頭位検査の眼振を定義し忘れると
+  // 「眼振なし」として静止した眼が描かれ、自発眼振の所見文と矛盾する。
+  it('自発眼振があれば頭位検査でも同じ向きに打ち続ける', () => {
+    const positional = ['eye_dh_r', 'eye_dh_l', 'eye_roll_r', 'eye_roll_l']
+    for (const c of peripheral) {
+      const spont = c.nystagmus?.eye_spont
+      if (!spont?.horizontal) continue
+      for (const actionId of positional) {
+        const spec = c.nystagmus?.[actionId]
+        expect(spec?.horizontal, `症例${c.id} ${actionId}：自発眼振は頭位を変えても持続する`).toBeTruthy()
+        expect(
+          Math.sign(spec?.horizontal ?? 0),
+          `症例${c.id} ${actionId}：自発眼振と向きが食い違っている`,
+        ).toBe(Math.sign(spont.horizontal))
+      }
+    }
+  })
+
   // 患側の機能低下でも過興奮でも、水平成分と回旋成分は同じ耳へ向かって打つ。
   // 符号が食い違っていれば、どちらかの向きを取り違えている。
   it('水平成分と回旋成分は同じ向きに打つ', () => {
