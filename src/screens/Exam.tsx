@@ -80,6 +80,10 @@ export function ExamScreen({
   const lastKey = state.log.length - 1
   const criteriaDone = state.performed.includes('im_criteria')
   const lastPositionalFilm = last && POSITIONAL_ACTIONS.includes(last.actionId) ? examFilmForAction(last.actionId) : null
+  const showingImagingResult = last !== undefined && IMAGING_ORDERS.includes(last.actionId)
+  // 適応を確認した直後は、前の診察所見ではなく適応4項目を主表示にする。
+  // CT/MRI を実施したら、その結果が主表示を置き換える。
+  const showImagingCriteria = group === 'imaging' && criteriaDone && !showingImagingResult
 
   /**
    * 手技のアニメーションは、実際に施行した手順が（その手技・患側として）正しく
@@ -187,7 +191,7 @@ export function ExamScreen({
           </p>
         </Win>
         <Win title="失調Gradeを選ぶ">
-          <div className="menu">
+          <div className="menu ataxia-grade-menu">
             {ATAXIA_GRADES.map((option) => (
               <MenuItem
                 key={option.grade}
@@ -386,7 +390,24 @@ export function ExamScreen({
       </Win>
 
       <Win className="grow scroll">
-        {last ? (
+        {showImagingCriteria ? (
+          <>
+            <div className="win-title">画像検査の適応</div>
+            <p className="msg small dim" style={{ margin: '0 0 8px' }}>
+              選択した項目です。次にCTまたはMRIを選んでください。
+            </p>
+            <div className="criteria-summary">
+              {IMAGING_CRITERIA.map((criterion, index) => (
+                <div className="criteria-summary-item" key={criterion}>
+                  <span className={state.criteriaAnswers[index] ? 'safe' : 'dim'}>
+                    {state.criteriaAnswers[index] ? '✔' : '−'}
+                  </span>
+                  <span>{criterion}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : last ? (
           <>
             <div className="win-title">{last.label}</div>
             {/* key は log の位置。兄弟間で重複させないのに加え、同じ手技を選び直したときも
@@ -434,7 +455,15 @@ export function ExamScreen({
         <Win title="コマンド">
           <div className="menu">
             {ACTION_GROUPS.map((g) => (
-              <MenuItem key={g.id} label={g.label} onSelect={() => setGroup(g.id)} />
+              <MenuItem
+                key={g.id}
+                label={g.label}
+                onSelect={() => {
+                  setGroup(g.id)
+                  // 画像検査では、まず全員が適応4項目を確認する。
+                  if (g.id === 'imaging' && !criteriaDone) setModal('criteria')
+                }}
+              />
             ))}
             <MenuItem label="最終診断" hint="診察をおえて診断する" onSelect={() => setConfirmEnd(true)} />
           </div>

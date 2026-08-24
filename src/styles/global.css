@@ -133,6 +133,33 @@ button {
   color: var(--safe);
 }
 
+/* 長い説明文に押されても「Grade 2」の数字だけが折り返さないようにする */
+.ataxia-grade-menu .menu-item .label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.ataxia-grade-menu .menu-item .hint {
+  flex: 1 1 auto;
+  text-align: right;
+}
+
+.criteria-summary {
+  display: grid;
+  gap: 6px;
+}
+
+.criteria-summary-item {
+  display: grid;
+  grid-template-columns: 1.2em minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 7px 0;
+  border-bottom: 1px dotted #2c3468;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 /* ── BPPV学習 ────────────────────────────── */
 .learn-select {
   width: 100%;
