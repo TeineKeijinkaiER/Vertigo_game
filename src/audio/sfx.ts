@@ -1,27 +1,12 @@
 /**
- * v0.1 は効果音のみ（BGM は v0.2）。
- * Web Audio API で合成するため音源ファイルは不要。
- * iOS Safari は最初のユーザー操作まで AudioContext が suspended なので、
- * タイトル画面のタップで unlock() を呼ぶ。
+ * 効果音。Web Audio API で合成するため音源ファイルは不要。
+ * AudioContext は BGM と共有する（audio/context.ts）。
  */
+import { getAudioContext, unlockAudio } from './context'
 
-let ctx: AudioContext | null = null
 let enabled = true
 
-function getCtx(): AudioContext | null {
-  if (typeof window === 'undefined') return null
-  if (!ctx) {
-    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-    if (!AC) return null
-    ctx = new AC()
-  }
-  return ctx
-}
-
-export function unlockAudio(): void {
-  const c = getCtx()
-  if (c && c.state === 'suspended') void c.resume()
-}
+export { unlockAudio }
 
 export function setSoundEnabled(v: boolean): void {
   enabled = v
@@ -34,7 +19,7 @@ export function isSoundEnabled(): boolean {
 type Wave = OscillatorType
 
 function tone(freq: number, start: number, dur: number, wave: Wave, gain: number): void {
-  const c = getCtx()
+  const c = getAudioContext()
   if (!c) return
   const osc = c.createOscillator()
   const amp = c.createGain()
@@ -50,7 +35,7 @@ function tone(freq: number, start: number, dur: number, wave: Wave, gain: number
 
 function play(notes: [freq: number, at: number, dur: number][], wave: Wave = 'square', gain = 0.06): void {
   if (!enabled) return
-  const c = getCtx()
+  const c = getAudioContext()
   if (!c) return
   if (c.state === 'suspended') void c.resume()
   for (const [f, at, d] of notes) tone(f, at, d, wave, gain)
