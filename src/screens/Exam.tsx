@@ -8,6 +8,7 @@ import {
   IMAGING_CRITERIA,
   MODAL_ACTIONS,
   SUBTYPES,
+  subtypeAsksSide,
   VESTIBULAR_TYPES,
   type VestibularChoice,
 } from '../data/actions'
@@ -272,6 +273,7 @@ export function ExamScreen({
     }
 
     // ② その分類のなかで疾患名まで絞る
+    const needsSubtypeSide = subtypeAsksSide(state.subtypeAnswer)
     return (
       <div className="stack grow scroll">
         <Win title={`かんべつ②　${cls} なら何を考えますか`}>
@@ -287,6 +289,22 @@ export function ExamScreen({
             ))}
           </div>
         </Win>
+        {needsSubtypeSide && (
+          <Win title="患側">
+            <div className="menu">
+              <MenuItem
+                label="右"
+                checked={state.subtypeSideAnswer === 'R'}
+                onSelect={() => dispatch({ type: 'SET_SUBTYPE_SIDE', value: 'R' })}
+              />
+              <MenuItem
+                label="左"
+                checked={state.subtypeSideAnswer === 'L'}
+                onSelect={() => dispatch({ type: 'SET_SUBTYPE_SIDE', value: 'L' })}
+              />
+            </div>
+          </Win>
+        )}
         <div className="grow" />
         <div className="row">
           <Button
@@ -299,7 +317,11 @@ export function ExamScreen({
           </Button>
           <Button
             variant="primary"
-            disabled={cls === null || (cls !== 'none' && state.subtypeAnswer === null)}
+            disabled={
+              cls === null ||
+              (cls !== 'none' && state.subtypeAnswer === null) ||
+              (needsSubtypeSide && state.subtypeSideAnswer === null)
+            }
             onClick={() => {
               dispatch({ type: 'CONFIRM_ASSESS', id: 'as_dx' })
               setModal(null)
@@ -459,6 +481,8 @@ export function ExamScreen({
                 key={g.id}
                 label={g.label}
                 onSelect={() => {
+                  // かんべつは項目が1つしかないので、中間メニューを経由せず分類選択のモーダルへ直接入る
+                  if (g.id === 'assess') return perform('as_dx')
                   setGroup(g.id)
                   // 画像検査では、まず全員が適応4項目を確認する。
                   if (g.id === 'imaging' && !criteriaDone) setModal('criteria')
