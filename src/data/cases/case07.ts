@@ -26,7 +26,7 @@ export const case07: CaseDef = {
     hx_meds: '常用薬はない。発作時に市販の酔い止めを飲むことがある。',
 
     eye_spont:
-      '座位で右向きの水平性眼振を認める。方向は不変で、仰臥位でも持続する。\n\nメニエール病では発作初期に患側向きの刺激性眼振が出て、やがて健側向きの麻痺性眼振へ転じる。発症2時間で右向き（健側向き）である本例は、左前庭の機能低下期にあたる。',
+      '座位で右向きの水平回旋性眼振を認める。方向は不変で、仰臥位でも持続する。\n\nメニエール病では発作初期に患側向きの刺激性眼振が出て、やがて健側向きの麻痺性眼振へ転じる。発症2時間で右向き（健側向き）である本例は、左前庭の機能低下期にあたる。',
     eye_frenzel: 'Frenzel眼鏡下で眼振は明瞭となり、振幅が増大する。方向は右向きのまま。',
     eye_fixation: '固視により眼振は減弱する。固視を外すと増強する（末梢性のパターン）。',
     eye_gaze: '右方注視で眼振増強、左方注視では方向は変わらず振幅のみ減少。方向不変性の水平眼振。',
@@ -54,17 +54,31 @@ export const case07: CaseDef = {
     tx_primperan: 'プリンペラン 1A（10mg）+ 生食50mLを15分で投与。嘔気が治まり、水分を飲めるようになった。',
   },
 
+  // 末梢性なので水平回旋混合性で描く。左前庭の機能低下期にあたり、水平・回旋とも
+  // 健側（右）へ向かって打つため、どちらも正の値になる（前庭神経炎の症例6と同じ向き）
   nystagmus: {
-    eye_spont: { horizontal: 6, frequency: 2.8, caption: '右向き水平性眼振（固視により減弱している）' },
+    eye_spont: {
+      horizontal: 6,
+      torsional: 5,
+      frequency: 2.8,
+      caption: '右向き水平回旋性眼振（固視により減弱している）',
+    },
     eye_frenzel: {
       frenzel: true,
       horizontal: 11,
+      torsional: 9,
       frequency: 3,
       caption: '固視を外すと振幅が増大。向きは右向きのまま変わらない',
     },
-    eye_fixation: { horizontal: 6, frequency: 2.8, caption: '固視で減弱する ＝ 末梢性のパターン' },
+    eye_fixation: {
+      horizontal: 6,
+      torsional: 5,
+      frequency: 2.8,
+      caption: '固視で減弱する ＝ 末梢性のパターン',
+    },
     eye_gaze: {
       horizontal: 9,
+      torsional: 7,
       frequency: 3,
       gazeOffset: 14,
       caption: '右方注視で増強。方向は不変',
