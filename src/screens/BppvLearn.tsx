@@ -3,16 +3,41 @@ import { BPPV_LESSONS, type BppvLessonId } from '../data/bppvLessons'
 import { Button, Win } from '../components/ui'
 import { filmPoseReachedAfterMs, ManeuverFilm } from '../components/ManeuverFilm'
 import { Nystagmus } from '../components/Nystagmus'
+import { useProfile } from '../profile/ProfileContext'
+import { buildBppvLearnPayload, sendBppvLearnView } from '../telemetry/send'
 import type { Action } from '../game/state'
 
 export function BppvLearnScreen({ dispatch }: { dispatch: (a: Action) => void }) {
   const [selectedId, setSelectedId] = useState<BppvLessonId>('pc_r')
   const lesson = BPPV_LESSONS.find((item) => item.id === selectedId) ?? BPPV_LESSONS[0]
+  const { profile } = useProfile()
+
+  // 実際に選択が変わったときだけ記録する。開いた直後の初期表示（pc_r）や、
+  // 同じ型を選び直したときは送らない（テスト環境では change イベントが値の異同に
+  // 関わらず発火しうるため、ここで明示的に比較する）
+  const selectLesson = (id: BppvLessonId) => {
+    if (id === selectedId) return
+    setSelectedId(id)
+    const next = BPPV_LESSONS.find((item) => item.id === id)
+    if (!next) return
+    void sendBppvLearnView(
+      buildBppvLearnPayload({
+        lesson: next,
+        roleId: profile.roleId,
+        viewedAt: Date.now(),
+        pageUrl: window.location.href,
+      }),
+    )
+  }
 
   return (
     <div className="stack grow scroll">
       <Win title="型と患側をえらぶ">
-        <select className="learn-select" value={selectedId} onChange={(event) => setSelectedId(event.target.value as BppvLessonId)}>
+        <select
+          className="learn-select"
+          value={selectedId}
+          onChange={(event) => selectLesson(event.target.value as BppvLessonId)}
+        >
           {(['後半規管', '水平半規管・向地性', '水平半規管・背地性（クプラ結石）'] as const).map((family) => (
             <optgroup key={family} label={family}>
               {BPPV_LESSONS.filter((item) => item.family === family).map((item) => (
