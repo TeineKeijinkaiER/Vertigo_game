@@ -4,6 +4,7 @@ import { initialState, reducer } from './game/state'
 import { AppHeader, type Overlay } from './components/AppHeader'
 import { HowtoScreen } from './screens/Howto'
 import { ClearsScreen } from './screens/Clears'
+import { HistoryScreen } from './screens/History'
 import { RolePickScreen } from './screens/RolePick'
 import { useProfile } from './profile/ProfileContext'
 import { useRoleGate } from './profile/useRoleGate'
@@ -76,6 +77,8 @@ export default function App() {
         <HowtoScreen onClose={close} />
       ) : overlay === 'clears' ? (
         <ClearsScreen onClose={close} />
+      ) : overlay === 'history' ? (
+        <HistoryScreen onClose={close} />
       ) : overlay === 'role' ? (
         <RolePickScreen
           onDone={() => {
