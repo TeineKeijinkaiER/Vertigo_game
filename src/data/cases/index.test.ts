@@ -21,6 +21,33 @@ describe('caseTitle', () => {
   })
 })
 
+/** 頭位変換で所見をとる眼の診察コマンド */
+const POSITIONAL_EYE_ACTIONS = ['eye_dh_r', 'eye_dh_l', 'eye_roll_r', 'eye_roll_l']
+
+/**
+ * 自発眼振が出ている患者では、眼振は頭位を変えても打ち続ける。体位で誘発される
+ * BPPVとの決定的な違いなので、頭位検査こそ眼振を見せる場面になる。
+ * 頭位検査の眼振を定義し忘れると「眼振なし」として静止した眼が描かれ、所見文と食い違う。
+ *
+ * 向きが不変か頭位で変わるかは末梢性か中枢性かで異なるため、ここでは有無だけを見る。
+ * 裸眼で見えない微細な自発眼振（症例11）は eye_spont に水平成分を持たないので対象外。
+ */
+describe('自発眼振のある症例', () => {
+  const withSpontaneous = CASES.filter((c) => c.nystagmus?.eye_spont?.horizontal)
+
+  it('頭位検査でも眼振を描く', () => {
+    expect(withSpontaneous.length).toBeGreaterThan(0)
+    for (const c of withSpontaneous) {
+      for (const actionId of POSITIONAL_EYE_ACTIONS) {
+        expect(
+          c.nystagmus?.[actionId]?.horizontal,
+          `症例${c.id} ${actionId}：自発眼振が続くはずなのに「眼振なし」で静止した眼を描いている`,
+        ).toBeTruthy()
+      }
+    }
+  })
+})
+
 /**
  * 末梢前庭障害（前庭神経炎・メニエール病の発作期）の自発眼振は、水平半規管由来の
  * 水平成分と前半規管由来の回旋成分が合成されるため、水平回旋混合性になる。
@@ -42,19 +69,17 @@ describe('末梢性症例の眼振', () => {
     }
   })
 
-  // 自発眼振が出ている時期の末梢性めまいでは、眼振は頭位を変えても同じ向きに打ち続ける
-  // （体位で誘発されるBPPVとの決定的な違い）。頭位検査の眼振を定義し忘れると
-  // 「眼振なし」として静止した眼が描かれ、自発眼振の所見文と矛盾する。
-  it('自発眼振があれば頭位検査でも同じ向きに打ち続ける', () => {
-    const positional = ['eye_dh_r', 'eye_dh_l', 'eye_roll_r', 'eye_roll_l']
+  // 末梢性の自発眼振は方向不変で、頭位を変えても同じ向きに打つ。
+  // 中枢性は頭位で向きが変わりうるので、この規則は末梢性だけに課す。
+  it('自発眼振は頭位検査でも同じ向きに打つ', () => {
     for (const c of peripheral) {
       const spont = c.nystagmus?.eye_spont
       if (!spont?.horizontal) continue
-      for (const actionId of positional) {
-        const spec = c.nystagmus?.[actionId]
-        expect(spec?.horizontal, `症例${c.id} ${actionId}：自発眼振は頭位を変えても持続する`).toBeTruthy()
+      for (const actionId of POSITIONAL_EYE_ACTIONS) {
+        const horizontal = c.nystagmus?.[actionId]?.horizontal
+        if (!horizontal) continue
         expect(
-          Math.sign(spec?.horizontal ?? 0),
+          Math.sign(horizontal),
           `症例${c.id} ${actionId}：自発眼振と向きが食い違っている`,
         ).toBe(Math.sign(spont.horizontal))
       }

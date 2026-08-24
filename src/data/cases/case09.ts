@@ -32,9 +32,9 @@ export const case09: CaseDef = {
     eye_gaze:
       '右方注視で右向き眼振、左方注視で左向き眼振。注視方向によって眼振の向きが変わる（方向可変性）。垂直成分も混在する。',
     eye_dh_r: '右Dix-Hallpike：一貫した後半規管由来の眼振は認めない。頭位変換で中枢性眼振の向きが変化する。',
-    eye_dh_l: '左Dix-Hallpike：一貫した後半規管由来の眼振は認めない。',
+    eye_dh_l: '左Dix-Hallpike：一貫した後半規管由来の眼振は認めない。右Dix-Hallpikeとは逆向きの水平成分となり、垂直成分は残ったままである。',
     eye_roll_r: '右耳下：一貫した半規管由来の眼振パターンではない。眼振の向きが変化する。',
-    eye_roll_l: '左耳下：一貫した半規管由来の眼振パターンではない。',
+    eye_roll_l: '左耳下：一貫した半規管由来の眼振パターンではない。右耳下とは逆向きに打ち、垂直成分は残ったままである。',
     eye_hit: 'HIT：陰性（補償性サッケードを認めない）。前庭機能は保たれている。中枢性を強く示唆する所見である。',
     eye_skew:
       '交代遮蔽を行うと、遮蔽を外した眼が垂直方向に戻る動きを示す。右眼が下方へ偏位している。Test of Skew：陽性。',
@@ -86,6 +86,12 @@ export const case09: CaseDef = {
       gazeOffset: 14,
       caption: '注視方向で眼振の向きが変わる（方向可変性）＝ 中枢性',
     },
+    // 眼振は頭位を変えても消えない。さらに水平成分は頭位で向きが反転し、垂直成分は
+    // 残り続ける。単一の半規管では説明できない打ち方で、そこが中枢性の手がかりになる。
+    eye_dh_r: { horizontal: 8, vertical: 4, frequency: 3, caption: '頭位変換でも眼振は続く。垂直成分を伴う' },
+    eye_dh_l: { horizontal: -8, vertical: 4, frequency: 3, caption: '右とは水平成分が逆向き。垂直成分は残る ＝ 方向可変性' },
+    eye_roll_r: { horizontal: 8, vertical: 4, frequency: 3, caption: '頭位に関わらず眼振は続く。垂直成分を伴う' },
+    eye_roll_l: { horizontal: -8, vertical: 4, frequency: 3, caption: '右耳下とは逆向き。半規管では説明できない ＝ 中枢性' },
   },
 
   redFlagActions: ['eye_skew', 'eye_hit', 'eye_gaze', 'ex_ataxia', 'ex_face', 'ex_swallow', 'ex_horner', 'hx_past'],

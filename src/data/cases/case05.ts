@@ -56,17 +56,20 @@ export const case05: CaseDef = {
 
   nystagmus: {
     eye_frenzel: { frenzel: true, caption: 'Frenzel眼鏡下でも自発眼振なし' },
+    // クプラ結石の眼振は頭位を保つ限り続き、半規管結石症のようには疲労しない。
+    // 向地性（症例3・4の20〜30秒）と並べたときに、その差がはっきり出る長さにしてある。
+    // 患側は持続ではなく振幅で決まる（背地性は弱いほうが患側）。
     eye_roll_r: {
       // 右耳下で左向き（＝上になった側へ向かう）背地性眼振。健側で強い
       horizontal: -11,
       frequency: 3,
-      durationSec: 50,
+      durationSec: 90,
       caption: '右耳下：強い水平背地性眼振（患者から見て左向き）。持続が長く疲労しにくい',
     },
     eye_roll_l: {
       horizontal: 5,
       frequency: 2.6,
-      durationSec: 45,
+      durationSec: 90,
       caption: '左耳下：水平背地性眼振（右向き）。右耳下より明らかに弱い ＝ 左が患側',
     },
   },

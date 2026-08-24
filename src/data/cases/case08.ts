@@ -34,9 +34,9 @@ export const case08: CaseDef = {
     eye_gaze:
       '右方注視で右向き、左方注視で左向きの眼振を認める。注視方向によって向きが変わる（方向可変性）。',
     eye_dh_r: '右Dix-Hallpike：一過性の頭位性眼振は誘発されない。自発眼振がそのまま続く。',
-    eye_dh_l: '左Dix-Hallpike：一過性の頭位性眼振は誘発されない。',
-    eye_roll_r: '右耳下：BPPV様の短時間眼振は誘発されない。',
-    eye_roll_l: '左耳下：BPPV様の短時間眼振は誘発されない。',
+    eye_dh_l: '左Dix-Hallpike：一過性の頭位性眼振は誘発されない。自発眼振がそのまま続く。',
+    eye_roll_r: '右耳下：BPPV様の短時間眼振は誘発されない。自発眼振が頭位に関わらず続く。',
+    eye_roll_l: '左耳下：BPPV様の短時間眼振は誘発されない。自発眼振が頭位に関わらず続く。',
     eye_hit:
       'HIT：陰性（補償性サッケードなし）。……ただしHINTSはAVSで検証された診察であり、発作性のめまい（s-EVS）では解釈に注意がいる。',
     eye_skew: '交代遮蔽で垂直方向のずれを認めない。Test of Skew：陰性。',
@@ -73,6 +73,12 @@ export const case08: CaseDef = {
       gazeOffset: 14,
       caption: '右方注視で右向き。左方注視では左向きに変わる ＝ 方向可変性',
     },
+    // 自発眼振は頭位を変えても打ち続ける。頭位で誘発されるBPPVとの違いなので、
+    // 頭位検査でも同じ眼振を見せる（静止した眼を描くと自発眼振の所見と食い違う）
+    eye_dh_r: { horizontal: 6, frequency: 2.6, caption: '自発眼振がそのまま続く。頭位性眼振は誘発されない' },
+    eye_dh_l: { horizontal: 6, frequency: 2.6, caption: '自発眼振がそのまま続く。頭位性眼振は誘発されない' },
+    eye_roll_r: { horizontal: 6, frequency: 2.6, caption: '頭位に関わらず同じ眼振が続く' },
+    eye_roll_l: { horizontal: 6, frequency: 2.6, caption: '頭位に関わらず同じ眼振が続く' },
   },
 
   redFlagActions: ['eye_gaze', 'eye_fixation'],
