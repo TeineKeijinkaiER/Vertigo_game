@@ -61,7 +61,7 @@ describe('buildPayload', () => {
       sideCorrect: true,
       maneuverPerfect: true,
       fromRandom: true,
-      appVersion: 'vertigo-v0.2',
+      appVersion: 'vertigo-v1.0',
       pageUrl: 'https://example.github.io/Vertigo/',
     })
   })
@@ -165,7 +165,7 @@ describe('buildBppvLearnPayload', () => {
       family: '後半規管',
       side: '右',
       title: lesson.title,
-      appVersion: 'vertigo-v0.2',
+      appVersion: 'vertigo-v1.0',
       pageUrl: 'https://example.github.io/Vertigo/',
     })
   })

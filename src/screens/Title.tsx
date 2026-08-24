@@ -32,7 +32,7 @@ export function TitleScreen({
       <div className="title-hero">
         <h1>VERTIGO</h1>
         <div className="sub">めまい診療の書</div>
-        <div className="ver">ver 0.2 — 研修医向け診断トレーニング</div>
+        <div className="ver">ver 1.0 — 研修医向け診断トレーニング</div>
       </div>
       <Win title="コマンド">
         <div className="menu">

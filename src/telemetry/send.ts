@@ -5,7 +5,7 @@ import { isValidGasUrl, loadTelemetryUrl } from './config'
 
 export { isValidGasUrl }
 
-export const APP_VERSION = 'vertigo-v0.2'
+export const APP_VERSION = 'vertigo-v1.0'
 
 /**
  * スプレッドシートに1行として積まれる内容。

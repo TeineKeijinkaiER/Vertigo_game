@@ -57,7 +57,8 @@ export function HowtoScreen({ onClose }: { onClose: () => void }) {
       </Win>
       <Win title="こうしんりれき">
         <p className="msg small dim" style={{ margin: 0 }}>
-          ver 0.2　オープニングを3つの入口に整理。使い方・クリア記録・履歴・職種・BGMを追加。
+          ver 1.0　眼振の医学的な描写を全症例で見直し。注視眼振は左右両方の注視を並べて表示。かんべつで患側も答える。
+          {'\n'}ver 0.2　オープニングを3つの入口に整理。使い方・クリア記録・履歴・職種・BGMを追加。
           {'\n'}ver 0.1　12症例の診断トレーニングを公開。
         </p>
       </Win>
