@@ -133,6 +133,44 @@ button {
   color: var(--safe);
 }
 
+/* ── BPPV学習 ────────────────────────────── */
+.learn-group + .learn-group {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dotted #2c3468;
+}
+
+.learn-finding + .learn-finding {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dotted #2c3468;
+}
+
+.learn-finding .exam-duo,
+.learn-finding .maneuverfilm,
+.learn-finding .nystagmus {
+  margin-bottom: 0;
+}
+
+.learn-steps {
+  margin: 10px 0 0;
+  padding-left: 1.4em;
+}
+
+.learn-steps li + li {
+  margin-top: 4px;
+}
+
+.learn-poses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.learn-poses .poseimg--compact {
+  min-width: 0;
+}
+
 /* ── テキスト ────────────────────────────── */
 .msg {
   white-space: pre-wrap;
