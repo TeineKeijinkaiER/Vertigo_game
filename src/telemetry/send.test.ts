@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildPayload, isValidGasUrl, sendResult } from './send'
+import { buildBppvLearnPayload, buildPayload, isValidGasUrl, sendBppvLearnView, sendResult } from './send'
 import { __setTelemetryUrlForTest } from './config'
 import type { PlayResult } from '../profile/types'
+import { BPPV_LESSONS } from '../data/bppvLessons'
 
 const play: PlayResult = {
   caseId: 4,
@@ -46,6 +47,7 @@ describe('buildPayload', () => {
     })
 
     expect(p).toEqual({
+      kind: 'game_result',
       completedAt: new Date(1_700_000_000_000).toISOString(),
       roleId: 'pgy2',
       roleName: 'PGY2',
@@ -140,5 +142,78 @@ describe('sendResult', () => {
     __setTelemetryUrlForTest(GOOD_URL)
 
     await expect(sendResult(payload)).resolves.toBeUndefined()
+  })
+})
+
+describe('buildBppvLearnPayload', () => {
+  const lesson = BPPV_LESSONS.find((l) => l.id === 'pc_r')!
+
+  it('選んだ型の情報を列に詰める', () => {
+    const p = buildBppvLearnPayload({
+      lesson,
+      roleId: 'student',
+      viewedAt: 1_700_000_000_000,
+      pageUrl: 'https://example.github.io/Vertigo/',
+    })
+
+    expect(p).toEqual({
+      kind: 'bppv_learn_view',
+      viewedAt: new Date(1_700_000_000_000).toISOString(),
+      roleId: 'student',
+      roleName: '医学生',
+      lessonId: 'pc_r',
+      family: '後半規管',
+      side: '右',
+      title: lesson.title,
+      appVersion: 'vertigo-v0.2',
+      pageUrl: 'https://example.github.io/Vertigo/',
+    })
+  })
+
+  it('職種未選択でも組み立てられる', () => {
+    const p = buildBppvLearnPayload({
+      lesson,
+      roleId: '',
+      viewedAt: 1,
+      pageUrl: 'x',
+    })
+    expect(p.roleId).toBe('')
+    expect(p.roleName).toBe('未選択')
+  })
+})
+
+describe('sendBppvLearnView', () => {
+  const lesson = BPPV_LESSONS.find((l) => l.id === 'hc_geo_r')!
+  const payload = buildBppvLearnPayload({
+    lesson,
+    roleId: 'pgy1',
+    viewedAt: 1,
+    pageUrl: 'x',
+  })
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null)))
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    __setTelemetryUrlForTest(null)
+  })
+
+  it('URL が未設定なら送らない', async () => {
+    __setTelemetryUrlForTest('')
+    await sendBppvLearnView(payload)
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('sendBeacon が使えればそれで送る', async () => {
+    const beacon = vi.fn().mockReturnValue(true)
+    vi.stubGlobal('navigator', { sendBeacon: beacon })
+    __setTelemetryUrlForTest('https://script.google.com/macros/s/AKfycbwABC123/exec')
+
+    await sendBppvLearnView(payload)
+
+    expect(beacon).toHaveBeenCalledTimes(1)
+    expect(fetch).not.toHaveBeenCalled()
   })
 })

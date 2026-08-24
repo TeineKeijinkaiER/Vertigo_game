@@ -1,5 +1,6 @@
 import { roleName } from '../profile/roles'
 import type { PlayResult, RoleId } from '../profile/types'
+import type { BppvLesson } from '../data/bppvLessons'
 import { isValidGasUrl, loadTelemetryUrl } from './config'
 
 export { isValidGasUrl }
@@ -11,6 +12,7 @@ export const APP_VERSION = 'vertigo-v0.2'
  * 個人を特定する情報は含めない。送るのは職種と成績だけ。
  */
 export interface TelemetryPayload {
+  kind: 'game_result'
   completedAt: string
   roleId: RoleId | ''
   roleName: string
@@ -28,6 +30,20 @@ export interface TelemetryPayload {
   pageUrl: string
 }
 
+/** BPPV学習画面で、どの型を参照したかの記録。1回の選択が1行になる */
+export interface BppvLearnViewPayload {
+  kind: 'bppv_learn_view'
+  viewedAt: string
+  roleId: RoleId | ''
+  roleName: string
+  lessonId: string
+  family: string
+  side: string
+  title: string
+  appVersion: string
+  pageUrl: string
+}
+
 export function buildPayload(input: {
   play: PlayResult
   roleId: RoleId | ''
@@ -38,6 +54,7 @@ export function buildPayload(input: {
   pageUrl: string
 }): TelemetryPayload {
   return {
+    kind: 'game_result',
     completedAt: new Date(input.completedAt).toISOString(),
     roleId: input.roleId,
     roleName: roleName(input.roleId),
@@ -56,11 +73,31 @@ export function buildPayload(input: {
   }
 }
 
+export function buildBppvLearnPayload(input: {
+  lesson: BppvLesson
+  roleId: RoleId | ''
+  viewedAt: number
+  pageUrl: string
+}): BppvLearnViewPayload {
+  return {
+    kind: 'bppv_learn_view',
+    viewedAt: new Date(input.viewedAt).toISOString(),
+    roleId: input.roleId,
+    roleName: roleName(input.roleId),
+    lessonId: input.lesson.id,
+    family: input.lesson.family,
+    side: input.lesson.side,
+    title: input.lesson.title,
+    appVersion: APP_VERSION,
+    pageUrl: input.pageUrl,
+  }
+}
+
 /**
- * 送信は best-effort。失敗してもゲームを止めない。
+ * 送信は best-effort。失敗してもゲーム・学習画面の操作を止めない。
  * 研修中の学習者にネットワークエラーを見せる意味がない。
  */
-export async function sendResult(payload: TelemetryPayload): Promise<void> {
+async function postTelemetry(payload: TelemetryPayload | BppvLearnViewPayload): Promise<void> {
   try {
     const url = await loadTelemetryUrl()
     if (!isValidGasUrl(url)) {
@@ -85,4 +122,12 @@ export async function sendResult(payload: TelemetryPayload): Promise<void> {
   } catch (e) {
     console.error('[telemetry] 送信に失敗しました', e)
   }
+}
+
+export function sendResult(payload: TelemetryPayload): Promise<void> {
+  return postTelemetry(payload)
+}
+
+export function sendBppvLearnView(payload: BppvLearnViewPayload): Promise<void> {
+  return postTelemetry(payload)
 }
