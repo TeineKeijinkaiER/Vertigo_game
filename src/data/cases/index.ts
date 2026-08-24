@@ -41,3 +41,13 @@ export const CATEGORY_LABELS: Record<CaseDef['category'], string> = {
   central: '中枢性',
   other: 'その他',
 }
+
+/**
+ * 一覧・履歴・送信データで使う症例の表示名。
+ * 症例選択画面の従来の表記に揃えてあるので、`CaseDef.title` ではなく
+ * 診断名＋患側を使う。
+ */
+export function caseTitle(c: CaseDef): string {
+  const side = c.diagnosis.side === 'R' ? '　右' : c.diagnosis.side === 'L' ? '　左' : ''
+  return `${c.diagnosis.correct}${side}`
+}

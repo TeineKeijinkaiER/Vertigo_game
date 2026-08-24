@@ -1,7 +1,10 @@
 import { lazy, Suspense, useReducer } from 'react'
 import { CASE_MAP } from './data/cases'
 import { initialState, reducer } from './game/state'
-import { BriefScreen, CaseSelectScreen, TitleScreen } from './screens/Opening'
+import { TitleScreen } from './screens/Title'
+import { CaseSelectScreen } from './screens/CaseSelect'
+import { BriefScreen } from './screens/Brief'
+import { BppvLearnScreen } from './screens/BppvLearn'
 import { ExamScreen } from './screens/Exam'
 import { DiagnosisScreen, DispositionScreen } from './screens/Decision'
 import { ResultScreen } from './screens/Result'
@@ -33,26 +36,27 @@ export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState)
   const caseDef = state.caseId !== null ? CASE_MAP.get(state.caseId) : undefined
 
-  if (state.phase === 'title' || !caseDef) {
-    // 症例が解決できない場合もタイトルに戻す（データ不整合の保険）
-    if (state.phase === 'select') {
-      return (
-        <div className="app">
-          <CaseSelectScreen dispatch={dispatch} />
-        </div>
-      )
-    }
-    return (
-      <div className="app">
-        <TitleScreen dispatch={dispatch} />
-      </div>
-    )
-  }
-
   if (state.phase === 'select') {
     return (
       <div className="app">
         <CaseSelectScreen dispatch={dispatch} />
+      </div>
+    )
+  }
+
+  if (state.phase === 'learn') {
+    return (
+      <div className="app">
+        <BppvLearnScreen dispatch={dispatch} />
+      </div>
+    )
+  }
+
+  // 症例が解決できない場合もタイトルに戻す（データ不整合の保険）
+  if (state.phase === 'title' || !caseDef) {
+    return (
+      <div className="app">
+        <TitleScreen dispatch={dispatch} />
       </div>
     )
   }

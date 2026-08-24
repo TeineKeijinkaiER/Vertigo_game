@@ -178,7 +178,11 @@ export function ResultScreen({
       </div>
 
       <div className="row">
-        <Button onClick={() => dispatch({ type: 'START_CASE', caseId: caseDef.id })}>もういちど</Button>
+        <Button
+          onClick={() => dispatch({ type: 'START_CASE', caseId: caseDef.id, fromRandom: state.fromRandom })}
+        >
+          もういちど
+        </Button>
         <Button variant="primary" onClick={() => dispatch({ type: 'RESET' })}>
           タイトルへ
         </Button>

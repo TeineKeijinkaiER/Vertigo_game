@@ -1,0 +1,57 @@
+import { CASES } from '../data/cases'
+import { Button, MenuItem, Win } from '../components/ui'
+import { unlockAudio } from '../audio/sfx'
+import type { Action } from '../game/state'
+
+export function TitleScreen({ dispatch }: { dispatch: (a: Action) => void }) {
+  const startRandom = () => {
+    const c = CASES[Math.floor(Math.random() * CASES.length)]
+    dispatch({ type: 'START_CASE', caseId: c.id, fromRandom: true })
+  }
+
+  return (
+    <div className="stack grow scroll">
+      <div className="title-hero">
+        <h1>VERTIGO</h1>
+        <div className="sub">めまい診療の書</div>
+        <div className="ver">ver 0.2 — 研修医向け診断トレーニング</div>
+      </div>
+      <Win title="コマンド">
+        <div className="menu">
+          <MenuItem
+            label="しんさつかいし"
+            hint="ランダムな症例を診る"
+            onSelect={() => {
+              unlockAudio()
+              startRandom()
+            }}
+          />
+          <MenuItem
+            label="しょうれいえらぶ"
+            hint="疾患別に選んで診る"
+            onSelect={() => {
+              unlockAudio()
+              dispatch({ type: 'GOTO', phase: 'select' })
+            }}
+          />
+          <MenuItem
+            label="BPPVがくしゅう"
+            hint="眼振と耳石置換法"
+            onSelect={() => {
+              unlockAudio()
+              dispatch({ type: 'GOTO', phase: 'learn' })
+            }}
+          />
+        </div>
+      </Win>
+      <Win title="このゲームについて">
+        <p className="msg small dim" style={{ margin: 0 }}>
+          あなたは救急外来の当直医です。搬送されてきためまい患者を、自分でコマンドを選んで診察し、診断・治療・方針を決めてください。
+          {'\n'}やらなかった診察の情報は最後まで得られません。不要な検査は減点されます。
+        </p>
+      </Win>
+      <div className="grow" />
+      <Button onClick={startRandom}>すぐにはじめる</Button>
+    </div>
+  )
+}
