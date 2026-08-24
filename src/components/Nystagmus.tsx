@@ -83,6 +83,35 @@ function Eye({
 }
 
 /**
+ * 注視の目標にしている検者の指。注視眼振は「指を追わせて、その眼位で眼振を見る」診察
+ * なので、どちらを向かされているのかが分かるように眼振図の横へ置く。
+ * 眼振と違ってこの指は動かさない。指が動くと追視の検査に見えてしまう。
+ */
+function GazeTarget({ side }: { side: 'left' | 'right' }) {
+  // 眼のほうへ少し傾ける。反対側に置くときは鏡像にする
+  const lean = 'rotate(7 22 92)'
+  return (
+    <figure className="gaze-target">
+      <svg viewBox="0 0 44 118" role="img" aria-label="検者の指（注視目標）">
+        <g transform={side === 'right' ? `translate(44 0) scale(-1 1) ${lean}` : lean}>
+          {/* 袖 */}
+          <path d="M6 118 L6 93 Q22 85 38 93 L38 118 Z" fill="#3d5aa8" stroke="#2c3468" strokeWidth={1.5} />
+          {/* 握った手 */}
+          <rect x={7} y={58} width={30} height={38} rx={13} fill="#f0c9a4" stroke="#c99b74" strokeWidth={1.5} />
+          {/* 折り込んだ指の関節 */}
+          <path d="M13 72 H31 M13 82 H31" fill="none" stroke="#c99b74" strokeWidth={1.2} strokeLinecap="round" />
+          {/* 立てた示指 */}
+          <rect x={16} y={22} width={12} height={44} rx={6} fill="#f0c9a4" stroke="#c99b74" strokeWidth={1.5} />
+          {/* 爪 */}
+          <ellipse cx={22} cy={30} rx={3.4} ry={4.4} fill="#fadfc4" stroke="#c99b74" strokeWidth={0.9} />
+        </g>
+      </svg>
+      <figcaption className="dim">注視目標</figcaption>
+    </figure>
+  )
+}
+
+/**
  * 眼振図1枚。注視眼振では左右の注視で2枚並ぶので、1枚分をここに閉じ込めてある。
  */
 function NystagmusFigure({
@@ -140,7 +169,11 @@ function NystagmusFigure({
     return () => cancelAnimationFrame(raf)
   }, [h, v, tor, freq, latency, duration, gaze, hasNystagmus, cycle, replayKey])
 
-  return (
+  // 図は検者から見たもの。患者が右を注視すると眼は画面の左へ寄るので、
+  // 追わせている指も画面の左に置かないと、目線と目標が食い違って見える。
+  const targetSide = gaze === 0 ? null : gaze > 0 ? 'left' : 'right'
+
+  const figure = (
     <figure className="nystagmus">
       <svg viewBox="0 0 260 118" role="img" aria-label={spec.caption ?? '眼振の所見'}>
         {spec.frenzel && (
@@ -180,6 +213,16 @@ function NystagmusFigure({
         )}
       </figcaption>
     </figure>
+  )
+
+  if (!targetSide) return figure
+
+  return (
+    <div className="gaze-row">
+      {targetSide === 'left' && <GazeTarget side="left" />}
+      {figure}
+      {targetSide === 'right' && <GazeTarget side="right" />}
+    </div>
   )
 }
 

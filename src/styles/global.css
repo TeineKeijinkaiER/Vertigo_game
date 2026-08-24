@@ -408,8 +408,40 @@ button {
 }
 
 /* 注視眼振の左右2枚。各図を全幅で使い、上下に並べて見比べさせる */
+.nystagmus-pair > .gaze-row:last-child,
 .nystagmus-pair > .nystagmus:last-child {
   margin-bottom: 0;
+}
+
+/* 注視眼振では、患者が追っている検者の指を眼振図の横に置く */
+.gaze-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.gaze-row > .nystagmus {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.gaze-target {
+  flex: 0 0 46px;
+  margin: 0;
+}
+
+.gaze-target svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gaze-target figcaption {
+  font-size: 10px;
+  text-align: center;
+  margin-top: 2px;
 }
 
 .nystagmus svg {
