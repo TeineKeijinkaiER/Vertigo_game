@@ -627,6 +627,11 @@ button {
   text-align: center;
 }
 
+.apphdr-btn--abort {
+  color: #ff9a9a;
+  border-color: #b95a64;
+}
+
 .apphdr-btn--sound[aria-pressed='true'] {
   color: var(--navy-deep);
   background: var(--dim);

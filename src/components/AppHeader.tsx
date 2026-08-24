@@ -8,7 +8,14 @@ export type Overlay = 'howto' | 'clears' | 'history' | 'role' | null
  * overlay は GameState に触れないので、診察の途中で開いて閉じても進行は失われない。
  * ♪ は診察中にも押したくなるため、タイトル専用にせず常駐させる。
  */
-export function AppHeader({ onOpen }: { onOpen: (o: Overlay) => void }) {
+export function AppHeader({
+  onOpen,
+  onAbortExam,
+}: {
+  onOpen: (o: Overlay) => void
+  /** 診察中にだけ渡す。モーダル表示中もヘッダーから中断できる。 */
+  onAbortExam?: () => void
+}) {
   const { profile, update } = useProfile()
 
   return (
@@ -22,6 +29,11 @@ export function AppHeader({ onOpen }: { onOpen: (o: Overlay) => void }) {
       <button type="button" className="apphdr-btn" onClick={() => onOpen('history')}>
         りれき
       </button>
+      {onAbortExam && (
+        <button type="button" className="apphdr-btn apphdr-btn--abort" onClick={onAbortExam}>
+          診察を中断
+        </button>
+      )}
       <button
         type="button"
         className="apphdr-btn apphdr-btn--sound"

@@ -25,4 +25,9 @@ describe('reducer', () => {
   it("GOTO で learn へ行ける", () => {
     expect(reducer(initialState, { type: 'GOTO', phase: 'learn' }).phase).toBe('learn')
   })
+
+  it('RESET は診察途中の状態を破棄してタイトルへ戻す', () => {
+    const playing = reducer(initialState, { type: 'START_CASE', caseId: 1, fromRandom: true })
+    expect(reducer(playing, { type: 'RESET' })).toEqual(initialState)
+  })
 })

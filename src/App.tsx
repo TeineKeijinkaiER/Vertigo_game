@@ -17,6 +17,7 @@ import { DiagnosisScreen, DispositionScreen } from './screens/Decision'
 import { ResultScreen } from './screens/Result'
 import { startMusic, stopMusic } from './audio/music'
 import { setSoundEnabled } from './audio/sfx'
+import { Button, Win } from './components/ui'
 
 const ManeuverRigPrototype = lazy(() =>
   import('./prototypes/ManeuverRigPrototype').then((module) => ({ default: module.ManeuverRigPrototype })),
@@ -44,6 +45,7 @@ export default function App() {
 
   const [state, dispatch] = useReducer(reducer, initialState)
   const [overlay, setOverlay] = useState<Overlay>(null)
+  const [confirmAbortExam, setConfirmAbortExam] = useState(false)
   const caseDef = state.caseId !== null ? CASE_MAP.get(state.caseId) : undefined
 
   const { profile } = useProfile()
@@ -96,8 +98,29 @@ export default function App() {
 
   return (
     <div className="app">
-      <AppHeader onOpen={setOverlay} />
-      {overlay === 'howto' ? (
+      <AppHeader onOpen={setOverlay} onAbortExam={state.phase === 'exam' ? () => setConfirmAbortExam(true) : undefined} />
+      {confirmAbortExam ? (
+        <div className="stack grow">
+          <Win title="診察を中断しますか">
+            <div className="msg">
+              ここまでの診察内容と回答は保存されません。<br />タイトル画面に戻りますか。
+            </div>
+          </Win>
+          <div className="row">
+            <Button onClick={() => setConfirmAbortExam(false)}>診察をつづける</Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                setOverlay(null)
+                setConfirmAbortExam(false)
+                dispatch({ type: 'RESET' })
+              }}
+            >
+              中断してタイトルへ
+            </Button>
+          </div>
+        </div>
+      ) : overlay === 'howto' ? (
         <HowtoScreen onClose={close} />
       ) : overlay === 'clears' ? (
         <ClearsScreen onClose={close} />

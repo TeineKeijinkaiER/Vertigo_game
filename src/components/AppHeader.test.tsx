@@ -47,4 +47,15 @@ describe('AppHeader', () => {
     fireEvent.click(screen.getByRole('button', { name: '♪ON' }))
     expect(onOpen).not.toHaveBeenCalled()
   })
+
+  it('診察中に渡された中断操作をヘッダーから呼べる', () => {
+    const onAbortExam = vi.fn()
+    render(
+      <ProfileProvider>
+        <AppHeader onOpen={vi.fn()} onAbortExam={onAbortExam} />
+      </ProfileProvider>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: '診察を中断' }))
+    expect(onAbortExam).toHaveBeenCalledOnce()
+  })
 })
