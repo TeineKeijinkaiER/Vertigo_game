@@ -1,7 +1,7 @@
 import type { ManeuverAttempt } from '../data/maneuvers'
 import { asksSide } from '../data/actions'
 import type { VestibularChoice } from '../data/actions'
-import type { Side } from '../data/types'
+import type { AtaxiaGrade, Side } from '../data/types'
 
 /**
  * 診察を終えると、すぐに鑑別診断 → 方針決定に進む。
@@ -35,6 +35,8 @@ export interface GameState {
   vestibularAnswer: VestibularChoice | null
   subtypeAnswer: string | null
   criteriaAnswers: boolean[]
+  /** 起立・歩行の観察後にプレイヤーが選んだ失調Grade */
+  ataxiaAnswer: AtaxiaGrade | null
   /** 耳石置換法の実施内容。組み立てを誤っていても記録する */
   maneuver: ManeuverAttempt | null
   diagnosisAnswer: string | null
@@ -51,6 +53,7 @@ export const initialState: GameState = {
   vestibularAnswer: null,
   subtypeAnswer: null,
   criteriaAnswers: [false, false, false, false],
+  ataxiaAnswer: null,
   maneuver: null,
   diagnosisAnswer: null,
   sideAnswer: null,
@@ -64,6 +67,7 @@ export type Action =
   | { type: 'SET_VESTIBULAR'; value: VestibularChoice }
   | { type: 'SET_SUBTYPE'; value: string }
   | { type: 'TOGGLE_CRITERION'; index: number }
+  | { type: 'SET_ATAXIA'; value: AtaxiaGrade }
   | { type: 'CONFIRM_ASSESS'; id: 'as_dx' | 'im_criteria' }
   | { type: 'SET_MANEUVER'; attempt: ManeuverAttempt; entry: LogEntry }
   | { type: 'SET_DIAGNOSIS'; value: string }
@@ -102,6 +106,9 @@ export function reducer(state: GameState, action: Action): GameState {
       next[action.index] = !next[action.index]
       return { ...state, criteriaAnswers: next }
     }
+
+    case 'SET_ATAXIA':
+      return { ...state, ataxiaAnswer: action.value }
 
     // 「どれも該当しない」が正解の症例があるので、
     // 選択の有無ではなく決定したことをもって実施済みとする

@@ -39,7 +39,7 @@ export interface ScoreResult {
   showsDay2: boolean
 }
 
-const MAX = {
+  const MAX = {
   process: 22,
   recommended: 4,
   grace: 5,
@@ -50,6 +50,7 @@ const MAX = {
   side: 5,
   maneuver: 5,
   disposition: 15,
+  ataxia: 5,
 }
 
 function label(id: string): string {
@@ -83,6 +84,22 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
       doneRec.length === c.recommended.length
         ? ['推奨される診察も網羅しています']
         : [`さらに拾えた所見：${c.recommended.filter((id) => !did(id)).map(label).join('、')}`],
+  })
+
+  // ── 起立・歩行の失調Grade
+  const ataxiaAssessed = did('ex_ataxia')
+  const ataxiaOk = ataxiaAssessed && s.ataxiaAnswer === c.ataxiaGrade
+  lines.push({
+    label: '起立・歩行の失調Grade',
+    earned: ataxiaOk ? MAX.ataxia : 0,
+    max: MAX.ataxia,
+    notes: [
+      !ataxiaAssessed
+        ? `起立・歩行を評価していません。正解はGrade ${c.ataxiaGrade}`
+        : ataxiaOk
+          ? `正解：Grade ${c.ataxiaGrade}`
+          : `あなたの選択：${s.ataxiaAnswer === null ? '未回答' : `Grade ${s.ataxiaAnswer}`} ／ 正解：Grade ${c.ataxiaGrade}`,
+    ],
   })
 
   // ── みたてる：GRACE-3 の分類

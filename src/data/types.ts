@@ -29,6 +29,7 @@ export interface NystagmusSpec {
 export type Category = 'bppv' | 'peripheral' | 'central' | 'other'
 export type VestibularType = 'AVS' | 's-EVS' | 't-EVS'
 export type Side = 'R' | 'L' | null
+export type AtaxiaGrade = 0 | 1 | 2 | 3
 
 export type ActionGroup = 'history' | 'eye' | 'exam' | 'imaging' | 'assess' | 'tx'
 
@@ -74,7 +75,7 @@ export interface CaseDef {
   subtype: string
 
   /** 起立歩行での失調グレード（0〜3） */
-  ataxiaGrade: 0 | 1 | 2 | 3
+  ataxiaGrade: AtaxiaGrade
 
   /** HOWTO 4条件の正解（true = 当てはまる） */
   criteria: [boolean, boolean, boolean, boolean]

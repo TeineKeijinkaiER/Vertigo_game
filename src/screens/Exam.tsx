@@ -3,6 +3,7 @@ import {
   ACTIONS,
   ACTION_GROUPS,
   ATAXIA_NOTE,
+  ATAXIA_GRADES,
   DIX_HALLPIKE_NOTE,
   IMAGING_CRITERIA,
   MODAL_ACTIONS,
@@ -12,6 +13,7 @@ import {
 } from '../data/actions'
 import { MANEUVER_KINDS, type ManeuverAttempt } from '../data/maneuvers'
 import type { ActionGroup, CaseDef } from '../data/types'
+import type { AtaxiaGrade } from '../data/types'
 import { Button, MenuItem, TypedText, Win } from '../components/ui'
 import { Nystagmus } from '../components/Nystagmus'
 import { ExamPose } from '../components/ExamPose'
@@ -35,7 +37,7 @@ const EYE_VIEW_ACTIONS = [
 /** 頭位変換で誘発する所見。体位と眼球を並べて同時に見せる */
 const POSITIONAL_ACTIONS = ['eye_dh_r', 'eye_dh_l', 'eye_roll_r', 'eye_roll_l']
 
-type Modal = 'dx' | 'criteria' | 'maneuver' | null
+type Modal = 'dx' | 'criteria' | 'maneuver' | 'ataxia' | null
 
 /** 画像検査の適応を考えてから出すコマンド */
 const IMAGING_ORDERS = ['im_ct', 'im_mri']
@@ -93,6 +95,7 @@ export function ExamScreen({
     }
     if (actionId === 'im_criteria') return setModal('criteria')
     if (actionId === 'tx_maneuver') return setModal('maneuver')
+    if (actionId === 'ex_ataxia') return setModal('ataxia')
 
     const def = ACTIONS.find((a) => a.id === actionId)
     if (!def) return
@@ -104,6 +107,16 @@ export function ExamScreen({
           : (caseDef.findings[actionId] ?? def.fallback)
     dispatch({ type: 'PERFORM', entry: { actionId, label: def.label, text } })
     if (caseDef.redFlagActions.includes(actionId)) sfxFinding()
+  }
+
+  const finishAtaxia = (grade: AtaxiaGrade) => {
+    const def = ACTIONS.find((a) => a.id === 'ex_ataxia')
+    if (!def) return
+    const raw = caseDef.findings.ex_ataxia ?? def.fallback
+    const observation = raw.replace(/^Grade [0-3]：\s*/, '')
+    dispatch({ type: 'PERFORM', entry: { actionId: 'ex_ataxia', label: def.label, text: observation } })
+    dispatch({ type: 'SET_ATAXIA', value: grade })
+    setModal(null)
   }
 
   const finishManeuver = (attempt: ManeuverAttempt) => {
@@ -143,6 +156,45 @@ export function ExamScreen({
     return (
       <div className="stack grow">
         <ManeuverGame onDone={finishManeuver} onCancel={() => setModal(null)} />
+      </div>
+    )
+  }
+
+  if (modal === 'ataxia') {
+    return (
+      <div className="stack grow scroll">
+        <Win title="起立・歩行をみる">
+          <p className="msg small" style={{ margin: 0 }}>
+            患者を立たせ、歩いてもらいました。観察したふらつき具合を読んで、失調Gradeを選んでください。
+          </p>
+        </Win>
+        <Win title="観察した所見">
+          <p className="msg small" style={{ margin: 0 }}>
+            {(caseDef.findings.ex_ataxia ?? ACTIONS.find((a) => a.id === 'ex_ataxia')?.fallback ?? '').replace(/^Grade [0-3]：\s*/, '')}
+          </p>
+        </Win>
+        <Win title="失調Gradeを選ぶ">
+          <div className="menu">
+            {ATAXIA_GRADES.map((option) => (
+              <MenuItem
+                key={option.grade}
+                label={option.label}
+                hint={option.desc}
+                checked={state.ataxiaAnswer === option.grade}
+                onSelect={() => finishAtaxia(option.grade as AtaxiaGrade)}
+              />
+            ))}
+          </div>
+        </Win>
+        <div className="grow" />
+        <Button
+          onClick={() => {
+            sfxCancel()
+            setModal(null)
+          }}
+        >
+          やめる
+        </Button>
       </div>
     )
   }
