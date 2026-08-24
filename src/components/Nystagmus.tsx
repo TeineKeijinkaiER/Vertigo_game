@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { NystagmusSpec } from '../data/types'
 
 /**
@@ -34,10 +34,13 @@ function envelope(t: number, latency: number, duration: number | null): number {
 function Eye({
   cx,
   label,
+  clipId,
   offsetRef,
 }: {
   cx: number
   label: string
+  /** 同一画面に複数の眼振図が並ぶので、clipPath の id は図ごとに変える */
+  clipId: string
   offsetRef: (el: SVGGElement | null) => void
 }) {
   const cy = 62
@@ -45,10 +48,10 @@ function Eye({
     <g>
       {/* 眼瞼・強膜 */}
       <ellipse cx={cx} cy={cy} rx={40} ry={26} fill="#f4f6ff" stroke="#7f88b8" strokeWidth={2} />
-      <clipPath id={`clip-${label}`}>
+      <clipPath id={clipId}>
         <ellipse cx={cx} cy={cy} rx={40} ry={26} />
       </clipPath>
-      <g clipPath={`url(#clip-${label})`}>
+      <g clipPath={`url(#${clipId})`}>
         <g ref={offsetRef}>
           {/* 虹彩。回旋が見えるように放射状の模様を入れる */}
           <circle cx={cx} cy={cy} r={16} fill="#3d5aa8" />
@@ -79,7 +82,10 @@ function Eye({
   )
 }
 
-export function Nystagmus({
+/**
+ * 眼振図1枚。注視眼振では左右の注視で2枚並ぶので、1枚分をここに閉じ込めてある。
+ */
+function NystagmusFigure({
   spec,
   startDelayMs = 0,
 }: {
@@ -90,6 +96,8 @@ export function Nystagmus({
   const rightEye = useRef<SVGGElement | null>(null)
   const leftEye = useRef<SVGGElement | null>(null)
   const [replayKey, setReplayKey] = useState(0)
+  // useId はコロンを含むので、url(#...) に埋める前に落とす
+  const uid = useId().replace(/:/g, '')
 
   const h = spec.horizontal ?? 0
   const v = spec.vertical ?? 0
@@ -153,8 +161,8 @@ export function Nystagmus({
         )}
 
         {/* 検者から見た図：画面左が患者の右眼 */}
-        <Eye cx={68} label="右眼" offsetRef={(el) => (rightEye.current = el)} />
-        <Eye cx={192} label="左眼" offsetRef={(el) => (leftEye.current = el)} />
+        <Eye cx={68} label="右眼" clipId={`clip-r-${uid}`} offsetRef={(el) => (rightEye.current = el)} />
+        <Eye cx={192} label="左眼" clipId={`clip-l-${uid}`} offsetRef={(el) => (leftEye.current = el)} />
       </svg>
       <figcaption>
         {hasNystagmus ? (
@@ -172,5 +180,26 @@ export function Nystagmus({
         )}
       </figcaption>
     </figure>
+  )
+}
+
+/**
+ * 眼振の所見。注視眼振のように反対方向の注視も見せる場合は、spec に gazeOpposite を
+ * 持たせると2枚を縦に並べて描く。向きが変わるかどうかは2枚を見比べて判断させたい。
+ */
+export function Nystagmus({
+  spec,
+  startDelayMs = 0,
+}: {
+  spec: NystagmusSpec
+  startDelayMs?: number
+}) {
+  if (!spec.gazeOpposite) return <NystagmusFigure spec={spec} startDelayMs={startDelayMs} />
+
+  return (
+    <div className="nystagmus-pair">
+      <NystagmusFigure spec={spec} startDelayMs={startDelayMs} />
+      <NystagmusFigure spec={spec.gazeOpposite} startDelayMs={startDelayMs} />
+    </div>
   )
 }

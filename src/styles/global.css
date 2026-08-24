@@ -407,6 +407,11 @@ button {
   border-radius: 2px;
 }
 
+/* 注視眼振の左右2枚。各図を全幅で使い、上下に並べて見比べさせる */
+.nystagmus-pair > .nystagmus:last-child {
+  margin-bottom: 0;
+}
+
 .nystagmus svg {
   display: block;
   width: 100%;

@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { CASES, CASE_MAP, caseTitle } from './index'
+import type { CaseDef, NystagmusSpec } from '../types'
+
+/** gazeOpposite に入れた反対方向の注視も含めて、その症例が実際に描く眼振をすべて並べる */
+function drawnSpecs(c: CaseDef): [string, NystagmusSpec][] {
+  return Object.entries(c.nystagmus ?? {}).flatMap(([actionId, spec]): [string, NystagmusSpec][] =>
+    spec.gazeOpposite
+      ? [
+          [actionId, spec],
+          [`${actionId}（反対方向の注視）`, spec.gazeOpposite],
+        ]
+      : [[actionId, spec]],
+  )
+}
 
 describe('caseTitle', () => {
   it('患側のある診断は全角スペースで左右を付ける', () => {
@@ -49,6 +62,38 @@ describe('自発眼振のある症例', () => {
 })
 
 /**
+ * 注視眼振は左右30°の両方を見て、向きが変わるかどうかで中枢性を疑う診察。
+ * 片方の注視しか描かないと、キャプションの主張を絵で確認できない。
+ *
+ * 方向可変の症例だけ2枚にすると、枚数を見ただけで中枢性と分かって答えが漏れる。
+ * 末梢性も2枚描き、向きが変わらず振幅だけ変わること（Alexanderの法則）を見せる。
+ */
+describe('注視眼振', () => {
+  const withGaze = CASES.filter((c) => c.nystagmus?.eye_gaze?.horizontal)
+
+  it('左右どちらの注視も描く', () => {
+    expect(withGaze.length).toBeGreaterThan(0)
+    for (const c of withGaze) {
+      expect(
+        c.nystagmus?.eye_gaze?.gazeOpposite,
+        `症例${c.id}：片方の注視しか描いていない。枚数の違いで中枢性かどうかが漏れる`,
+      ).toBeTruthy()
+    }
+  })
+
+  it('2枚は互いに逆を向いた注視である', () => {
+    for (const c of withGaze) {
+      const gaze = c.nystagmus?.eye_gaze
+      if (!gaze?.gazeOpposite) continue
+      expect(
+        Math.sign(gaze.gazeOpposite.gazeOffset ?? 0),
+        `症例${c.id}：2枚とも同じ方向を注視している`,
+      ).toBe(-Math.sign(gaze.gazeOffset ?? 0))
+    }
+  })
+})
+
+/**
  * 末梢前庭障害（前庭神経炎・メニエール病の発作期）の自発眼振は、水平半規管由来の
  * 水平成分と前半規管由来の回旋成分が合成されるため、水平回旋混合性になる。
  * 純粋水平性は末梢性の典型像ではないうえ、前庭神経炎とメニエール病を「回旋成分の
@@ -62,7 +107,7 @@ describe('末梢性症例の眼振', () => {
 
   it('水平成分をもつ眼振には回旋成分を伴う', () => {
     for (const c of peripheral) {
-      for (const [actionId, spec] of Object.entries(c.nystagmus ?? {})) {
+      for (const [actionId, spec] of drawnSpecs(c)) {
         if (!spec.horizontal) continue
         expect(spec.torsional, `症例${c.id} ${actionId}：末梢性の眼振は水平回旋混合性で描く`).toBeTruthy()
       }
@@ -90,7 +135,7 @@ describe('末梢性症例の眼振', () => {
   // 符号が食い違っていれば、どちらかの向きを取り違えている。
   it('水平成分と回旋成分は同じ向きに打つ', () => {
     for (const c of peripheral) {
-      for (const [actionId, spec] of Object.entries(c.nystagmus ?? {})) {
+      for (const [actionId, spec] of drawnSpecs(c)) {
         if (!spec.horizontal || !spec.torsional) continue
         expect(
           Math.sign(spec.torsional),

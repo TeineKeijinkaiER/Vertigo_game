@@ -67,11 +67,18 @@ export const case11: CaseDef = {
       caption: '固視を外すと、ごく軽度の左向き水平性眼振が見える',
     },
     eye_fixation: { caption: '固視すると自発眼振は見えなくなる（振幅が小さいため）。注視眼振は残る' },
+    // 自発眼振は微細でも、注視で誘発される眼振は注視方向に向かって反転する
     eye_gaze: {
       horizontal: 4,
       frequency: 2.6,
       gazeOffset: 12,
-      caption: '右方注視で右向き。左方注視では左向きに変わる ＝ 方向可変性の注視誘発性眼振',
+      caption: '右方注視：ごく軽度の右向き',
+      gazeOpposite: {
+        horizontal: -4,
+        frequency: 2.6,
+        gazeOffset: -12,
+        caption: '左方注視：左向きに変わる ＝ 方向可変性の注視誘発性眼振',
+      },
     },
   },
 

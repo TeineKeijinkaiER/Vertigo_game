@@ -70,12 +70,21 @@ export const case06: CaseDef = {
       frequency: 3,
       caption: '固視で減弱する ＝ 末梢性のパターン',
     },
+    // 末梢性なので、どちらを注視しても向きは右向きのまま。速相の向き（右）を見ると
+    // 増強し、反対を見ると減弱する（Alexanderの法則）。振幅は 右8 > 正面5 > 左3。
     eye_gaze: {
       horizontal: 8,
       torsional: 6,
       frequency: 3.2,
       gazeOffset: 14,
-      caption: '右方注視で増強（Alexanderの法則）。方向は不変',
+      caption: '右方注視：速相の向きを見ると増強する（Alexanderの法則）',
+      gazeOpposite: {
+        horizontal: 3,
+        torsional: 3,
+        frequency: 2.8,
+        gazeOffset: -14,
+        caption: '左方注視：右向きのまま振幅だけ小さくなる ＝ 方向不変',
+      },
     },
     eye_dh_r: { horizontal: 5, torsional: 5, frequency: 3, caption: '自発眼振がそのまま持続。頭位性眼振は誘発されない' },
     eye_dh_l: { horizontal: 5, torsional: 5, frequency: 3, caption: '自発眼振がそのまま持続。頭位性眼振は誘発されない' },

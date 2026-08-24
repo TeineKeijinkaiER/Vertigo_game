@@ -76,12 +76,20 @@ export const case07: CaseDef = {
       frequency: 2.8,
       caption: '固視で減弱する ＝ 末梢性のパターン',
     },
+    // 末梢性なので、どちらを注視しても向きは右向きのまま。振幅は 右9 > 正面6 > 左4。
     eye_gaze: {
       horizontal: 9,
       torsional: 7,
       frequency: 3,
       gazeOffset: 14,
-      caption: '右方注視で増強。方向は不変',
+      caption: '右方注視：速相の向きを見ると増強する（Alexanderの法則）',
+      gazeOpposite: {
+        horizontal: 4,
+        torsional: 3,
+        frequency: 2.6,
+        gazeOffset: -14,
+        caption: '左方注視：右向きのまま振幅だけ小さくなる ＝ 方向不変',
+      },
     },
     // 発作中の自発眼振は頭位を変えても打ち続ける。体位で誘発されるBPPVとの決定的な違いなので、
     // 頭位検査でも同じ眼振を見せる（静止した眼を描くと自発眼振の所見と食い違う）

@@ -67,11 +67,18 @@ export const case08: CaseDef = {
       caption: '固視を外しても振幅はあまり変わらない',
     },
     eye_fixation: { horizontal: 6, frequency: 2.6, caption: '固視で減弱しない。末梢性なら抑制されるはず' },
+    // 注視方向に向かって打つ＝方向可変性。末梢性では起こらない
     eye_gaze: {
       horizontal: 8,
       frequency: 2.8,
       gazeOffset: 14,
-      caption: '右方注視で右向き。左方注視では左向きに変わる ＝ 方向可変性',
+      caption: '右方注視：右向きに打つ',
+      gazeOpposite: {
+        horizontal: -8,
+        frequency: 2.8,
+        gazeOffset: -14,
+        caption: '左方注視：左向きに変わる ＝ 方向可変性',
+      },
     },
     // 自発眼振は頭位を変えても打ち続ける。頭位で誘発されるBPPVとの違いなので、
     // 頭位検査でも同じ眼振を見せる（静止した眼を描くと自発眼振の所見と食い違う）

@@ -79,12 +79,21 @@ export const case09: CaseDef = {
       frequency: 3,
       caption: '固視で減弱しない。末梢性なら抑制されるはず',
     },
+    // 水平成分は注視方向に向かって反転するが、垂直成分は両方向で残る。
+    // 単一の半規管では説明できない打ち方で、そこが中枢性の手がかりになる
     eye_gaze: {
       horizontal: 10,
       vertical: 4,
       frequency: 3.2,
       gazeOffset: 14,
-      caption: '注視方向で眼振の向きが変わる（方向可変性）＝ 中枢性',
+      caption: '右方注視：右向き＋垂直成分',
+      gazeOpposite: {
+        horizontal: -10,
+        vertical: 4,
+        frequency: 3.2,
+        gazeOffset: -14,
+        caption: '左方注視：水平成分が左向きに変わり、垂直成分は残る ＝ 中枢性',
+      },
     },
     // 眼振は頭位を変えても消えない。さらに水平成分は頭位で向きが反転し、垂直成分は
     // 残り続ける。単一の半規管では説明できない打ち方で、そこが中枢性の手がかりになる。

@@ -24,6 +24,12 @@ export interface NystagmusSpec {
   frenzel?: boolean
   /** 図の下に出す一行キャプション */
   caption?: string
+  /**
+   * 注視眼振で反対方向を見たときの所見。指定すると2枚を縦に並べて描く。
+   * 中枢性は向きが変わり、末梢性は向きが変わらず振幅だけ変わる（Alexanderの法則）。
+   * 入れ子は1段まで。
+   */
+  gazeOpposite?: Omit<NystagmusSpec, 'gazeOpposite'>
 }
 
 export type Category = 'bppv' | 'peripheral' | 'central' | 'other'
