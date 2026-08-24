@@ -4,6 +4,7 @@ import {
   ATAXIA_GRADES,
   DISPOSITION_MAP,
   IMAGING_CRITERIA,
+  subtypeAsksSide,
   SUBTYPE_LABEL,
 } from '../data/actions'
 import { MANEUVER_KINDS } from '../data/maneuvers'
@@ -44,6 +45,7 @@ export interface ScoreResult {
   recommended: 4,
   grace: 5,
   subtype: 5,
+  subtypeSide: 5,
   criteria: 8,
   imaging: 12,
   diagnosis: 15,
@@ -142,6 +144,22 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
         : `鑑別の正解：${SUBTYPE_LABEL.get(c.subtype) ?? c.subtype}${s.subtypeAnswer ? `（あなたの選択：${SUBTYPE_LABEL.get(s.subtypeAnswer) ?? s.subtypeAnswer}）` : ''}`,
     ],
   })
+
+  // ── みたてる：鑑別で選んだ患側（BPPV・メニエール病・前庭神経炎のみ）
+  const subtypeSideAsked = subtypeAsksSide(c.subtype)
+  const subtypeSideCorrect = !subtypeSideAsked || s.subtypeSideAnswer === c.diagnosis.side
+  if (subtypeSideAsked) {
+    lines.push({
+      label: '鑑別の患側',
+      earned: subOk && subtypeSideCorrect ? MAX.subtypeSide : 0,
+      max: MAX.subtypeSide,
+      notes: [
+        subOk && subtypeSideCorrect
+          ? '鑑別時点の患側判定も正しくできています'
+          : `患側の正解：${c.diagnosis.side === 'R' ? '右' : '左'}`,
+      ],
+    })
+  }
 
   // ── HOWTO 4条件
   const criteriaAssessed = did('im_criteria')
