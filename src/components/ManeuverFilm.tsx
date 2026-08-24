@@ -51,6 +51,16 @@ const url = (file: string) => `${import.meta.env.BASE_URL}poses/films/${file}`
 const PLAY_ONCE: FilmId[] = ['dix_hallpike_r', 'dix_hallpike_l', 'headroll_r', 'headroll_l']
 
 /**
+ * 診察フィルムが観察体位（最終コマ）に到達するまでの時間。
+ *
+ * positional test では、この後に眼振の潜時を数え始める。最終コマの duration は
+ * その観察体位を保つ時間なので、到達時刻には含めない。
+ */
+export function filmPoseReachedAfterMs(film: FilmId): number {
+  return FILMS[film].frames.slice(0, -1).reduce((total, frame) => total + frame.durationMs, 0)
+}
+
+/**
  * setTimeout でコマを送る（rAF だとタブが非表示のとき止まってしまう）。
  * 全コマを重ねて置き、表示中のものだけ不透明にすることで、
  * 切り替え時の読み込み待ちとちらつきを避ける。

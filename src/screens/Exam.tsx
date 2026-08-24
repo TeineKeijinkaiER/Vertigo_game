@@ -16,7 +16,8 @@ import type { ActionGroup, CaseDef } from '../data/types'
 import type { AtaxiaGrade } from '../data/types'
 import { Button, MenuItem, TypedText, Win } from '../components/ui'
 import { Nystagmus } from '../components/Nystagmus'
-import { ExamPose } from '../components/ExamPose'
+import { examFilmForAction, ExamPose } from '../components/ExamPose'
+import { filmPoseReachedAfterMs } from '../components/ManeuverFilm'
 import { SkewTest } from '../components/SkewTest'
 import { ManeuverGame } from '../components/ManeuverGame'
 import { sfxCancel, sfxFinding } from '../audio/sfx'
@@ -78,6 +79,7 @@ export function ExamScreen({
   // アニメーションや文章が「前回表示済み」のまま止まらず、毎回最初から再生される
   const lastKey = state.log.length - 1
   const criteriaDone = state.performed.includes('im_criteria')
+  const lastPositionalFilm = last && POSITIONAL_ACTIONS.includes(last.actionId) ? examFilmForAction(last.actionId) : null
 
   /**
    * 手技のアニメーションは、実際に施行した手順が（その手技・患側として）正しく
@@ -392,7 +394,11 @@ export function ExamScreen({
             {POSITIONAL_ACTIONS.includes(last.actionId) ? (
               <ExamDuo key={`duo-${lastKey}`}>
                 <ExamPose key={`pose-${lastKey}`} actionId={last.actionId} maneuver={performedManeuver} />
-                <Nystagmus key={`nys-${lastKey}`} spec={caseDef.nystagmus?.[last.actionId] ?? {}} />
+                <Nystagmus
+                  key={`nys-${lastKey}`}
+                  spec={caseDef.nystagmus?.[last.actionId] ?? {}}
+                  startDelayMs={lastPositionalFilm ? filmPoseReachedAfterMs(lastPositionalFilm) : 0}
+                />
               </ExamDuo>
             ) : (
               <>

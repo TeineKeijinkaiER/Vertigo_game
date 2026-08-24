@@ -79,7 +79,14 @@ function Eye({
   )
 }
 
-export function Nystagmus({ spec }: { spec: NystagmusSpec }) {
+export function Nystagmus({
+  spec,
+  startDelayMs = 0,
+}: {
+  spec: NystagmusSpec
+  /** 体位変換など、眼振の潜時を数え始める前の動作時間。 */
+  startDelayMs?: number
+}) {
   const rightEye = useRef<SVGGElement | null>(null)
   const leftEye = useRef<SVGGElement | null>(null)
   const [replayKey, setReplayKey] = useState(0)
@@ -88,7 +95,8 @@ export function Nystagmus({ spec }: { spec: NystagmusSpec }) {
   const v = spec.vertical ?? 0
   const tor = spec.torsional ?? 0
   const freq = spec.frequency ?? 0
-  const latency = spec.latencySec ?? 0
+  // positional test は、最終頭位に着いてから spec の潜時を数える。
+  const latency = (spec.latencySec ?? 0) + startDelayMs / 1000
   const duration = spec.durationSec ?? null
   const gaze = spec.gazeOffset ?? 0
   const hasNystagmus = freq > 0 && (h !== 0 || v !== 0 || tor !== 0)

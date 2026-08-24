@@ -30,6 +30,11 @@ const FILM_FOR: Partial<Record<string, { film: FilmId; caption?: string }>> = {
   eye_roll_l: { film: 'headroll_l' },
 }
 
+/** 体位変換後の眼振開始時刻を合わせるため、診察アクションのフィルムIDを公開する。 */
+export function examFilmForAction(actionId: string): FilmId | null {
+  return FILM_FOR[actionId]?.film ?? null
+}
+
 export function ExamPose({
   actionId,
   maneuver,

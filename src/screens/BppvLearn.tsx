@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BPPV_LESSONS, type BppvLessonId } from '../data/bppvLessons'
 import { Button, Win } from '../components/ui'
-import { ManeuverFilm } from '../components/ManeuverFilm'
+import { filmPoseReachedAfterMs, ManeuverFilm } from '../components/ManeuverFilm'
 import { Nystagmus } from '../components/Nystagmus'
 import type { Action } from '../game/state'
 
@@ -34,7 +34,7 @@ export function BppvLearnScreen({ dispatch }: { dispatch: (a: Action) => void })
             <div className="win-title">{finding.label}</div>
             <div className="exam-duo">
               <ManeuverFilm film={finding.film} />
-              <Nystagmus spec={finding.nystagmus} />
+              <Nystagmus spec={finding.nystagmus} startDelayMs={filmPoseReachedAfterMs(finding.film)} />
             </div>
           </div>
         ))}

@@ -21,6 +21,9 @@
   - 型と患側の選択、各レッスンの描画を担う。
 - `src/components/ManeuverFilm.tsx`
   - `public/poses/films/` の連続コマを再生する。
+  - `filmPoseReachedAfterMs()` は最終観察体位に到達する時刻（最終コマの保持時間を除く）を返す。本編・学習画面の眼振は、この時刻から開始する。
+- `src/components/Nystagmus.tsx`
+  - `startDelayMs` を渡すと、その時間の後に症例ごとの `latencySec` を加えて眼振を開始する。体位変換を伴わない通常の眼球診察には渡さない。
 
 ## アセット対応
 
