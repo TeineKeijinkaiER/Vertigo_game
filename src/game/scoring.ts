@@ -155,8 +155,8 @@ export function scoreGame(c: CaseDef, s: GameState): ScoreResult {
       max: MAX.subtypeSide,
       notes: [
         subOk && subtypeSideCorrect
-          ? '鑑別時点の患側判定も正しくできています'
-          : `患側の正解：${c.diagnosis.side === 'R' ? '右' : '左'}`,
+          ? 'かんべつ②で答えた患側判定も正しくできています'
+          : `かんべつ②で答えた患側の正解：${c.diagnosis.side === 'R' ? '右' : '左'}`,
       ],
     })
   }

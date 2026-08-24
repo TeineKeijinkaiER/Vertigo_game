@@ -290,7 +290,7 @@ export function ExamScreen({
           </div>
         </Win>
         {needsSubtypeSide && (
-          <Win title="患側">
+          <Win title="患側（この時点での判断）">
             <div className="menu">
               <MenuItem
                 label="右"
@@ -480,6 +480,7 @@ export function ExamScreen({
               <MenuItem
                 key={g.id}
                 label={g.label}
+                checked={g.id === 'assess' && state.performed.includes('as_dx')}
                 onSelect={() => {
                   // かんべつは項目が1つしかないので、中間メニューを経由せず分類選択のモーダルへ直接入る
                   if (g.id === 'assess') return perform('as_dx')
