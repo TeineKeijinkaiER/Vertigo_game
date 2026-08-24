@@ -558,3 +558,149 @@ button {
 .poseimg--compact .poseimg-missing {
   min-height: 64px;
 }
+
+/* ── 上部ユーティリティ行 ───────────────────────────── */
+.apphdr {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.apphdr-btn {
+  flex: 1 1 0;
+  padding: 5px 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+  border: 1px solid var(--dim);
+  border-radius: 3px;
+  background: var(--navy);
+  white-space: nowrap;
+}
+
+.apphdr-btn:active {
+  color: var(--navy-deep);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.apphdr-btn--sound {
+  flex: 0 0 auto;
+  min-width: 56px;
+  text-align: center;
+}
+
+.apphdr-btn--sound[aria-pressed='true'] {
+  color: var(--navy-deep);
+  background: var(--dim);
+  border-color: var(--dim);
+}
+
+/* ── 職種チップ ─────────────────────────────────── */
+.rolechip {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px dashed var(--dim);
+  border-radius: 3px;
+  background: transparent;
+}
+
+.rolechip-label {
+  color: var(--dim);
+  font-size: 12px;
+}
+
+.rolechip-value {
+  color: var(--accent);
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.rolechip-action {
+  color: var(--dim);
+  font-size: 12px;
+}
+
+/* ── タブ行 ─────────────────────────────────────── */
+.tabrow {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+  overflow-x: auto;
+}
+
+.tabrow-btn {
+  flex: 1 1 auto;
+  padding: 5px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--dim);
+  border: 1px solid var(--dim);
+  border-radius: 3px;
+  background: var(--navy);
+}
+
+.tabrow-btn.is-on {
+  color: var(--navy-deep);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ── クリア記録・履歴の一覧 ─────────────────────────── */
+.reclist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recrow {
+  display: grid;
+  grid-template-columns: 1.6em 1fr auto;
+  gap: 2px 8px;
+  align-items: baseline;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(154, 164, 200, 0.25);
+  font-size: 13px;
+}
+
+.recrow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.recmark {
+  color: var(--dim);
+  text-align: center;
+}
+
+.recmark.is-clear {
+  color: var(--accent);
+}
+
+.recname {
+  min-width: 0;
+}
+
+.recmeta {
+  color: var(--dim);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.recdate {
+  grid-column: 2 / -1;
+  font-size: 11px;
+}
+
+.recempty {
+  color: var(--dim);
+  font-size: 13px;
+  text-align: center;
+  padding: 12px 0;
+}

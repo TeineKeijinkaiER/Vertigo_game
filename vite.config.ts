@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -5,6 +6,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 // base は相対パスにしておくと GitHub Pages のサブディレクトリでもそのまま動く
 export default defineConfig({
   base: './',
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/**/*.test.{ts,tsx}'],
+  },
   plugins: [
     react(),
     VitePWA({

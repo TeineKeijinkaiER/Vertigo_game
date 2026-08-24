@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { IMAGING_CRITERIA } from '../data/actions'
 import type { CaseDef } from '../data/types'
 import { Button, TypedText, Win } from '../components/ui'
 import { sfxFanfare, sfxGameOver } from '../audio/sfx'
 import { scoreGame } from '../game/scoring'
 import type { Action, GameState } from '../game/state'
+import { caseTitle } from '../data/cases'
+import { useRecordResult } from '../profile/useRecordResult'
+import type { PlayResult } from '../profile/types'
+import { useProfile } from '../profile/ProfileContext'
+import { buildPayload, sendResult } from '../telemetry/send'
 
 const RANK_COLOR: Record<string, string> = {
   S: 'var(--accent)',
@@ -28,6 +33,44 @@ export function ResultScreen({
   const result = scoreGame(caseDef, state)
   const [step, setStep] = useState<Step>(result.showsDay2 ? 'day2' : 'ending')
   const isBad = result.ending === 'worst'
+
+  // 記録はスコア画面に到達した時点で確定する。
+  // それ以前は null を渡して useRecordResult を黙らせておく。
+  const play: PlayResult | null = useMemo(
+    () =>
+      step === 'score' || step === 'review'
+        ? {
+            caseId: caseDef.id,
+            caseTitle: caseTitle(caseDef),
+            category: caseDef.category,
+            rank: result.rank,
+            score: result.total,
+            ending: result.ending,
+            fromRandom: state.fromRandom,
+          }
+        : null,
+    [step, caseDef, result.rank, result.total, result.ending, state.fromRandom],
+  )
+  useRecordResult(play)
+
+  // 送信も1回だけ。StrictMode の二重実行を ref で防ぐ
+  const { profile } = useProfile()
+  const sent = useRef(false)
+  useEffect(() => {
+    if (!play || sent.current) return
+    sent.current = true
+    void sendResult(
+      buildPayload({
+        play,
+        roleId: profile.roleId,
+        maneuverPerfect: state.maneuver?.perfect ?? null,
+        diagnosisCorrect: result.diagnosisCorrect,
+        sideCorrect: result.sideCorrect,
+        completedAt: Date.now(),
+        pageUrl: window.location.href,
+      }),
+    )
+  }, [play, profile.roleId, state.maneuver, result.diagnosisCorrect, result.sideCorrect])
 
   useEffect(() => {
     if (step === 'score') {
@@ -178,7 +221,11 @@ export function ResultScreen({
       </div>
 
       <div className="row">
-        <Button onClick={() => dispatch({ type: 'START_CASE', caseId: caseDef.id })}>もういちど</Button>
+        <Button
+          onClick={() => dispatch({ type: 'START_CASE', caseId: caseDef.id, fromRandom: false })}
+        >
+          もういちど
+        </Button>
         <Button variant="primary" onClick={() => dispatch({ type: 'RESET' })}>
           タイトルへ
         </Button>

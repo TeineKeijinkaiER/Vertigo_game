@@ -1,10 +1,22 @@
-import { lazy, Suspense, useReducer } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useReducer, useState } from 'react'
 import { CASE_MAP } from './data/cases'
 import { initialState, reducer } from './game/state'
-import { BriefScreen, CaseSelectScreen, TitleScreen } from './screens/Opening'
+import { AppHeader, type Overlay } from './components/AppHeader'
+import { HowtoScreen } from './screens/Howto'
+import { ClearsScreen } from './screens/Clears'
+import { HistoryScreen } from './screens/History'
+import { RolePickScreen } from './screens/RolePick'
+import { useProfile } from './profile/ProfileContext'
+import { useRoleGate } from './profile/useRoleGate'
+import { TitleScreen } from './screens/Title'
+import { CaseSelectScreen } from './screens/CaseSelect'
+import { BriefScreen } from './screens/Brief'
+import { BppvLearnScreen } from './screens/BppvLearn'
 import { ExamScreen } from './screens/Exam'
 import { DiagnosisScreen, DispositionScreen } from './screens/Decision'
 import { ResultScreen } from './screens/Result'
+import { startMusic, stopMusic } from './audio/music'
+import { setSoundEnabled } from './audio/sfx'
 
 const ManeuverRigPrototype = lazy(() =>
   import('./prototypes/ManeuverRigPrototype').then((module) => ({ default: module.ManeuverRigPrototype })),
@@ -31,39 +43,80 @@ export default function App() {
   }
 
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [overlay, setOverlay] = useState<Overlay>(null)
   const caseDef = state.caseId !== null ? CASE_MAP.get(state.caseId) : undefined
 
-  if (state.phase === 'title' || !caseDef) {
-    // 症例が解決できない場合もタイトルに戻す（データ不整合の保険）
-    if (state.phase === 'select') {
-      return (
-        <div className="app">
-          <CaseSelectScreen dispatch={dispatch} />
-        </div>
-      )
-    }
-    return (
-      <div className="app">
-        <TitleScreen dispatch={dispatch} />
-      </div>
-    )
-  }
+  const { profile } = useProfile()
+  const openRolePick = useCallback(() => setOverlay('role'), [])
+  const { guard, resume, cancel } = useRoleGate(profile.roleId, openRolePick)
 
-  if (state.phase === 'select') {
-    return (
-      <div className="app">
-        <CaseSelectScreen dispatch={dispatch} />
-      </div>
-    )
+  // ミュートは BGM と効果音の両方を止める
+  useEffect(() => {
+    setSoundEnabled(!profile.muted)
+  }, [profile.muted])
+
+  useEffect(() => {
+    if (profile.muted) {
+      stopMusic()
+      return
+    }
+    // メニューを触っているあいだは診察が止まっているので opening に切り替える。
+    // ただし結果画面の上で開いたときだけは、ファンファーレの直後に
+    // 曲が始まると興を削ぐので停止したままにする。
+    if (state.phase === 'result') {
+      stopMusic()
+      return
+    }
+    const menuish =
+      overlay !== null || state.phase === 'title' || state.phase === 'select' || state.phase === 'learn'
+    startMusic(menuish ? 'opening' : 'exam')
+  }, [profile.muted, overlay, state.phase])
+
+  const close = () => setOverlay(null)
+
+  const screen = () => {
+    if (state.phase === 'select') return <CaseSelectScreen dispatch={dispatch} />
+    if (state.phase === 'learn') return <BppvLearnScreen dispatch={dispatch} />
+    // 症例が解決できない場合もタイトルに戻す（データ不整合の保険）
+    if (state.phase === 'title' || !caseDef)
+      return (
+        <TitleScreen
+          dispatch={dispatch}
+          roleId={profile.roleId}
+          onChangeRole={() => setOverlay('role')}
+          guard={guard}
+        />
+      )
+    if (state.phase === 'brief') return <BriefScreen caseDef={caseDef} dispatch={dispatch} />
+    if (state.phase === 'exam') return <ExamScreen caseDef={caseDef} state={state} dispatch={dispatch} />
+    if (state.phase === 'diagnosis') return <DiagnosisScreen state={state} dispatch={dispatch} />
+    if (state.phase === 'disposition') return <DispositionScreen state={state} dispatch={dispatch} />
+    return <ResultScreen caseDef={caseDef} state={state} dispatch={dispatch} />
   }
 
   return (
     <div className="app">
-      {state.phase === 'brief' && <BriefScreen caseDef={caseDef} dispatch={dispatch} />}
-      {state.phase === 'exam' && <ExamScreen caseDef={caseDef} state={state} dispatch={dispatch} />}
-      {state.phase === 'diagnosis' && <DiagnosisScreen state={state} dispatch={dispatch} />}
-      {state.phase === 'disposition' && <DispositionScreen state={state} dispatch={dispatch} />}
-      {state.phase === 'result' && <ResultScreen caseDef={caseDef} state={state} dispatch={dispatch} />}
+      <AppHeader onOpen={setOverlay} />
+      {overlay === 'howto' ? (
+        <HowtoScreen onClose={close} />
+      ) : overlay === 'clears' ? (
+        <ClearsScreen onClose={close} />
+      ) : overlay === 'history' ? (
+        <HistoryScreen onClose={close} />
+      ) : overlay === 'role' ? (
+        <RolePickScreen
+          onDone={() => {
+            setOverlay(null)
+            resume()
+          }}
+          onCancel={() => {
+            setOverlay(null)
+            cancel()
+          }}
+        />
+      ) : (
+        screen()
+      )}
     </div>
   )
 }

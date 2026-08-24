@@ -8,7 +8,15 @@ import type { Side } from '../data/types'
  * GRACE-3の分類とHOWTO 4条件は独立した画面ではなく、
  * 診察フェーズの「みたてる」コマンドとして扱う。
  */
-export type Phase = 'title' | 'select' | 'brief' | 'exam' | 'diagnosis' | 'disposition' | 'result'
+export type Phase =
+  | 'title'
+  | 'select'
+  | 'learn'
+  | 'brief'
+  | 'exam'
+  | 'diagnosis'
+  | 'disposition'
+  | 'result'
 
 export interface LogEntry {
   actionId: string
@@ -19,6 +27,8 @@ export interface LogEntry {
 export interface GameState {
   phase: Phase
   caseId: number | null
+  /** 「しんさつかいし」から始めたか。履歴と送信データに残す */
+  fromRandom: boolean
   /** 実施した診察・検査・治療コマンド（順序を保つ） */
   performed: string[]
   log: LogEntry[]
@@ -35,6 +45,7 @@ export interface GameState {
 export const initialState: GameState = {
   phase: 'title',
   caseId: null,
+  fromRandom: false,
   performed: [],
   log: [],
   vestibularAnswer: null,
@@ -48,7 +59,7 @@ export const initialState: GameState = {
 
 export type Action =
   | { type: 'GOTO'; phase: Phase }
-  | { type: 'START_CASE'; caseId: number }
+  | { type: 'START_CASE'; caseId: number; fromRandom: boolean }
   | { type: 'PERFORM'; entry: LogEntry }
   | { type: 'SET_VESTIBULAR'; value: VestibularChoice }
   | { type: 'SET_SUBTYPE'; value: string }
@@ -66,7 +77,7 @@ export function reducer(state: GameState, action: Action): GameState {
       return { ...state, phase: action.phase }
 
     case 'START_CASE':
-      return { ...initialState, phase: 'brief', caseId: action.caseId }
+      return { ...initialState, phase: 'brief', caseId: action.caseId, fromRandom: action.fromRandom }
 
     // performed は採点用の実施済み集合なので重複させない。log には毎回積み、
     // 何度でも同じ所見を選び直して見返せるようにする
