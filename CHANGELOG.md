@@ -27,6 +27,7 @@
 
 ### 引き継ぎ時の確認
 
+- 実装の入口・直近コミット・確認コマンドは `docs/handover/2026-08-24-current-state.md` に集約。BPPV学習の詳細は `docs/handover/2026-08-24-bppv-learning-handover.md` を参照する。
 - `src/data/cases/*.ts` の `findings.ex_ataxia` は患者に見せる観察所見。先頭のGrade表記は画面で除去する。
 - 症例ごとの正解Gradeは `CaseDef.ataxiaGrade` に定義する。
 - Gradeの回答は `GameState.ataxiaAnswer` に保存し、`scoreGame()` の「起立・歩行の失調Grade」で採点する。
