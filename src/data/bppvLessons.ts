@@ -1,5 +1,4 @@
 import type { FilmId } from '../components/ManeuverFilm'
-import type { PoseImageId } from './poseImages'
 import type { NystagmusSpec } from './types'
 import { case01 } from './cases/case01'
 import { case02 } from './cases/case02'
@@ -24,8 +23,8 @@ export interface BppvLesson {
   maneuverName: string
   maneuverFilm: FilmId
   maneuverCaption: string
-  poses: readonly { id: PoseImageId; caption: string }[]
   steps: readonly string[]
+  alternativeManeuver?: { name: string; film: FilmId; caption: string; steps: readonly string[] }
   caution: string
 }
 
@@ -33,7 +32,7 @@ const finding = (label: string, film: FilmId, nystagmus: NystagmusSpec): Finding
 
 /**
  * BPPV学習画面の全6パターン。眼振specは対応するゲーム症例から再利用し、
- * 動画と静止画は public/poses の検証済みアセットだけを参照する。
+ * 動画は public/poses/films の検証済みアセットだけを参照する。
  */
 export const BPPV_LESSONS: readonly BppvLesson[] = [
   {
@@ -44,7 +43,6 @@ export const BPPV_LESSONS: readonly BppvLesson[] = [
     findingRule: '潜時をおいて上向き回旋眼振が出現します。回旋成分は患者から見て時計回り、右耳の方向です。',
     maneuverName: '右Epley法', maneuverFilm: 'epley_r',
     maneuverCaption: '頭部の回旋と体幹のログロールを分け、耳石を卵形嚢へ戻します。',
-    poses: [{ id: 'dh_hang_r', caption: '右懸垂位' }, { id: 'ep_cross_r', caption: '頭を左へ90°' }, { id: 'side_l_facedown', caption: '左側臥位・鼻を床へ' }, { id: 'sit_up', caption: 'ゆっくり起坐' }],
     steps: ['右耳を下にした頭部懸垂位', '頭だけを左へ90°回す', '体ごと左側臥位にして鼻を床へ向ける', 'ゆっくり起坐させる'],
     caution: '頸椎疾患、可動域制限、血管病変などがある場合は無理に行わず、方法を調整します。',
   },
@@ -56,7 +54,6 @@ export const BPPV_LESSONS: readonly BppvLesson[] = [
     findingRule: '潜時をおいて上向き回旋眼振が出現します。回旋成分は患者から見て反時計回り、左耳の方向です。',
     maneuverName: '左Epley法', maneuverFilm: 'epley_l',
     maneuverCaption: '右と反対方向に、頭部と体幹を順に動かします。',
-    poses: [{ id: 'dh_hang_l', caption: '左懸垂位' }, { id: 'ep_cross_l', caption: '頭を右へ90°' }, { id: 'side_r_facedown', caption: '右側臥位・鼻を床へ' }, { id: 'sit_up', caption: 'ゆっくり起坐' }],
     steps: ['左耳を下にした頭部懸垂位', '頭だけを右へ90°回す', '体ごと右側臥位にして鼻を床へ向ける', 'ゆっくり起坐させる'],
     caution: '回旋眼振の向きは患者から見た向きです。画面上の左右と混同しないよう注意します。',
   },
@@ -66,10 +63,10 @@ export const BPPV_LESSONS: readonly BppvLesson[] = [
     testName: 'Supine Head Roll',
     findings: [finding('右耳を下にする', 'headroll_r', case04.nystagmus!.eye_roll_r!), finding('左耳を下にする', 'headroll_l', case04.nystagmus!.eye_roll_l!)],
     findingRule: '向地性では眼振が下になった耳の方向へ向きます。強い右耳下が患側です。',
-    maneuverName: '右Gufoni法（向地性）', maneuverFilm: 'gufoni_geo_r',
+    maneuverName: 'Gufoni法（向地性）', maneuverFilm: 'gufoni_geo_r',
     maneuverCaption: '健側（左）へ倒し、鼻を床へ45°向けます。Lempert法も代替として行えます。',
-    poses: [{ id: 'gufoni_fall_l', caption: '健側の左へ倒す' }, { id: 'side_l_facedown', caption: '鼻を床へ45°' }, { id: 'lempert_full', caption: '代替のLempert法' }],
     steps: ['坐位から健側（左）へすばやく倒す', '鼻を床へ45°向けて保持する', 'ゆっくり坐位へ戻す'],
+    alternativeManeuver: { name: 'Lempert法', film: 'lempert_r', caption: '仰臥位から健側（左）方向へ90°ずつ、270〜360°回転します。', steps: ['患側（右）へ頭を90°回して誘発を確認する', '頭を正中に戻す', '健側（左）方向へ体ごと90°ずつ回す', '270〜360°回転して起坐する'] },
     caution: 'Head Rollは左右とも行い、振幅・速度を比べます。片側だけでは患側を誤ります。',
   },
   {
@@ -78,10 +75,10 @@ export const BPPV_LESSONS: readonly BppvLesson[] = [
     testName: 'Supine Head Roll',
     findings: [finding('右耳を下にする', 'headroll_r', case03.nystagmus!.eye_roll_r!), finding('左耳を下にする', 'headroll_l', case03.nystagmus!.eye_roll_l!)],
     findingRule: '向地性では、強い左耳下が患側です。眼振の向きは下になった耳へ向かいます。',
-    maneuverName: '左Gufoni法（向地性）', maneuverFilm: 'gufoni_geo_l',
+    maneuverName: 'Gufoni法（向地性）', maneuverFilm: 'gufoni_geo_l',
     maneuverCaption: '健側（右）へ倒し、鼻を床へ45°向けます。',
-    poses: [{ id: 'gufoni_fall_r', caption: '健側の右へ倒す' }, { id: 'side_r_facedown', caption: '鼻を床へ45°' }, { id: 'lempert_full', caption: '代替のLempert法' }],
     steps: ['坐位から健側（右）へすばやく倒す', '鼻を床へ45°向けて保持する', 'ゆっくり坐位へ戻す'],
+    alternativeManeuver: { name: 'Lempert法', film: 'lempert_l', caption: '仰臥位から健側（右）方向へ90°ずつ、270〜360°回転します。', steps: ['患側（左）へ頭を90°回して誘発を確認する', '頭を正中に戻す', '健側（右）方向へ体ごと90°ずつ回す', '270〜360°回転して起坐する'] },
     caution: '向地性と背地性では、患側判定とGufoni法の倒す方向が反対です。',
   },
   {
@@ -90,9 +87,8 @@ export const BPPV_LESSONS: readonly BppvLesson[] = [
     testName: 'Supine Head Roll',
     findings: [finding('右耳を下にする', 'headroll_r', case12.nystagmus!.eye_roll_r!), finding('左耳を下にする', 'headroll_l', case12.nystagmus!.eye_roll_l!)],
     findingRule: '背地性では眼振が地と反対へ向きます。弱い右耳下が患側で、持続が長く疲労しにくいのが手がかりです。',
-    maneuverName: '右Gufoni–Appiani法（背地性）', maneuverFilm: 'gufoni_apo_r',
+    maneuverName: 'Gufoni–Appiani法（背地性）', maneuverFilm: 'gufoni_apo_r',
     maneuverCaption: '患側（右）へ倒し、鼻を天井へ45°向けてクプラから耳石を外します。',
-    poses: [{ id: 'gufoni_fall_r', caption: '患側の右へ倒す' }, { id: 'side_r_faceup', caption: '鼻を天井へ45°' }],
     steps: ['坐位から患側（右）へすばやく倒す', '鼻を天井へ45°向けて保持する', '向地性へ変われば、その型の手技を続ける'],
     caution: '背地性眼振は中枢性疾患でも起こり得ます。神経所見や歩行を必ず併せて評価します。',
   },
@@ -102,9 +98,8 @@ export const BPPV_LESSONS: readonly BppvLesson[] = [
     testName: 'Supine Head Roll',
     findings: [finding('右耳を下にする', 'headroll_r', case05.nystagmus!.eye_roll_r!), finding('左耳を下にする', 'headroll_l', case05.nystagmus!.eye_roll_l!)],
     findingRule: '背地性では、弱い左耳下が患側です。向地性と逆のルールになります。',
-    maneuverName: '左Gufoni–Appiani法（背地性）', maneuverFilm: 'gufoni_apo_l',
+    maneuverName: 'Gufoni–Appiani法（背地性）', maneuverFilm: 'gufoni_apo_l',
     maneuverCaption: '患側（左）へ倒し、鼻を天井へ45°向けます。',
-    poses: [{ id: 'gufoni_fall_l', caption: '患側の左へ倒す' }, { id: 'side_l_faceup', caption: '鼻を天井へ45°' }],
     steps: ['坐位から患側（左）へすばやく倒す', '鼻を天井へ45°向けて保持する', '向地性へ変われば、その型の手技を続ける'],
     caution: '背地性水平眼振を末梢性と決めつけず、中枢性の赤旗を確認します。',
   },

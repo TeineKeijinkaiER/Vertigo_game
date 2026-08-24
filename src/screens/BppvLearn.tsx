@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { BPPV_LESSONS, type BppvLessonId } from '../data/bppvLessons'
-import { Button, MenuItem, Win } from '../components/ui'
+import { Button, Win } from '../components/ui'
 import { ManeuverFilm } from '../components/ManeuverFilm'
 import { Nystagmus } from '../components/Nystagmus'
-import { PoseImage } from '../components/PoseImage'
 import type { Action } from '../game/state'
 
 export function BppvLearnScreen({ dispatch }: { dispatch: (a: Action) => void }) {
@@ -12,29 +11,16 @@ export function BppvLearnScreen({ dispatch }: { dispatch: (a: Action) => void })
 
   return (
     <div className="stack grow scroll">
-      <Win title="BPPVがくしゅう">
-        <p className="msg small" style={{ margin: 0 }}>
-          型と患側を選ぶと、誘発する体位、眼振、耳石置換法を本編と同じアニメーション・画像で確認できます。
-          {'\n'}眼振の左右はすべて<span className="accent">患者から見た向き</span>です。
-        </p>
-      </Win>
-
       <Win title="型と患側をえらぶ">
-        <div className="menu">
+        <select className="learn-select" value={selectedId} onChange={(event) => setSelectedId(event.target.value as BppvLessonId)}>
           {(['後半規管', '水平半規管・向地性', '水平半規管・背地性（クプラ結石）'] as const).map((family) => (
-            <div key={family} className="learn-group">
-              <div className="win-title">{family}</div>
+            <optgroup key={family} label={family}>
               {BPPV_LESSONS.filter((item) => item.family === family).map((item) => (
-                <MenuItem
-                  key={item.id}
-                  label={item.title}
-                  checked={selectedId === item.id}
-                  onSelect={() => setSelectedId(item.id)}
-                />
+                <option key={item.id} value={item.id}>{item.title}</option>
               ))}
-            </div>
+            </optgroup>
           ))}
-        </div>
+        </select>
       </Win>
 
       <Win title={lesson.title}>
@@ -61,11 +47,14 @@ export function BppvLearnScreen({ dispatch }: { dispatch: (a: Action) => void })
         </ol>
       </Win>
 
-      <Win title="体位を画像で確認">
-        <div className="learn-poses">
-          {lesson.poses.map((pose) => <PoseImage key={pose.id} id={pose.id} caption={pose.caption} compact />)}
-        </div>
-      </Win>
+      {lesson.alternativeManeuver && (
+        <Win title={`③ ${lesson.alternativeManeuver.name}`}>
+          <ManeuverFilm film={lesson.alternativeManeuver.film} caption={lesson.alternativeManeuver.caption} />
+          <ol className="learn-steps">
+            {lesson.alternativeManeuver.steps.map((step) => <li key={step}>{step}</li>)}
+          </ol>
+        </Win>
+      )}
 
       <Win title="注意">
         <p className="msg small danger" style={{ margin: 0 }}>{lesson.caution}</p>
