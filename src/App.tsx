@@ -1,6 +1,8 @@
-import { lazy, Suspense, useReducer } from 'react'
+import { lazy, Suspense, useReducer, useState } from 'react'
 import { CASE_MAP } from './data/cases'
 import { initialState, reducer } from './game/state'
+import { AppHeader, type Overlay } from './components/AppHeader'
+import { HowtoScreen } from './screens/Howto'
 import { TitleScreen } from './screens/Title'
 import { CaseSelectScreen } from './screens/CaseSelect'
 import { BriefScreen } from './screens/Brief'
@@ -34,40 +36,27 @@ export default function App() {
   }
 
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [overlay, setOverlay] = useState<Overlay>(null)
   const caseDef = state.caseId !== null ? CASE_MAP.get(state.caseId) : undefined
 
-  if (state.phase === 'select') {
-    return (
-      <div className="app">
-        <CaseSelectScreen dispatch={dispatch} />
-      </div>
-    )
-  }
+  const close = () => setOverlay(null)
 
-  if (state.phase === 'learn') {
-    return (
-      <div className="app">
-        <BppvLearnScreen dispatch={dispatch} />
-      </div>
-    )
-  }
-
-  // 症例が解決できない場合もタイトルに戻す（データ不整合の保険）
-  if (state.phase === 'title' || !caseDef) {
-    return (
-      <div className="app">
-        <TitleScreen dispatch={dispatch} />
-      </div>
-    )
+  const screen = () => {
+    if (state.phase === 'select') return <CaseSelectScreen dispatch={dispatch} />
+    if (state.phase === 'learn') return <BppvLearnScreen dispatch={dispatch} />
+    // 症例が解決できない場合もタイトルに戻す（データ不整合の保険）
+    if (state.phase === 'title' || !caseDef) return <TitleScreen dispatch={dispatch} />
+    if (state.phase === 'brief') return <BriefScreen caseDef={caseDef} dispatch={dispatch} />
+    if (state.phase === 'exam') return <ExamScreen caseDef={caseDef} state={state} dispatch={dispatch} />
+    if (state.phase === 'diagnosis') return <DiagnosisScreen state={state} dispatch={dispatch} />
+    if (state.phase === 'disposition') return <DispositionScreen state={state} dispatch={dispatch} />
+    return <ResultScreen caseDef={caseDef} state={state} dispatch={dispatch} />
   }
 
   return (
     <div className="app">
-      {state.phase === 'brief' && <BriefScreen caseDef={caseDef} dispatch={dispatch} />}
-      {state.phase === 'exam' && <ExamScreen caseDef={caseDef} state={state} dispatch={dispatch} />}
-      {state.phase === 'diagnosis' && <DiagnosisScreen state={state} dispatch={dispatch} />}
-      {state.phase === 'disposition' && <DispositionScreen state={state} dispatch={dispatch} />}
-      {state.phase === 'result' && <ResultScreen caseDef={caseDef} state={state} dispatch={dispatch} />}
+      <AppHeader onOpen={setOverlay} />
+      {overlay === 'howto' ? <HowtoScreen onClose={close} /> : screen()}
     </div>
   )
 }

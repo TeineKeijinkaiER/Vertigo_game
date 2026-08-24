@@ -558,3 +558,42 @@ button {
 .poseimg--compact .poseimg-missing {
   min-height: 64px;
 }
+
+/* ── 上部ユーティリティ行 ───────────────────────────── */
+.apphdr {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.apphdr-btn {
+  flex: 1 1 0;
+  padding: 5px 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+  border: 1px solid var(--dim);
+  border-radius: 3px;
+  background: var(--navy);
+  white-space: nowrap;
+}
+
+.apphdr-btn:active {
+  color: var(--navy-deep);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.apphdr-btn--sound {
+  flex: 0 0 auto;
+  min-width: 56px;
+  text-align: center;
+}
+
+.apphdr-btn--sound[aria-pressed='true'] {
+  color: var(--navy-deep);
+  background: var(--dim);
+  border-color: var(--dim);
+}
