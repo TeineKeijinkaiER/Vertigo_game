@@ -52,7 +52,10 @@ function doGet() {
 function doPost(e) {
   try {
     const payload = parsePayload_(e);
-    const isPracticeOpen = payload.kind === "bppv_practice_open";
+    // 旧クライアント（キャッシュに残った版）は kind: "bppv_learn_view" と
+    // viewedAt を送ってくる。ゲーム結果シートに紛れ込ませず、練習シートへ回す。
+    const isPracticeOpen =
+      payload.kind === "bppv_practice_open" || payload.kind === "bppv_learn_view";
     const sheetName = isPracticeOpen ? SHEET_NAME_PRACTICE : SHEET_NAME;
     const headers = isPracticeOpen ? HEADERS_PRACTICE : HEADERS;
     const toRow = isPracticeOpen ? toPracticeRow_ : toResultRow_;
@@ -151,7 +154,7 @@ function toResultRow_(p) {
 function toPracticeRow_(p) {
   return [
     nowJst_(),
-    toJst_(p.openedAt),
+    toJst_(p.openedAt || p.viewedAt),
     p.roleId || "",
     p.roleName || "",
     p.appVersion || "",
@@ -174,6 +177,47 @@ function toJst_(value) {
   const parsed = new Date(value);
   if (isNaN(parsed.getTime())) return value;
   return Utilities.formatDate(parsed, TIME_ZONE, TIME_FORMAT);
+}
+
+/**
+ * すでに書き込まれてしまった UTC の ISO 文字列を日本時刻へ直す。
+ * スクリプトエディタから1回だけ手で実行する用。
+ * 日本時刻の "yyyy-MM-dd HH:mm:ss" で入っている行は対象外なので、
+ * 何度実行しても二重にずれることはない。
+ */
+function fixExistingTimestampsToJst() {
+  const spreadsheet = getSpreadsheet_();
+  const targets = [SHEET_NAME, SHEET_NAME_PRACTICE, "bppv_learn_views"];
+  const timeColumns = ["receivedAt", "completedAt", "openedAt", "viewedAt"];
+  let fixed = 0;
+
+  targets.forEach(function (sheetName) {
+    const sheet = spreadsheet.getSheetByName(sheetName);
+    if (!sheet || sheet.getLastRow() < 2) return;
+
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    headers.forEach(function (header, index) {
+      if (timeColumns.indexOf(header) === -1) return;
+      const range = sheet.getRange(2, index + 1, sheet.getLastRow() - 1, 1);
+      const values = range.getValues();
+      let touched = false;
+      for (let i = 0; i < values.length; i++) {
+        const converted = toJst_(values[i][0]);
+        if (converted !== values[i][0]) {
+          values[i][0] = converted;
+          touched = true;
+          fixed++;
+        }
+      }
+      if (touched) {
+        range.setNumberFormat("@");
+        range.setValues(values);
+      }
+    });
+  });
+
+  Logger.log("日本時刻へ直したセル: " + fixed);
+  return fixed;
 }
 
 function jsonOutput_(obj) {
