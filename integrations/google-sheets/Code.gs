@@ -1,6 +1,12 @@
 const SHEET_NAME = "vertigo_results";
-const SHEET_NAME_LEARN = "bppv_learn_views";
+const SHEET_NAME_PRACTICE = "bppv_practice_opens";
 const SPREADSHEET_ID = "";
+const TIME_ZONE = "Asia/Tokyo";
+const TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+/** 新規スプレッドシートに最初からある空タブ。使っていなければ消す */
+const DEFAULT_SHEET_NAMES = ["シート1", "Sheet1"];
+
 const HEADERS = [
   "receivedAt",
   "completedAt",
@@ -19,15 +25,13 @@ const HEADERS = [
   "appVersion",
   "pageUrl",
 ];
-const HEADERS_LEARN = [
+
+/** BPPVれんしゅうを開いた記録。型や左右は問わないので列も持たない */
+const HEADERS_PRACTICE = [
   "receivedAt",
-  "viewedAt",
+  "openedAt",
   "roleId",
   "roleName",
-  "lessonId",
-  "family",
-  "side",
-  "title",
   "appVersion",
   "pageUrl",
 ];
@@ -39,6 +43,8 @@ function doGet() {
     ok: true,
     app: "VERTIGO Google Sheets collector",
     sheetName: SHEET_NAME,
+    practiceSheetName: SHEET_NAME_PRACTICE,
+    timeZone: TIME_ZONE,
     spreadsheetUrl: sheet.getParent().getUrl(),
   });
 }
@@ -46,10 +52,13 @@ function doGet() {
 function doPost(e) {
   try {
     const payload = parsePayload_(e);
-    const isLearnView = payload.kind === "bppv_learn_view";
-    const sheetName = isLearnView ? SHEET_NAME_LEARN : SHEET_NAME;
-    const headers = isLearnView ? HEADERS_LEARN : HEADERS;
-    const toRow = isLearnView ? toLearnRow_ : toResultRow_;
+    // 旧クライアント（キャッシュに残った版）は kind: "bppv_learn_view" と
+    // viewedAt を送ってくる。ゲーム結果シートに紛れ込ませず、練習シートへ回す。
+    const isPracticeOpen =
+      payload.kind === "bppv_practice_open" || payload.kind === "bppv_learn_view";
+    const sheetName = isPracticeOpen ? SHEET_NAME_PRACTICE : SHEET_NAME;
+    const headers = isPracticeOpen ? HEADERS_PRACTICE : HEADERS;
+    const toRow = isPracticeOpen ? toPracticeRow_ : toResultRow_;
 
     const lock = LockService.getScriptLock();
     lock.waitLock(5000);
@@ -78,14 +87,41 @@ function parsePayload_(e) {
   return payload;
 }
 
-function getSheet_(sheetName) {
+function getSpreadsheet_() {
   const spreadsheet = SPREADSHEET_ID
     ? SpreadsheetApp.openById(SPREADSHEET_ID)
     : SpreadsheetApp.getActiveSpreadsheet();
   if (!spreadsheet) {
     throw new Error("Create this Apps Script from a Google Spreadsheet or set SPREADSHEET_ID.");
   }
-  return spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
+  return spreadsheet;
+}
+
+function getSheet_(sheetName) {
+  const spreadsheet = getSpreadsheet_();
+  const sheet = spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
+  removeUnusedDefaultSheets_(spreadsheet);
+  return sheet;
+}
+
+/**
+ * 「シート1」（英語版なら Sheet1）が空のまま残っていたら削除する。
+ * 中身が1つでも入っていれば触らない。最後の1枚は消せないので、
+ * 記録用シートを作ったあとに呼ぶこと。
+ */
+function removeUnusedDefaultSheets_(spreadsheet) {
+  DEFAULT_SHEET_NAMES.forEach(function (name) {
+    if (spreadsheet.getSheets().length <= 1) return;
+    const sheet = spreadsheet.getSheetByName(name);
+    if (!sheet) return;
+    if (sheet.getLastRow() > 0 || sheet.getLastColumn() > 0) return;
+    spreadsheet.deleteSheet(sheet);
+  });
+}
+
+/** スクリプトエディタから手で実行して、空の「シート1」を片づけるための入口 */
+function cleanupEmptyDefaultSheets() {
+  removeUnusedDefaultSheets_(getSpreadsheet_());
 }
 
 function ensureHeaders_(sheet, headers) {
@@ -96,8 +132,8 @@ function ensureHeaders_(sheet, headers) {
 
 function toResultRow_(p) {
   return [
-    new Date().toISOString(),
-    p.completedAt || "",
+    nowJst_(),
+    toJst_(p.completedAt),
     p.roleId || "",
     p.roleName || "",
     p.caseId === undefined ? "" : p.caseId,
@@ -115,19 +151,73 @@ function toResultRow_(p) {
   ];
 }
 
-function toLearnRow_(p) {
+function toPracticeRow_(p) {
   return [
-    new Date().toISOString(),
-    p.viewedAt || "",
+    nowJst_(),
+    toJst_(p.openedAt || p.viewedAt),
     p.roleId || "",
     p.roleName || "",
-    p.lessonId || "",
-    p.family || "",
-    p.side || "",
-    p.title || "",
     p.appVersion || "",
     p.pageUrl || "",
   ];
+}
+
+function nowJst_() {
+  return Utilities.formatDate(new Date(), TIME_ZONE, TIME_FORMAT);
+}
+
+/**
+ * クライアントは日本時刻の "yyyy-MM-dd HH:mm:ss" を送ってくるので、そのまま通す。
+ * 古い版が送る UTC の ISO 8601（例 2026-08-25T10:30:00.000Z）だけ日本時刻へ直す。
+ */
+function toJst_(value) {
+  if (!value) return "";
+  if (typeof value !== "string") return value;
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(value)) return value;
+  const parsed = new Date(value);
+  if (isNaN(parsed.getTime())) return value;
+  return Utilities.formatDate(parsed, TIME_ZONE, TIME_FORMAT);
+}
+
+/**
+ * すでに書き込まれてしまった UTC の ISO 文字列を日本時刻へ直す。
+ * スクリプトエディタから1回だけ手で実行する用。
+ * 日本時刻の "yyyy-MM-dd HH:mm:ss" で入っている行は対象外なので、
+ * 何度実行しても二重にずれることはない。
+ */
+function fixExistingTimestampsToJst() {
+  const spreadsheet = getSpreadsheet_();
+  const targets = [SHEET_NAME, SHEET_NAME_PRACTICE, "bppv_learn_views"];
+  const timeColumns = ["receivedAt", "completedAt", "openedAt", "viewedAt"];
+  let fixed = 0;
+
+  targets.forEach(function (sheetName) {
+    const sheet = spreadsheet.getSheetByName(sheetName);
+    if (!sheet || sheet.getLastRow() < 2) return;
+
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    headers.forEach(function (header, index) {
+      if (timeColumns.indexOf(header) === -1) return;
+      const range = sheet.getRange(2, index + 1, sheet.getLastRow() - 1, 1);
+      const values = range.getValues();
+      let touched = false;
+      for (let i = 0; i < values.length; i++) {
+        const converted = toJst_(values[i][0]);
+        if (converted !== values[i][0]) {
+          values[i][0] = converted;
+          touched = true;
+          fixed++;
+        }
+      }
+      if (touched) {
+        range.setNumberFormat("@");
+        range.setValues(values);
+      }
+    });
+  });
+
+  Logger.log("日本時刻へ直したセル: " + fixed);
+  return fixed;
 }
 
 function jsonOutput_(obj) {

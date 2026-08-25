@@ -1,11 +1,25 @@
 import { roleName } from '../profile/roles'
 import type { PlayResult, RoleId } from '../profile/types'
-import type { BppvLesson } from '../data/bppvLessons'
 import { isValidGasUrl, loadTelemetryUrl } from './config'
 
 export { isValidGasUrl }
 
 export const APP_VERSION = 'vertigo-v1.0'
+
+/**
+ * 記録の時刻は日本時刻（JST）の "YYYY-MM-DD HH:mm:ss" で送る。
+ * スプレッドシートに UTC の ISO 文字列が並ぶと、そのまま読んだ人が
+ * 9時間ずれた時刻として受け取ってしまうため。
+ * JST は夏時間を持たない固定 +09:00 なので、単純な加算で足りる。
+ */
+export function formatJst(ms: number): string {
+  const d = new Date(ms + 9 * 60 * 60 * 1000)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return (
+    `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}` +
+    ` ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`
+  )
+}
 
 /**
  * スプレッドシートに1行として積まれる内容。
@@ -30,16 +44,15 @@ export interface TelemetryPayload {
   pageUrl: string
 }
 
-/** BPPV学習画面で、どの型を参照したかの記録。1回の選択が1行になる */
-export interface BppvLearnViewPayload {
-  kind: 'bppv_learn_view'
-  viewedAt: string
+/**
+ * BPPVれんしゅうを開いた、という閲覧履歴。1回の起動が1行になる。
+ * 型や左右をどう選んだかは記録しない（同じ利用を何度も送る意味がない）。
+ */
+export interface BppvPracticeOpenPayload {
+  kind: 'bppv_practice_open'
+  openedAt: string
   roleId: RoleId | ''
   roleName: string
-  lessonId: string
-  family: string
-  side: string
-  title: string
   appVersion: string
   pageUrl: string
 }
@@ -55,7 +68,7 @@ export function buildPayload(input: {
 }): TelemetryPayload {
   return {
     kind: 'game_result',
-    completedAt: new Date(input.completedAt).toISOString(),
+    completedAt: formatJst(input.completedAt),
     roleId: input.roleId,
     roleName: roleName(input.roleId),
     caseId: input.play.caseId,
@@ -73,21 +86,16 @@ export function buildPayload(input: {
   }
 }
 
-export function buildBppvLearnPayload(input: {
-  lesson: BppvLesson
+export function buildBppvPracticeOpenPayload(input: {
   roleId: RoleId | ''
-  viewedAt: number
+  openedAt: number
   pageUrl: string
-}): BppvLearnViewPayload {
+}): BppvPracticeOpenPayload {
   return {
-    kind: 'bppv_learn_view',
-    viewedAt: new Date(input.viewedAt).toISOString(),
+    kind: 'bppv_practice_open',
+    openedAt: formatJst(input.openedAt),
     roleId: input.roleId,
     roleName: roleName(input.roleId),
-    lessonId: input.lesson.id,
-    family: input.lesson.family,
-    side: input.lesson.side,
-    title: input.lesson.title,
     appVersion: APP_VERSION,
     pageUrl: input.pageUrl,
   }
@@ -97,7 +105,7 @@ export function buildBppvLearnPayload(input: {
  * 送信は best-effort。失敗してもゲーム・学習画面の操作を止めない。
  * 研修中の学習者にネットワークエラーを見せる意味がない。
  */
-async function postTelemetry(payload: TelemetryPayload | BppvLearnViewPayload): Promise<void> {
+async function postTelemetry(payload: TelemetryPayload | BppvPracticeOpenPayload): Promise<void> {
   try {
     const url = await loadTelemetryUrl()
     if (!isValidGasUrl(url)) {
@@ -128,6 +136,6 @@ export function sendResult(payload: TelemetryPayload): Promise<void> {
   return postTelemetry(payload)
 }
 
-export function sendBppvLearnView(payload: BppvLearnViewPayload): Promise<void> {
+export function sendBppvPracticeOpen(payload: BppvPracticeOpenPayload): Promise<void> {
   return postTelemetry(payload)
 }
