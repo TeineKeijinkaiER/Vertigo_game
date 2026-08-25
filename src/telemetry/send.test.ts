@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildBppvLearnPayload, buildPayload, isValidGasUrl, sendBppvLearnView, sendResult } from './send'
+import {
+  buildBppvPracticeOpenPayload,
+  buildPayload,
+  formatJst,
+  isValidGasUrl,
+  sendBppvPracticeOpen,
+  sendResult,
+} from './send'
 import { __setTelemetryUrlForTest } from './config'
 import type { PlayResult } from '../profile/types'
-import { BPPV_LESSONS } from '../data/bppvLessons'
 
 const play: PlayResult = {
   caseId: 4,
@@ -48,7 +54,7 @@ describe('buildPayload', () => {
 
     expect(p).toEqual({
       kind: 'game_result',
-      completedAt: new Date(1_700_000_000_000).toISOString(),
+      completedAt: '2023-11-15 07:13:20',
       roleId: 'pgy2',
       roleName: 'PGY2',
       caseId: 4,
@@ -145,51 +151,48 @@ describe('sendResult', () => {
   })
 })
 
-describe('buildBppvLearnPayload', () => {
-  const lesson = BPPV_LESSONS.find((l) => l.id === 'pc_r')!
+describe('formatJst', () => {
+  it('日本時刻の "YYYY-MM-DD HH:mm:ss" にする', () => {
+    // 1_700_000_000_000 = 2023-11-14T22:13:20Z → JST 2023-11-15 07:13:20
+    expect(formatJst(1_700_000_000_000)).toBe('2023-11-15 07:13:20')
+  })
 
-  it('選んだ型の情報を列に詰める', () => {
-    const p = buildBppvLearnPayload({
-      lesson,
+  it('UTC から日付をまたぐ時刻も繰り上げる', () => {
+    expect(formatJst(Date.UTC(2026, 7, 25, 16, 5, 9))).toBe('2026-08-26 01:05:09')
+  })
+
+  it('月日と時分秒をゼロ詰めする', () => {
+    expect(formatJst(Date.UTC(2026, 0, 2, 0, 0, 0))).toBe('2026-01-02 09:00:00')
+  })
+})
+
+describe('buildBppvPracticeOpenPayload', () => {
+  it('開いた事実だけを列に詰める（型や左右は持たない）', () => {
+    const p = buildBppvPracticeOpenPayload({
       roleId: 'student',
-      viewedAt: 1_700_000_000_000,
+      openedAt: 1_700_000_000_000,
       pageUrl: 'https://example.github.io/Vertigo/',
     })
 
     expect(p).toEqual({
-      kind: 'bppv_learn_view',
-      viewedAt: new Date(1_700_000_000_000).toISOString(),
+      kind: 'bppv_practice_open',
+      openedAt: '2023-11-15 07:13:20',
       roleId: 'student',
       roleName: '医学生',
-      lessonId: 'pc_r',
-      family: '後半規管',
-      side: '右',
-      title: lesson.title,
       appVersion: 'vertigo-v1.0',
       pageUrl: 'https://example.github.io/Vertigo/',
     })
   })
 
   it('職種未選択でも組み立てられる', () => {
-    const p = buildBppvLearnPayload({
-      lesson,
-      roleId: '',
-      viewedAt: 1,
-      pageUrl: 'x',
-    })
+    const p = buildBppvPracticeOpenPayload({ roleId: '', openedAt: 1, pageUrl: 'x' })
     expect(p.roleId).toBe('')
     expect(p.roleName).toBe('未選択')
   })
 })
 
-describe('sendBppvLearnView', () => {
-  const lesson = BPPV_LESSONS.find((l) => l.id === 'hc_geo_r')!
-  const payload = buildBppvLearnPayload({
-    lesson,
-    roleId: 'pgy1',
-    viewedAt: 1,
-    pageUrl: 'x',
-  })
+describe('sendBppvPracticeOpen', () => {
+  const payload = buildBppvPracticeOpenPayload({ roleId: 'pgy1', openedAt: 1, pageUrl: 'x' })
 
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null)))
@@ -202,7 +205,7 @@ describe('sendBppvLearnView', () => {
 
   it('URL が未設定なら送らない', async () => {
     __setTelemetryUrlForTest('')
-    await sendBppvLearnView(payload)
+    await sendBppvPracticeOpen(payload)
     expect(fetch).not.toHaveBeenCalled()
   })
 
@@ -211,7 +214,7 @@ describe('sendBppvLearnView', () => {
     vi.stubGlobal('navigator', { sendBeacon: beacon })
     __setTelemetryUrlForTest('https://script.google.com/macros/s/AKfycbwABC123/exec')
 
-    await sendBppvLearnView(payload)
+    await sendBppvPracticeOpen(payload)
 
     expect(beacon).toHaveBeenCalledTimes(1)
     expect(fetch).not.toHaveBeenCalled()
