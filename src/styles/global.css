@@ -289,8 +289,9 @@ button {
 }
 
 .title-hero h1 {
-  font-size: 34px;
-  letter-spacing: 0.24em;
+  font-size: clamp(25px, 7vw, 34px);
+  letter-spacing: 0.06em;
+  line-height: 1.25;
   margin: 0;
   text-shadow: 0 2px 0 #2b3a8c, 0 0 18px rgba(120, 150, 255, 0.45);
 }
@@ -305,8 +306,18 @@ button {
 .title-hero .ver {
   font-size: 11px;
   color: var(--dim);
-  margin-top: 20px;
+  margin-top: 14px;
   letter-spacing: 0.1em;
+}
+
+.title-hero-logo {
+  display: block;
+  width: min(100%, 340px);
+  height: auto;
+  margin: 14px auto 0;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 4px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
 }
 
 /* ── バッジ ────────────────────────────── */

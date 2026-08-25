@@ -34,6 +34,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // タイトル画面のドクターヘリロゴ（約2.3 MB）をオフラインでも表示できるようにする
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,svg,png,webp,gif,woff2}'],
         globIgnores: [
           // v1 のマスター画像。src/ からの参照は無いのに 9.5MB を precache していた
