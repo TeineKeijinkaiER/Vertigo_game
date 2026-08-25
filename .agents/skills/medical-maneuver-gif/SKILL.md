@@ -1,6 +1,6 @@
 ---
 name: medical-maneuver-gif
-description: Research a clinical examination or treatment maneuver and create a reproducible educational GIF using a fixed 3D rig or registered subject layers, with iterative reference comparison and separate technical and clinical review gates.
+description: Research a clinical examination or treatment maneuver, create a reproducible fixed-3D-rig or registered-frame animation from video and image references, and integrate the validated result into an app.
 ---
 
 # Medical Maneuver GIF
