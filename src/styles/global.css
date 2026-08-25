@@ -288,9 +288,16 @@ button {
   padding: 28px 0 10px;
 }
 
+.title-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 .title-hero h1 {
-  font-size: clamp(25px, 7vw, 34px);
-  letter-spacing: 0.06em;
+  font-size: clamp(22px, 6vw, 30px);
+  letter-spacing: 0.04em;
   line-height: 1.25;
   margin: 0;
   text-shadow: 0 2px 0 #2b3a8c, 0 0 18px rgba(120, 150, 255, 0.45);
@@ -310,14 +317,20 @@ button {
   letter-spacing: 0.1em;
 }
 
-.title-hero-logo {
+.title-logo {
   display: block;
-  width: min(100%, 340px);
+  width: clamp(58px, 16vw, 78px);
   height: auto;
-  margin: 14px auto 0;
   border: 1px solid rgba(255, 255, 255, 0.65);
-  border-radius: 4px;
-  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.title-hero-art {
+  display: block;
+  width: min(100%, 460px);
+  height: auto;
+  margin: 8px auto 0;
 }
 
 /* ── バッジ ────────────────────────────── */

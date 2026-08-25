@@ -5,6 +5,7 @@ import { roleName } from '../profile/roles'
 import type { RoleId } from '../profile/types'
 import type { Action } from '../game/state'
 import doctorHeliLogo from '../../heriteinu.png'
+import titleHero from '../assets/title-hero.png'
 
 export function TitleScreen({
   dispatch,
@@ -31,9 +32,16 @@ export function TitleScreen({
   return (
     <div className="stack grow scroll">
       <div className="title-hero">
-        <h1>TKH-ER Dizzy Quest</h1>
+        <div className="title-heading">
+          <h1>TKH-ER Dizzy Quest</h1>
+          <img className="title-logo" src={doctorHeliLogo} alt="札幌ドクターヘリのロゴ" />
+        </div>
         <div className="sub">めまい診療の書</div>
-        <img className="title-hero-logo" src={doctorHeliLogo} alt="札幌ドクターヘリのロゴ" />
+        <img
+          className="title-hero-art"
+          src={titleHero}
+          alt="めまい患者を診察する医師のイラスト"
+        />
         <div className="ver">ver 1.0 — 研修医向け診断トレーニング</div>
       </div>
       <Win title="コマンド">
