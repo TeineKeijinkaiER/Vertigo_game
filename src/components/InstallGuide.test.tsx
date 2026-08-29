@@ -41,8 +41,12 @@ describe('InstallGuide', () => {
 
     expect(await screen.findByRole('dialog')).toBeDefined()
     expect(screen.getByRole('img', { name: '四角から上向き矢印が出ている共有マーク' })).toBeDefined()
+    expect(screen.getByRole('heading', { name: 'このアプリを追加' })).toBeDefined()
+    expect(screen.getByText(/携帯電話のホーム画面に登録すると/)).toBeDefined()
     expect(screen.getByText(/Safariの「共有」/)).toBeDefined()
     expect(screen.getByText(/「ホーム画面に追加」/)).toBeDefined()
+    expect(screen.queryByText('ホーム画面に追加できた')).toBeNull()
+    expect(screen.queryByText('今回は閉じる')).toBeNull()
   })
 
   it('AndroidではChromeメニューの代替手順を表示する', async () => {
@@ -54,11 +58,11 @@ describe('InstallGuide', () => {
     expect(screen.getByText(/「アプリをインストール」/)).toBeDefined()
   })
 
-  it('今回は閉じるを選ぶと同じ閲覧中は再表示しない', async () => {
+  it('案内を閉じると同じ閲覧中は再表示しない', async () => {
     setDevice(IPHONE_UA)
     const view = render(<InstallGuide />)
     await screen.findByRole('dialog')
-    fireEvent.click(screen.getByText('今回は閉じる'))
+    fireEvent.click(screen.getByRole('button', { name: '案内を閉じる' }))
     expect(screen.queryByRole('dialog')).toBeNull()
 
     view.unmount()

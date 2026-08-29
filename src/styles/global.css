@@ -931,8 +931,7 @@ button {
   stroke-linejoin: round;
 }
 
-.install-primary,
-.install-guide-complete {
+.install-primary {
   width: 100%;
   min-height: 46px;
   padding: 10px 14px;
@@ -944,8 +943,6 @@ button {
 
 .install-primary { margin: 10px 0 16px; }
 .install-guide-note { margin: 8px 0; color: var(--dim); font-size: 12.5px; }
-.install-guide-actions { display: grid; gap: 8px; margin-top: 16px; }
-.install-guide-later { justify-self: center; padding: 7px 12px; color: var(--dim); text-decoration: underline; }
 
 .install-guide button:focus-visible {
   outline: 3px solid var(--safe);

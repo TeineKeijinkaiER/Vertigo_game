@@ -62,13 +62,13 @@ export function InstallGuide() {
         <div className="install-guide-head">
           <div>
             <p className="install-guide-kicker">スマホでもっと便利に</p>
-            <h2 id="install-guide-title">このアプリをすぐ使えるようにする</h2>
+            <h2 id="install-guide-title">このアプリを追加</h2>
           </div>
           <button
             type="button"
             className="install-guide-close"
             onClick={closeForNow}
-            aria-label="今回は閉じる"
+            aria-label="案内を閉じる"
             autoFocus
           >
             ×
@@ -76,7 +76,11 @@ export function InstallGuide() {
         </div>
 
         <p className="install-guide-lead">
-          ホーム画面から起動すると、通常のアプリと同じようにすぐトレーニングを始められます。一度追加すれば、この案内は表示されません。
+          {platform === 'ios'
+            ? '携帯電話のホーム画面に登録すると、通常のアプリと同じように繰り返して使用できます。 Safariの画面で以下のように登録してください'
+            : installPrompt
+              ? '携帯電話のホーム画面に登録すると、通常のアプリと同じように繰り返して使用できます。 下のボタンから登録してください'
+              : '携帯電話のホーム画面に登録すると、通常のアプリと同じように繰り返して使用できます。 Chromeの画面で以下のように登録してください'}
         </p>
 
         {platform === 'ios' ? (
@@ -100,11 +104,6 @@ export function InstallGuide() {
         {platform === 'ios' && (
           <p className="install-guide-note">共有ボタンが見つからない場合は、Safariでこのページを開いてください。</p>
         )}
-
-        <div className="install-guide-actions">
-          <button type="button" className="install-guide-complete" onClick={completed}>ホーム画面に追加できた</button>
-          <button type="button" className="install-guide-later" onClick={closeForNow}>今回は閉じる</button>
-        </div>
       </section>
     </div>
   )
