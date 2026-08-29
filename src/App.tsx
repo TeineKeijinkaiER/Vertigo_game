@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useReducer, useState } from 're
 import { CASE_MAP } from './data/cases'
 import { initialState, reducer } from './game/state'
 import { AppHeader, type Overlay } from './components/AppHeader'
+import { InstallGuide } from './components/InstallGuide'
 import { HowtoScreen } from './screens/Howto'
 import { ClearsScreen } from './screens/Clears'
 import { HistoryScreen } from './screens/History'
@@ -99,6 +100,7 @@ export default function App() {
   return (
     <div className="app">
       <AppHeader onOpen={setOverlay} onAbortExam={state.phase === 'exam' ? () => setConfirmAbortExam(true) : undefined} />
+      <InstallGuide />
       {confirmAbortExam ? (
         <div className="stack grow">
           <Win title="診察を中断しますか">
